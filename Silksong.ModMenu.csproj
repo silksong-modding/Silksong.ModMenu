@@ -22,7 +22,7 @@
     <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildProjectDirectory)=/</PathMap>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/silksong-modding/Silksong_ModMenu</RepositoryUrl>
+    <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
