@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "tcli": {
+      "version": "0.2.4",
+      "commands": [
+        "tcli"
+      ],
+      "rollForward": false
+    },
+    "husky": {
+      "version": "0.7.2",
+      "commands": [
+        "husky"
+      ],
+      "rollForward": false
+    }
+  }
+}
