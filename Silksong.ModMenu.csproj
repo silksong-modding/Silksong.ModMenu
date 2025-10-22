@@ -20,6 +20,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!--Shortens and anonymizes paths in debug symbols relative to the project directory. Breakpoints will not work, however.-->
     <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildProjectDirectory)=/</PathMap>
+    <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
