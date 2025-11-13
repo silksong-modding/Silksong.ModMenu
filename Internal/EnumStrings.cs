@@ -43,7 +43,7 @@ internal static class EnumStrings
             string? customName = null;
             foreach (var field in list)
             {
-                if (field.GetCustomAttribute<ModMenuIgnore>() != null)
+                if (field.IgnoreForModMenu())
                 {
                     ignore = true;
                     break;
