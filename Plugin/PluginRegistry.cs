@@ -61,7 +61,7 @@ public static class PluginRegistry
         [MaybeNullWhen(false)] out SelectableElement menuElement
     )
     {
-        if (plugin is IModMenuIgnore)
+        if (plugin.GetType().IgnoreForModMenu())
         {
             name = "";
             menuElement = default;
