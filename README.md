@@ -12,7 +12,7 @@ This mod adds a 'Mods' sub-menu to the bottom of the Options menu as its main fe
 
 By default, any installed plugin's [`ConfigFile`](https://docs.bepinex.dev/master/api/BepInEx.Configuration.ConfigFile.html) data will be used to generate an ingame menu that can modify those configuration options. At this time, only booleans, enums, and explicit value lists are supported; for more complex configuration including arbitrary integers and floats, manual menu construction is needed.
 
-Plugins can add aub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow. Plugins can implement the [`IModMenuIgnore`](Plugin/IModMenuIgnore.cs) interface to opt out of automatic menu creation.
+Plugins can add aub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow. Plugins can add the [`ModMenuIgnore`](Plugin/ModMenuIgnore.cs) attribute to opt out of automatic menu creation.
 
 ## New Game Types
 
