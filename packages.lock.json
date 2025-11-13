@@ -46,6 +46,25 @@
         "resolved": "1.25.0",
         "contentHash": "jOclVb2PVoOdKafuzt3bJ3BHkbjsfuAx+60yqP4zCAhlNa1rwn1Jt05qrmqJgmBY42S08hXbps9KA6QR2Z7aOA=="
       },
+      "MonoDetour": {
+        "type": "Direct",
+        "requested": "[0.7.5, )",
+        "resolved": "0.7.5",
+        "contentHash": "jbEm9x1VJVWurAKTiA8z7Ugb+N5ktH0jgvoIguVvn7tWwZ2COkfURN5ZaIM0bUG8Ze0S5OEIKXl5/bs5sYJj8g==",
+        "dependencies": {
+          "Mono.Cecil": "0.11.5",
+          "MonoMod.RuntimeDetour": "21.12.13.1"
+        }
+      },
+      "MonoDetour.HookGen": {
+        "type": "Direct",
+        "requested": "[0.7.3, )",
+        "resolved": "0.7.3",
+        "contentHash": "82nNksQf2HHpoTt0QhWY+uWCkA9gYE4H+7fbBI2IOa+TVe4In838/XogX/5Lx6EhXXF58qV4XWvwFxmmdg/YQw==",
+        "dependencies": {
+          "MonoDetour": "0.5.0"
+        }
+      },
       "PolySharp": {
         "type": "Direct",
         "requested": "[1.15.0, )",
@@ -57,6 +76,17 @@
         "requested": "[*-*, )",
         "resolved": "1.1.0-silksong1.0.29242",
         "contentHash": "Be1zJ8J3KWL2H7sUr+2qmHlwtaZk9mA/0aLzqrmFC140OPRGluEuXnbl7u1ZFTRRdMW9QlQY7MdH8JVyYQjsqw=="
+      },
+      "Silksong.UnityHelper": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "0Lmy50SC4j7dmmhuN96UnuOJlnCHB7TPm+5S6L3Z/bnRphnVXjhcEcgKzaP855TGbN0CvlpH9xZQEVSnAFn4xw==",
+        "dependencies": {
+          "BepInEx.Core": "5.4.21",
+          "HarmonyX": "2.9.0",
+          "UnityEngine.Modules": "6000.0.50"
+        }
       },
       "UnityEngine.Modules": {
         "type": "Direct",
@@ -81,8 +111,8 @@
       },
       "Mono.Cecil": {
         "type": "Transitive",
-        "resolved": "0.11.4",
-        "contentHash": "IC1h5g0NeJGHIUgzM1P82ld57knhP0IcQfrYITDPXlNpMYGUrsG5TxuaWTjaeqDNQMBDNZkB8L0rBnwsY6JHuQ=="
+        "resolved": "0.11.5",
+        "contentHash": "fxfX+0JGTZ8YQeu1MYjbBiK2CYTSzDyEeIixt+yqKKTn7FW8rv7JMY70qevup4ZJfD7Kk/VG/jDzQQTpfch87g=="
       },
       "MonoMod.RuntimeDetour": {
         "type": "Transitive",

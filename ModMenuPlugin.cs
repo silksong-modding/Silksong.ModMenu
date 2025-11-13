@@ -1,29 +1,27 @@
-using System.Linq;
 using BepInEx;
-using BepInEx.Configuration;
 using BepInEx.Logging;
+using MonoDetour;
+using MonoDetour.HookGen;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Examples;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
-using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 
 namespace Silksong.ModMenu;
 
+[MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)] // We don't need these but another class does :')
 [BepInDependency("com.bepis.bepinex.configurationmanager")]
 [BepInAutoPlugin(id: "org.silksong-modding.modmenu")]
 public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
 {
     private static ModMenuPlugin? instance;
 
-    private void Awake()
-    {
-        On.UIManager.Awake += ModifyUICanvas;
+    [MonoDetourHookInitialize]
+    private static void Hook() => Md.UIManager.Awake.Postfix(ModifyUICanvas);
 
-        instance = this;
-    }
+    private void Awake() => instance = this;
 
     public AbstractMenuScreen BuildCustomMenu()
     {
@@ -67,9 +65,8 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
         }
     }
 
-    private void ModifyUICanvas(On.UIManager.orig_Awake orig, UIManager self)
+    private static void ModifyUICanvas(UIManager self)
     {
-        orig(self);
         MenuPrefabs.Load(self);
 
         var canvas = self.gameObject.FindChild("UICanvas")!;
@@ -90,9 +87,9 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
         optionsContainer.GetComponent<MenuButtonList>().InsertButton(modOptions.MenuButton, 5);
     }
 
-    private AbstractMenuScreen? modsMenu;
+    private static AbstractMenuScreen? modsMenu;
 
-    private AbstractMenuScreen GenerateModsMenu()
+    private static AbstractMenuScreen GenerateModsMenu()
     {
         PaginatedMenuScreen menu = new("Mods");
         foreach (var element in Registry.GenerateAllMenuElements())

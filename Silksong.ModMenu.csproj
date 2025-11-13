@@ -24,7 +24,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
-    <ManagedDir>$(SilksongGameRootDir)\Hollow Knight Silksong_Data\Managed</ManagedDir>
+    <ManagedFolder Condition="$(SilksongInstallFolder) != ''"
+      >$(SilksongInstallFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
+    >
     <!-- Set to true to use local references for development purposes. -->
     <UseLocalRefs>false</UseLocalRefs>
   </PropertyGroup>
@@ -34,10 +36,13 @@
     <PackageReference Include="HarmonyX" Version="2.9.0" />
     <PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.0.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.25.0" PrivateAssets="all" />
+    <PackageReference Include="MonoDetour" Version="0.7.5" />
+    <PackageReference Include="MonoDetour.HookGen" Version="0.7.3" />
     <PackageReference Include="PolySharp" Version="1.15.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Silksong.UnityHelper" Version="1.0.0" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
     <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
   </ItemGroup>
@@ -59,14 +64,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="MMHOOK_Assembly-CSharp">
-      <HintPath>$(SilksongPluginsDir)\MMHOOK\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityHelper">
-      <HintPath>$(SilksongPluginsDir)\silksong_modding-UnityHelper\UnityHelper.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Remove="thunderstore/tmp;thunderstore/dist" />
     <None Remove="Internal\EventTriggerUtil.cs~RF9f0368a.TMP" />
     <None Include="README.md" Pack="True" PackagePath="README.md" />
@@ -82,8 +79,8 @@
     </PropertyGroup>
     <Copy
       SourceFiles="@(Binaries)"
-      DestinationFolder="$(SilksongPluginsDir)/BepInEx/plugins/$(TargetName)"
-      Condition="'$(SilksongPluginsDir)' != '' And Exists('$(SilksongPluginsDir)')"
+      DestinationFolder="$(SilksongFolder)/BepInEx/plugins/$(TargetName)"
+      Condition="'$(SilksongFolder)' != '' And Exists('$(SilksongFolder)')"
     />
     <RemoveDir Directories="$(ThunderstoreDir)/tmp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/tmp" />

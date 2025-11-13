@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using GlobalEnums;
+using MonoDetour;
+using MonoDetour.DetourTypes;
+using MonoDetour.HookGen;
 using Silksong.ModMenu.Internal;
 
 namespace Silksong.ModMenu.Screens;
@@ -9,6 +12,7 @@ namespace Silksong.ModMenu.Screens;
 /// <summary>
 /// API for changing menu screens while the player is navigating menus.
 /// </summary>
+[MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)]
 public static class MenuScreenNavigation
 {
     /// <summary>
@@ -151,13 +155,15 @@ public static class MenuScreenNavigation
         return Routine();
     }
 
-    private static bool OverrideUIGoBack(On.UIManager.orig_UIGoBack orig, UIManager self)
+    private static ReturnFlow OverrideUIGoBack(UIManager self, ref bool returnValue)
     {
         if (history.Count == 0)
-            return orig(self);
-        else
-            return history.Peek().MenuScreen.GoBack();
+            return ReturnFlow.None;
+
+        returnValue = history.Peek().MenuScreen.GoBack();
+        return ReturnFlow.SkipOriginal;
     }
 
-    static MenuScreenNavigation() => On.UIManager.UIGoBack += OverrideUIGoBack;
+    [MonoDetourHookInitialize]
+    private static void Hook() => Md.UIManager.UIGoBack.ControlFlowPrefix(OverrideUIGoBack);
 }

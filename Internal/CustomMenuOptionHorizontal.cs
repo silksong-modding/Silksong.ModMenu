@@ -1,10 +1,14 @@
-﻿using Silksong.ModMenu.Models;
+﻿using MonoDetour;
+using MonoDetour.DetourTypes;
+using MonoDetour.HookGen;
+using Silksong.ModMenu.Models;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Internal;
 
+[MonoDetourTargets(typeof(MenuOptionHorizontal), GenerateControlFlowVariants = true)]
 [RequireComponent(typeof(MenuOptionHorizontal))]
 internal class CustomMenuOptionHorizontal : MonoBehaviour
 {
@@ -28,58 +32,56 @@ internal class CustomMenuOptionHorizontal : MonoBehaviour
             align.AlignText();
     }
 
-    private static bool DoOrig(MenuOptionHorizontal self, out CustomMenuOptionHorizontal custom)
+    private bool MoveOption(MoveDirection dir)
     {
-        custom = self.gameObject.GetComponent<CustomMenuOptionHorizontal>();
-        return custom == null;
-    }
-
-    private static bool OverrideMoveOption(
-        On.UnityEngine.UI.MenuOptionHorizontal.orig_MoveOption orig,
-        MenuOptionHorizontal self,
-        MoveDirection dir
-    )
-    {
-        if (DoOrig(self, out var custom))
-            return orig(self, dir);
-        if (custom.Model == null)
+        if (Model == null)
             return false;
 
         switch (dir)
         {
             case MoveDirection.Right:
-                if (!custom.Model.MoveRight())
+                if (!Model.MoveRight())
                     return false;
                 break;
             case MoveDirection.Left:
-                if (!custom.Model.MoveLeft())
+                if (!Model.MoveLeft())
                     return false;
                 break;
             default:
                 return false;
         }
 
-        self.PlaySlider();
+        if (orig != null)
+            orig.PlaySlider();
         return true;
     }
 
-    private static void OverrideUpdateText(
-        On.UnityEngine.UI.MenuOptionHorizontal.orig_UpdateText orig,
-        MenuOptionHorizontal self
+    private static ReturnFlow OverrideMoveOption(
+        MenuOptionHorizontal self,
+        ref MoveDirection dir,
+        ref bool returnValue
     )
     {
-        if (DoOrig(self, out var custom))
-        {
-            orig(self);
-            return;
-        }
+        if (!self.TryGetComponent<CustomMenuOptionHorizontal>(out var custom))
+            return ReturnFlow.None;
 
-        custom.UpdateText();
+        returnValue = custom.MoveOption(dir);
+        return ReturnFlow.SkipOriginal;
     }
 
-    static CustomMenuOptionHorizontal()
+    private static ReturnFlow OverrideUpdateText(MenuOptionHorizontal self)
     {
-        On.UnityEngine.UI.MenuOptionHorizontal.MoveOption += OverrideMoveOption;
-        On.UnityEngine.UI.MenuOptionHorizontal.UpdateText += OverrideUpdateText;
+        if (!self.TryGetComponent<CustomMenuOptionHorizontal>(out var custom))
+            return ReturnFlow.None;
+
+        custom.UpdateText();
+        return ReturnFlow.SkipOriginal;
+    }
+
+    [MonoDetourHookInitialize]
+    static void Hook()
+    {
+        Md.UnityEngine.UI.MenuOptionHorizontal.MoveOption.ControlFlowPrefix(OverrideMoveOption);
+        Md.UnityEngine.UI.MenuOptionHorizontal.UpdateText.ControlFlowPrefix(OverrideUpdateText);
     }
 }
