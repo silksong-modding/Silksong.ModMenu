@@ -6,7 +6,7 @@
   <Import Condition="Exists('SilksongPath.props')" Project="SilksongPath.props" />
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <RestoreAdditionalProjectSources>
       https://nuget.bepinex.dev/v3/index.json
@@ -24,6 +24,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
+    <ManagedDir>$(SilksongGameRootDir)\Hollow Knight Silksong_Data\Managed</ManagedDir>
+    <!-- Set to true to use local references for development purposes. -->
+    <UseLocalRefs>true</UseLocalRefs>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
@@ -36,11 +39,36 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
-    <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
     <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="!$(UseLocalRefs) Or !Exists($(ManagedDir))">
+    <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="$(UseLocalRefs) And Exists($(ManagedDir))">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(ManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="TeamCherry.Localization">
+      <HintPath>$(ManagedDir)\TeamCherry.Localization.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MMHOOK_Assembly-CSharp">
+      <HintPath>$(SilksongPluginsDir)\MMHOOK\Managed\MMHOOK_Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityHelper">
+      <HintPath>$(SilksongPluginsDir)\silksong_modding-UnityHelper\UnityHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Remove="thunderstore/tmp;thunderstore/dist" />
+    <None Remove="Internal\EventTriggerUtil.cs~RF9f0368a.TMP" />
     <None Include="README.md" Pack="True" PackagePath="README.md" />
     <None Include="thunderstore/icon.png" Pack="True" PackagePath="icon.png" />
   </ItemGroup>
@@ -54,8 +82,8 @@
     </PropertyGroup>
     <Copy
       SourceFiles="@(Binaries)"
-      DestinationFolder="$(SilksongFolder)/BepInEx/plugins/$(TargetName)"
-      Condition="'$(SilksongFolder)' != '' And Exists('$(SilksongFolder)')"
+      DestinationFolder="$(SilksongPluginsDir)/BepInEx/plugins/$(TargetName)"
+      Condition="'$(SilksongPluginsDir)' != '' And Exists('$(SilksongPluginsDir)')"
     />
     <RemoveDir Directories="$(ThunderstoreDir)/tmp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/tmp" />
