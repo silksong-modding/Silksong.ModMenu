@@ -38,23 +38,19 @@ internal static class EnumStrings
             if (!fieldInfos.TryGetValue(rawValue, out var list))
                 continue;
 
-            bool ignore = false;
             string? fieldName = null;
             string? customName = null;
             foreach (var field in list)
             {
                 if (field.IgnoreForModMenu())
-                {
-                    ignore = true;
-                    break;
-                }
+                    continue;
 
                 customName ??= field.GetCustomAttribute<ModMenuName>()?.CustomName;
                 if (customName == null)
                     fieldName ??= StringUtil.UnCamelCase(field.Name);
             }
 
-            if (ignore)
+            if (fieldName == null)
                 continue;
 
             names[value] = customName ?? fieldName!;
