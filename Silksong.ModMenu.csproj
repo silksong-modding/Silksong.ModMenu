@@ -24,8 +24,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
-    <ManagedFolder Condition="$(SilksongInstallFolder) != ''"
-      >$(SilksongInstallFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
+    <ManagedFolder Condition="$(SilksongFolder) != ''"
+      >$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
     >
     <!-- Set to true to use local references for development purposes. -->
     <UseLocalRefs>false</UseLocalRefs>
@@ -79,8 +79,8 @@
     </PropertyGroup>
     <Copy
       SourceFiles="@(Binaries)"
-      DestinationFolder="$(SilksongFolder)/BepInEx/plugins/$(TargetName)"
-      Condition="'$(SilksongFolder)' != '' And Exists('$(SilksongFolder)')"
+      DestinationFolder="$(SilksongPluginsFolder)/$(TargetName)"
+      Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')"
     />
     <RemoveDir Directories="$(ThunderstoreDir)/tmp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/tmp" />
