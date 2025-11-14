@@ -30,7 +30,7 @@ The ModMenu API can be understood in three separate, hierarchical categories.
 
 Creating a new screen object instantiates all the necessary Unity prefabs, parents them to the `UIManager` instance and leaves them inactive. To get your menu to appear, you'll need to inject an entry point using the [`Registry`](Registry.cs) from which you invoke [`MenuScreenNavigation.Show(...)`](Screens/MenuScreenNavigation.cs).  `MenuScreenNavigation` is the goto static class for navigating forwards and backwards through custom menus.
 
-All menu screens are forever and should be instantiated during the initial loading phases of the game, to avoid user-visible lag after startup. While it is possible to generate new menu screens at runtime, this is not recommended and there may be buggy edge-cases.
+Menu screens are regenerated through the Registry APIs every time the UIManager is recreated, which can be many times throughout a play session. Care should be taken not to leak event subscribers during the menu creation process.
 
 Developers can implement their own [`AbstractMenuScreen`](Screens/AbstractMenuScreen.cs) subclasses to define new layout algorithms if they so choose.
 

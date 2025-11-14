@@ -46,21 +46,21 @@
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
     <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
   </ItemGroup>
-  <ItemGroup Condition="!$(UseLocalRefs) Or !Exists($(ManagedDir))">
+  <ItemGroup Condition="!$(UseLocalRefs) Or !Exists($(ManagedFolder))">
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
   </ItemGroup>
-  <ItemGroup Condition="$(UseLocalRefs) And Exists($(ManagedDir))">
+  <ItemGroup Condition="$(UseLocalRefs) And Exists($(ManagedFolder))">
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(ManagedFolder)\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(ManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(ManagedFolder)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="TeamCherry.Localization">
-      <HintPath>$(ManagedDir)\TeamCherry.Localization.dll</HintPath>
+      <HintPath>$(ManagedFolder)\TeamCherry.Localization.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(ManagedFolder)\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

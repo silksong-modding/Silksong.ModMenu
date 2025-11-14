@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using MonoDetour;
@@ -18,10 +19,11 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
 {
     private static ModMenuPlugin? instance;
 
-    [MonoDetourHookInitialize]
-    private static void Hook() => Md.UIManager.Awake.Postfix(ModifyUICanvas);
-
-    private void Awake() => instance = this;
+    private void Awake()
+    {
+        MonoDetourManager.InvokeHookInitializers(typeof(ModMenuPlugin).Assembly);
+        instance = this;
+    }
 
     public AbstractMenuScreen BuildCustomMenu()
     {
@@ -75,11 +77,7 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
         // Insert the button at the desired index.
         TextButton modOptions = new("Mods") // TODO: Support localization.
         {
-            OnSubmit = () =>
-            {
-                modsMenu ??= GenerateModsMenu();
-                MenuScreenNavigation.Show(modsMenu);
-            },
+            OnSubmit = () => MenuScreenNavigation.Show(GetModsMenu()),
         };
         modOptions.AddToContainer(optionsContainer.FindChild("Content")!);
 
@@ -89,12 +87,23 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
 
     private static AbstractMenuScreen? modsMenu;
 
-    private static AbstractMenuScreen GenerateModsMenu()
+    private static AbstractMenuScreen GetModsMenu()
     {
-        PaginatedMenuScreen menu = new("Mods");
-        foreach (var element in Registry.GenerateAllMenuElements())
-            menu.Add(element);
+        if (modsMenu != null)
+            return modsMenu;
 
+        PaginatedMenuScreen menu = new("Mods");
+        menu.Add(Registry.GenerateAllMenuElements());
+
+        modsMenu = menu;
+        menu.OnDispose += () =>
+        {
+            if (modsMenu == menu)
+                modsMenu = null;
+        };
         return menu;
     }
+
+    [MonoDetourHookInitialize]
+    private static void Hook() => Md.UIManager.Awake.Postfix(ModifyUICanvas);
 }

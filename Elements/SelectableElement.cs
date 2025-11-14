@@ -1,5 +1,6 @@
 ﻿using System;
 using Silksong.ModMenu.Internal;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Elements;
@@ -9,12 +10,17 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public abstract class SelectableElement : MenuElement
 {
-    protected SelectableElement() => OnInteractableChanged += _ => MaybeApplyDefaultColors();
+    protected SelectableElement(GameObject container, Selectable selectable)
+        : base(container)
+    {
+        SelectableComponent = selectable;
+        OnInteractableChanged += _ => MaybeApplyDefaultColors();
+    }
 
     /// <summary>
     /// The Selectable component of the menu element.
     /// </summary>
-    public abstract Selectable SelectableComponent { get; }
+    public readonly Selectable SelectableComponent;
 
     /// <summary>
     /// Returns whether this element is currently selected.

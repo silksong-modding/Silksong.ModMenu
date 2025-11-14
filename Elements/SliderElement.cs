@@ -1,7 +1,5 @@
-﻿using System;
-using Silksong.ModMenu.Internal;
+﻿using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
-using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,11 +8,8 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// A menu element with a slider component, operating over a fixed range of integer values.
 /// </summary>
-public class SliderElement<T> : SelectableElement
+public class SliderElement<T> : SelectableValueElement<T>
 {
-    private readonly GameObject container;
-    private readonly RectTransform rect;
-
     // Avoid playing the slider sound when modifying the slider through code instead of input.
     private bool skipPlaySlider = false;
 
@@ -24,20 +19,19 @@ public class SliderElement<T> : SelectableElement
     /// <param name="label">The label text for the slider.</param>
     /// <param name="model">The model for the domain range and underlying value.</param>
     public SliderElement(string label, SliderModel<T> model)
+        : base(MenuPrefabs.Get().NewSliderContainer(out var slider), slider, model)
     {
-        container = MenuPrefabs.Get().NewSliderContainer();
-        container.name = label;
-        rect = container.GetComponent<RectTransform>();
+        Container.name = label;
 
-        var sliderObj = container.FindChild("Slider")!;
+        Slider = slider;
+        var sliderObj = Slider.gameObject;
 
-        Slider = sliderObj.GetComponent<Slider>();
         Slider.minValue = model.MinimumIndex;
         Slider.maxValue = model.MaximumIndex;
         Slider.wholeNumbers = true;
         Slider.value = model.MinimumIndex;
 
-        Model = model;
+        SliderModel = model;
 
         LabelText = sliderObj.FindChild("Menu Option Label")!.GetComponent<Text>();
         ValueText = sliderObj.FindChild("Value")!.GetComponent<Text>();
@@ -66,19 +60,15 @@ public class SliderElement<T> : SelectableElement
         UpdateValueText();
     }
 
-    /// <inheritdoc/>
-    public override GameObject Container => container;
-
-    /// <inheritdoc/>
-    public override RectTransform RectTransform => rect;
-
     /// <summary>
     /// The unity component for this slider element.
     /// </summary>
     public readonly Slider Slider;
 
-    /// <inheritdoc/>
-    public override Selectable SelectableComponent => Slider;
+    /// <summary>
+    /// The underlying value model for this slider.
+    /// </summary>
+    public readonly SliderModel<T> SliderModel;
 
     /// <summary>
     /// The unity component for the label of this value choice.
@@ -89,29 +79,6 @@ public class SliderElement<T> : SelectableElement
     /// The unity component for text displaying the selected value.
     /// </summary>
     public readonly Text ValueText;
-
-    /// <summary>
-    /// The underlying value model for this slider.
-    /// </summary>
-    public readonly SliderModel<T> Model;
-
-    /// <summary>
-    /// Listener for changes in the selected value.
-    /// </summary>
-    public event Action<T>? OnValueChanged
-    {
-        add => Model.OnValueChanged += value;
-        remove => Model.OnValueChanged -= value;
-    }
-
-    /// <summary>
-    /// The value currently selected by this menu element.
-    /// </summary>
-    public T Value
-    {
-        get => Model.Value;
-        set => Model.Value = value;
-    }
 
     /// <inheritdoc/>
     public override void SetMainColor(Color color)
@@ -127,5 +94,5 @@ public class SliderElement<T> : SelectableElement
         ValueText.fontSize = fontSizes.SliderSize();
     }
 
-    private void UpdateValueText() => ValueText.text = Model.DisplayString();
+    private void UpdateValueText() => ValueText.text = SliderModel.DisplayString();
 }

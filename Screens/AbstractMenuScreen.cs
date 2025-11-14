@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
 using Silksong.UnityHelper.Extensions;
@@ -15,7 +14,7 @@ namespace Silksong.ModMenu.Screens;
 /// A single menu page with a title amd a back button.
 /// Concrete subclasses are responsible for controlling layout, navigation, and adding elements.
 /// </summary>
-public abstract class AbstractMenuScreen
+public abstract class AbstractMenuScreen : MenuDisposable
 {
     #region Constructor
     protected AbstractMenuScreen(string title)
@@ -30,6 +29,7 @@ public abstract class AbstractMenuScreen
         BackButton.gameObject.GetComponent<EventTrigger>().SetCallback(OnGoBackImpl);
         MenuScreen.backButton = BackButton;
 
+        Container.AddComponent<OnDestroyHelper>().Action += Dispose;
         TitleText.text = title;
     }
     #endregion
