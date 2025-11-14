@@ -65,7 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Remove="thunderstore/tmp;thunderstore/dist" />
-    <None Remove="Internal\EventTriggerUtil.cs~RF9f0368a.TMP" />
     <None Include="README.md" Pack="True" PackagePath="README.md" />
     <None Include="thunderstore/icon.png" Pack="True" PackagePath="icon.png" />
   </ItemGroup>
@@ -79,7 +78,7 @@
     </PropertyGroup>
     <Copy
       SourceFiles="@(Binaries)"
-      DestinationFolder="$(SilksongPluginsFolder)/$(TargetName)"
+      DestinationFolder="$(SilksongPluginsFolder)/silksong_modding-ModMenu"
       Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')"
     />
     <RemoveDir Directories="$(ThunderstoreDir)/tmp;$(ThunderstoreDir)/dist" />
