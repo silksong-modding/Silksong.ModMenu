@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
-using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,22 +11,18 @@ namespace Silksong.ModMenu.Elements;
 /// The player can use left+right to navigate through the values as defined by the model.
 /// </summary>
 /// <typeparam name="T">The type of value represented.</typeparam>
-public class ChoiceElement<T> : SelectableElement
+public class ChoiceElement<T> : SelectableValueElement<T>
 {
-    private readonly GameObject container;
-    private readonly RectTransform rect;
-    private readonly MenuOptionHorizontal menuOptionHorizontal;
-
     public ChoiceElement(string label, IChoiceModel<T> model, string description = "")
+        : base(
+            MenuPrefabs.Get().NewTextChoiceContainer(out var menuOptionHorizontal),
+            menuOptionHorizontal,
+            model
+        )
     {
-        Model = model;
-        container = MenuPrefabs.Get().NewTextChoiceContainer();
-        container.name = label;
-        rect = container.GetComponent<RectTransform>();
+        ChoiceModel = model;
 
-        var option = container.FindChild("ValueChoice")!;
-
-        menuOptionHorizontal = option.GetComponent<MenuOptionHorizontal>();
+        var option = menuOptionHorizontal.gameObject;
         var custom = option.AddComponent<CustomMenuOptionHorizontal>();
         custom.Model = model;
 
@@ -46,19 +40,10 @@ public class ChoiceElement<T> : SelectableElement
     public ChoiceElement(string label, List<T> items, string description = "")
         : this(label, ChoiceModels.ForValues(items), description) { }
 
-    /// <inheritdoc/>
-    public override GameObject Container => container;
-
-    /// <inheritdoc/>
-    public override RectTransform RectTransform => rect;
-
-    /// <inheritdoc/>
-    public override Selectable SelectableComponent => menuOptionHorizontal;
-
     /// <summary>
     /// The value holder and model underlying this choice element.
     /// </summary>
-    public readonly IChoiceModel<T> Model;
+    public readonly IChoiceModel<T> ChoiceModel;
 
     /// <summary>
     /// The unity component for the label of this value choice.
@@ -74,24 +59,6 @@ public class ChoiceElement<T> : SelectableElement
     /// The unity component for the selected value.
     /// </summary>
     public readonly Text ChoiceText;
-
-    /// <summary>
-    /// Listener for changes in the selected value.
-    /// </summary>
-    public event Action<T>? OnValueChanged
-    {
-        add => Model.OnValueChanged += value;
-        remove => Model.OnValueChanged -= value;
-    }
-
-    /// <summary>
-    /// The value chosen by this menu element.
-    /// </summary>
-    public T Value
-    {
-        get => Model.Value;
-        set => Model.Value = value;
-    }
 
     /// <inheritdoc/>
     public override void SetMainColor(Color color)

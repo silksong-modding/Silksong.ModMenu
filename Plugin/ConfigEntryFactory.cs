@@ -40,10 +40,13 @@ public static class ConfigEntryFactory
 
     private static ChoiceElement<bool> GenerateMenuElement(ConfigEntry<bool> entry)
     {
-        var model = ChoiceModels.ForBool();
-        Synchronize(model, entry);
-
-        return new ChoiceElement<bool>(entry.LabelName(), model, entry.DescriptionLine());
+        ChoiceElement<bool> choice = new(
+            entry.LabelName(),
+            ChoiceModels.ForBool(),
+            entry.DescriptionLine()
+        );
+        choice.SynchronizeWith(entry);
+        return choice;
     }
 
     private static bool GenerateEnumChoiceElement(
@@ -56,11 +59,10 @@ public static class ConfigEntryFactory
         if (!ChoiceModels.TryForEnum<object>(enumType, out var model))
             return false;
 
-        selectableMenuElement = new ChoiceElement<object>(
-            entry.LabelName(),
-            model.SynchronizedRawTo(entry),
-            entry.DescriptionLine()
-        );
+        ChoiceElement<object> choice = new(entry.LabelName(), model, entry.DescriptionLine());
+        choice.SynchronizeRawWith(entry);
+
+        selectableMenuElement = choice;
         return true;
     }
 
@@ -102,59 +104,55 @@ public static class ConfigEntryFactory
             return false;
         }
 
-        selectableMenuElement = new ChoiceElement<object>(
+        ChoiceElement<object> choice = new(
             entry.LabelName(),
-            ChoiceModels.ForValues([.. values]).SynchronizedRawTo(entry),
+            ChoiceModels.ForValues([.. values]),
             entry.DescriptionLine()
         );
+        choice.SynchronizeRawWith(entry);
+
+        selectableMenuElement = choice;
         return true;
     }
 
     /// <summary>
     /// Synchronize the menu element model and config setting so that if/when one changes, so does the other.
+    /// Callers should prefer SynchronizeWith instead of WithRaw when possible, for type safety.
     /// </summary>
-    public static void SynchronizeRaw(IBaseValueModel model, ConfigEntryBase entry)
+    public static void SynchronizeRawWith(
+        this BaseSelectableValueElement element,
+        ConfigEntryBase entry
+    )
     {
+        var model = element.RawModel;
         model.SetRawValue(entry.BoxedValue);
-
         model.OnRawValueChanged += o => entry.BoxedValue = o;
-        entry.ConfigFile.SettingChanged += (_, args) =>
+
+        void handler(object _, SettingChangedEventArgs args)
         {
             if (args.ChangedSetting == entry)
                 model.SetRawValue(args.ChangedSetting.BoxedValue);
-        };
-    }
-
-    /// <summary>
-    /// Extension helper for easier construction of synchronized menu elements.
-    /// </summary>
-    public static M SynchronizedRawTo<M>(this M model, ConfigEntryBase entry)
-        where M : IBaseValueModel
-    {
-        SynchronizeRaw(model, entry);
-        return model;
+        }
+        entry.ConfigFile.SettingChanged += handler;
+        element.OnDispose += () => entry.ConfigFile.SettingChanged -= handler;
     }
 
     /// <summary>
     /// Synchronize the menu element model and config setting so that if/when one changes, so does the other.
     /// </summary>
-    public static void Synchronize<T>(IValueModel<T> model, ConfigEntry<T> entry)
+    public static void SynchronizeWith<T>(
+        this SelectableValueElement<T> element,
+        ConfigEntry<T> entry
+    )
     {
+        var model = element.Model;
         model.SetValue(entry.Value);
-
         model.OnValueChanged += v => entry.Value = v;
-        entry.SettingChanged += (_, args) =>
-            model.SetValue((T)((SettingChangedEventArgs)args).ChangedSetting.BoxedValue);
-    }
 
-    /// <summary>
-    /// Extension helper for easier construction of synchronized menu elements.
-    /// </summary>
-    public static M SynchronizedTo<T, M>(this M model, ConfigEntry<T> entry)
-        where M : IValueModel<T>
-    {
-        Synchronize(model, entry);
-        return model;
+        void handler(object _, EventArgs args) =>
+            model.SetValue((T)((SettingChangedEventArgs)args).ChangedSetting.BoxedValue);
+        entry.SettingChanged += handler;
+        element.OnDispose += () => entry.SettingChanged -= handler;
     }
 
     private static string LabelName(this ConfigEntryBase self) =>

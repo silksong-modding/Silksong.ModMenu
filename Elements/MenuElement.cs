@@ -1,4 +1,5 @@
 ﻿using System;
+using Silksong.ModMenu.Internal;
 using UnityEngine;
 
 namespace Silksong.ModMenu.Elements;
@@ -6,19 +7,26 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// Abstraction for all objects that can occupy space in a layout.
 /// </summary>
-public abstract class MenuElement
+public abstract class MenuElement : MenuDisposable
 {
-    protected MenuElement() => OnStateChanged += _ => MaybeApplyDefaultColors();
+    protected MenuElement(GameObject container)
+    {
+        Container = container;
+        RectTransform = container.GetComponent<RectTransform>();
+
+        container.AddComponent<OnDestroyHelper>().Action += Dispose;
+        OnStateChanged += _ => MaybeApplyDefaultColors();
+    }
 
     /// <summary>
     /// The actual GameObject containing all pieces of this MenuElement.
     /// </summary>
-    public abstract GameObject Container { get; }
+    public readonly GameObject Container;
 
     /// <summary>
     /// The RectTransform for this UI element.
     /// </summary>
-    public abstract RectTransform RectTransform { get; }
+    public readonly RectTransform RectTransform;
 
     /// <summary>
     /// A general descriptor of the state of this MenuElement.
