@@ -45,7 +45,7 @@ internal static class EnumStrings
                 if (field.IgnoreForModMenu())
                     continue;
 
-                customName ??= field.GetCustomAttribute<ModMenuName>()?.CustomName;
+                customName ??= field.GetCustomAttribute<ModMenuNameAttribute>()?.CustomName;
                 if (customName == null)
                     fieldName ??= StringUtil.UnCamelCase(field.Name);
             }

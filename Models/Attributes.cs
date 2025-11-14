@@ -9,7 +9,7 @@ namespace Silksong.ModMenu.Models;
 /// </summary>
 /// <param name="name"></param>
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-public class ModMenuName(string customName) : Attribute
+public class ModMenuNameAttribute(string customName) : Attribute
 {
     public string CustomName => customName;
 }
@@ -17,14 +17,15 @@ public class ModMenuName(string customName) : Attribute
 /// <summary>
 /// Indicate that this plugin class or enum value should be ignored.
 ///
-/// Any attribute named "ModMenuIgnore" will be treated the same for this functionality, so you can opt-out of ModMenu behaviors without adding ModMenu as a dependency.
+/// Any attribute named "ModMenuIgnoreAttribute" will be treated the same for this functionality, so you can opt-out of ModMenu behaviors without adding ModMenu as a dependency.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field, AllowMultiple = false)]
-public class ModMenuIgnore : Attribute { }
+public class ModMenuIgnoreAttribute : Attribute { }
 
 internal static class AttributeExtensions
 {
     internal static bool IgnoreForModMenu(this MemberInfo self) =>
-        self.GetCustomAttribute<ModMenuIgnore>() != null
-        || self.GetCustomAttributes(true).Any(attr => attr.GetType().Name == nameof(ModMenuIgnore));
+        self.GetCustomAttribute<ModMenuIgnoreAttribute>() != null
+        || self.GetCustomAttributes(true)
+            .Any(attr => attr.GetType().Name == nameof(ModMenuIgnoreAttribute));
 }
