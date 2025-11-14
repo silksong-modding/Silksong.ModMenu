@@ -13,7 +13,6 @@ using UnityEngine;
 namespace Silksong.ModMenu;
 
 [MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)] // We don't need these but another class does :')
-[BepInDependency("com.bepis.bepinex.configurationmanager")]
 [BepInAutoPlugin(id: "org.silksong-modding.modmenu")]
 public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
 {
