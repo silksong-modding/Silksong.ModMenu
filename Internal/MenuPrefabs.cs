@@ -95,9 +95,24 @@ internal class MenuPrefabs
 
     internal GameObject NewEmptyContentPane() => Object.Instantiate(emptyContentPane);
 
-    internal GameObject NewTextButtonContainer() => Object.Instantiate(textButtonTemplate);
+    internal GameObject NewTextButtonContainer(out MenuButton menuButton)
+    {
+        var obj = Object.Instantiate(textButtonTemplate);
+        menuButton = obj.FindChild("TextButton")!.GetComponent<MenuButton>();
+        return obj;
+    }
 
-    internal GameObject NewTextChoiceContainer() => Object.Instantiate(textChoiceTemplate);
+    internal GameObject NewTextChoiceContainer(out MenuOptionHorizontal menuOptionHorizontal)
+    {
+        var obj = Object.Instantiate(textChoiceTemplate);
+        menuOptionHorizontal = obj.FindChild("ValueChoice")!.GetComponent<MenuOptionHorizontal>();
+        return obj;
+    }
 
-    internal GameObject NewSliderContainer() => Object.Instantiate(sliderTemplate);
+    internal GameObject NewSliderContainer(out Slider slider)
+    {
+        var obj = Object.Instantiate(sliderTemplate);
+        slider = obj.FindChild("Slider")!.GetComponent<Slider>();
+        return obj;
+    }
 }
