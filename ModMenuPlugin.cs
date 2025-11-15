@@ -7,6 +7,7 @@ using Silksong.ModMenu.Examples;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
+using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 
 namespace Silksong.ModMenu;
@@ -27,7 +28,7 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
     {
         SimpleMenuScreen menu = new("Mod Menu");
 
-        SimpleMenuScreen example = DemoTextAdventure.BuildMenu();
+        AbstractMenuScreen example = DemoTextAdventure.BuildMenu();
         menu.Add(
             new TextButton("Browse Demo Menu")
             {
@@ -69,18 +70,19 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
     {
         MenuPrefabs.Load(self);
 
-        var canvas = self.gameObject.FindChild("UICanvas")!;
-        var optionsContainer = canvas.FindChild("OptionsMenuScreen")!;
+        var optionsScreen = self.optionsMenuScreen;
 
         // Insert the button at the desired index.
         TextButton modOptions = new("Mods") // TODO: Support localization.
         {
             OnSubmit = () => MenuScreenNavigation.Show(GetModsMenu()),
         };
-        modOptions.AddToContainer(optionsContainer.FindChild("Content")!);
+        modOptions.SetGameObjectParent(optionsScreen.gameObject.FindChild("Content")!);
 
         // Track the selectable at the correct index (BackButton is on the end of the list from a separate container).
-        optionsContainer.GetComponent<MenuButtonList>().InsertButton(modOptions.MenuButton, 5);
+        optionsScreen
+            .gameObject.GetComponent<MenuButtonList>()
+            .InsertButton(modOptions.MenuButton, 5);
     }
 
     private static AbstractMenuScreen? modsMenu;
@@ -90,8 +92,9 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
         if (modsMenu != null)
             return modsMenu;
 
-        PaginatedMenuScreen menu = new("Mods");
-        menu.Add(Registry.GenerateAllMenuElements());
+        PaginatedMenuScreenBuilder builder = new("Mods");
+        builder.AddRange(Registry.GenerateAllMenuElements());
+        var menu = builder.Build();
 
         modsMenu = menu;
         menu.OnDispose += () =>

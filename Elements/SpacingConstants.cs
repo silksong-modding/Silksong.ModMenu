@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Silksong.ModMenu.Screens;
+namespace Silksong.ModMenu.Elements;
 
 /// <summary>
 /// Standard spacing parameters for rows and columns.

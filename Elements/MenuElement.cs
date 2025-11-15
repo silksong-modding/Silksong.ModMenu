@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
 
@@ -7,16 +8,23 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// Abstraction for all objects that can occupy space in a layout.
 /// </summary>
-public abstract class MenuElement : MenuDisposable
+public abstract class MenuElement : MenuDisposable, IMenuEntity
 {
+    private readonly VisibilityManager visibility = new();
+
     protected MenuElement(GameObject container)
     {
         Container = container;
         RectTransform = container.GetComponent<RectTransform>();
 
+        visibility.OnVisibilityChanged += container.SetActive;
+        container.SetActive(true);
         container.AddComponent<OnDestroyHelper>().Action += Dispose;
         OnStateChanged += _ => MaybeApplyDefaultColors();
     }
+
+    /// <inheritdoc/>
+    public VisibilityManager Visibility => visibility;
 
     /// <summary>
     /// The actual GameObject containing all pieces of this MenuElement.
@@ -51,28 +59,16 @@ public abstract class MenuElement : MenuDisposable
     public event Action<ElementState>? OnStateChanged;
 
     /// <summary>
-    /// Convenience accessor for whether this MenuElement should be visible or not.
-    /// Listeners are not notified if this is changed directly, rather than through the accessor.
-    ///
-    /// Layouts may choose to listen for visibility changes in order to reflow surrounding elements.
+    /// Convenience accessor for visibility changes.
     /// </summary>
-    public bool Visible
+    public event Action<bool> OnVisibilityChanged
     {
-        get => Container.activeSelf;
-        set
-        {
-            if (Visible == value)
-                return;
-
-            Container.SetActive(value);
-            OnVisibilityChanged?.Invoke(value);
-        }
+        add => visibility.OnVisibilityChanged += value;
+        remove => visibility.OnVisibilityChanged -= value;
     }
 
-    /// <summary>
-    /// Event notified whenever the intended visibility of this element changes.
-    /// </summary>
-    public event Action<bool>? OnVisibilityChanged;
+    /// <inheritdoc/>
+    public IEnumerable<MenuElement> AllElements() => [this];
 
     /// <summary>
     /// Set the primary color of text and other assets within this MenuElement.
@@ -91,6 +87,10 @@ public abstract class MenuElement : MenuDisposable
         ApplyDefaultColorsImpl();
     }
 
+    /// <inheritdoc/>
+    public void UpdateLayout(Vector2 localAnchorPos) =>
+        RectTransform.SetAnchoredPosition(localAnchorPos);
+
     protected virtual void ApplyDefaultColorsImpl() => Colors.GetDefaultColor(this);
 
     /// <summary>
@@ -98,16 +98,17 @@ public abstract class MenuElement : MenuDisposable
     /// </summary>
     public virtual void SetFontSizes(FontSizes fontSizes) { }
 
-    // Whether this element has been added to a layout yet.
-    private bool Headless = true;
+    /// <inheritdoc/>
+    public void SetMenuParent(IMenuEntity parent) => visibility.SetParent(parent.Visibility);
 
-    internal void AddToContainer(GameObject container)
+    /// <summary>
+    /// Add this MenuElement directly to a UI GameObject without an associated IMenuEntity.
+    /// </summary>
+    public void SetGameObjectParent(GameObject container)
     {
-        if (!Headless)
-            throw new InvalidOperationException("Element already added to container.");
+        if (Container.transform.parent != null)
+            throw new ArgumentException("GameObject parent already set");
 
-        Headless = false;
         Container.transform.SetParent(container.transform, false);
-        Container.SetActive(true);
     }
 }
