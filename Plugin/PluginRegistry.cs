@@ -101,8 +101,9 @@ public static class PluginRegistry
             return false;
         }
 
-        PaginatedMenuScreen menu = new(name);
-        menu.Add(elements);
+        PaginatedMenuScreenBuilder builder = new(name);
+        builder.AddRange(elements);
+        var menu = builder.Build();
 
         menuElement = new TextButton(name) { OnSubmit = () => MenuScreenNavigation.Show(menu) };
         return true;

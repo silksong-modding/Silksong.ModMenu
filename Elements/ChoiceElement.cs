@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
+using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +9,7 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// A MenuElement that is Selectable, and should be included in layout-based navigation.
 /// </summary>
-public abstract class SelectableElement : MenuElement
+public abstract class SelectableElement : MenuElement, INavigableMenuEntity
 {
     protected SelectableElement(GameObject container, Selectable selectable)
         : base(container)
@@ -59,38 +60,30 @@ public abstract class SelectableElement : MenuElement
     /// </summary>
     public event Action<bool>? OnInteractableChanged;
 
-    #region Navigation
-    // Helpers for setting explicit navigation between elements.
-    public void SetNavUp(Selectable selectable) => SelectableComponent.SetNavUp(selectable);
+    /// <inheritdoc/>
+    public SelectableElement? GetDefaultSelectable() => this;
 
-    public void SetNavUp(SelectableElement selectableElement) =>
-        SelectableComponent.SetNavUp(selectableElement.SelectableComponent);
+    /// <inheritdoc/>
+    public void ClearNeighbors() => new SelectableWrapper(SelectableComponent).ClearNeighbors();
 
-    public void ClearNavUp() => SelectableComponent.ClearNavUp();
+    /// <inheritdoc/>
+    public void ClearNeighbor(NavigationDirection direction) =>
+        new SelectableWrapper(SelectableComponent).ClearNeighbor(direction);
 
-    public void SetNavLeft(Selectable selectable) => SelectableComponent.SetNavLeft(selectable);
+    /// <inheritdoc/>
+    public void SetNeighbor(NavigationDirection direction, Selectable selectable) =>
+        new SelectableWrapper(SelectableComponent).SetNeighbor(direction, selectable);
 
-    public void SetNavLeft(SelectableElement selectableElement) =>
-        SelectableComponent.SetNavLeft(selectableElement.SelectableComponent);
+    /// <inheritdoc/>
+    public bool GetSelectable(
+        NavigationDirection direction,
+        [MaybeNullWhen(false)] out Selectable selectable
+    )
+    {
+        selectable = SelectableComponent;
+        return true;
+    }
 
-    public void ClearNavLeft() => SelectableComponent.ClearNavLeft();
-
-    public void SetNavRight(Selectable selectable) => SelectableComponent.SetNavRight(selectable);
-
-    public void SetNavRight(SelectableElement selectableElement) =>
-        SelectableComponent.SetNavRight(selectableElement.SelectableComponent);
-
-    public void ClearNavRight() => SelectableComponent.ClearNavRight();
-
-    public void SetNavDown(Selectable selectable) => SelectableComponent.SetNavDown(selectable);
-
-    public void SetNavDown(SelectableElement selectableElement) =>
-        SelectableComponent.SetNavDown(selectableElement.SelectableComponent);
-
-    public void ClearNavDown() => SelectableComponent.ClearNavDown();
-
-    public void ClearNav() => SelectableComponent.ClearNav();
-    #endregion
-
+    /// <inheritdoc/>
     protected override void ApplyDefaultColorsImpl() => SetMainColor(Colors.GetDefaultColor(this));
 }

@@ -17,7 +17,7 @@ internal static class StringUtil
         var split = self.Split('\n')[0];
         split = split.Split("<br>")[0];
         if (split.Length > maxChars)
-            return split = $"{split[..(maxChars - 3)]}...";
+            return $"{split[..(maxChars - 3)]}...";
         else
             return split;
     }
