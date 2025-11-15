@@ -12,8 +12,8 @@ namespace Silksong.ModMenu.Screens;
 /// <summary>
 /// API for changing menu screens while the player is navigating menus.
 /// </summary>
-[MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)]
 [MonoDetourTargets(typeof(GameManager))]
+[MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)]
 public static class MenuScreenNavigation
 {
     /// <summary>
@@ -156,26 +156,21 @@ public static class MenuScreenNavigation
         return Routine();
     }
 
-    private static void HideMenuInstant(AbstractMenuScreen screen)
-    {
-        screen.InvokeOnHide(NavigationType.Backwards);
-        UIManager.instance.HideMenuInstant(screen.MenuScreen);
-    }
-
     private static void HideMenus()
     {
         if (history.Count == 0)
             return;
 
-        HideMenuInstant(history.Peek());
+        UIManager.instance.HideMenuInstant(history.Peek().MenuScreen);
+        history.Peek().InvokeOnHide(NavigationType.Backwards);
         history.Clear();
     }
 
-    private static void PrefixGameManagerAwake(GameManager self)
+    private static void PostfixGameManagerAwake(GameManager self)
     {
         self.GamePausedChange += isPaused =>
         {
-            if (!isPaused)
+            if (!isPaused && self.IsGameplayScene())
                 HideMenus();
         };
     }
@@ -185,7 +180,8 @@ public static class MenuScreenNavigation
         if (history.Count == 0)
             return ReturnFlow.None;
 
-        HideMenuInstant(history.Peek());
+        history.Peek().InvokeOnGoBack();
+        returnValue = true;
         return ReturnFlow.SkipOriginal;
     }
 
@@ -198,7 +194,7 @@ public static class MenuScreenNavigation
     [MonoDetourHookInitialize]
     private static void Hook()
     {
-        Md.GameManager.Awake.Prefix(PrefixGameManagerAwake);
+        Md.GameManager.Awake.Postfix(PostfixGameManagerAwake);
         Md.UIManager.UIGoBack.ControlFlowPrefix(OverrideUIGoBack);
         Md.UIManager.OnDestroy.Prefix(PrefixUIOnDestroy);
     }

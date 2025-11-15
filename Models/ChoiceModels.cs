@@ -30,7 +30,7 @@ public static class ChoiceModels
         [MaybeNullWhen(false)] out ListChoiceModel<T> model
     )
     {
-        var dict = EnumStrings.ForType(enumType);
+        var dict = EnumUtil.StringsForType(enumType);
         HashSet<object> dupes = [];
         List<(T, string)> values = [];
         foreach (var obj in enumType.GetEnumValues())

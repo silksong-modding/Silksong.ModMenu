@@ -20,7 +20,7 @@ internal enum Direction
 
 internal static class DemoTextAdventure
 {
-    internal static SimpleMenuScreen BuildMenu()
+    internal static BasicMenuScreen BuildMenu()
     {
         string title = "You find yourself in a dark forest";
         SimpleMenuScreen menu = new(title);
@@ -112,7 +112,7 @@ internal static class DemoTextAdventure
         return menu;
     }
 
-    private static SimpleMenuScreen North()
+    private static BasicMenuScreen North()
     {
         SimpleMenuScreen menu = new("You have been slain by") { AllowGoBack = false };
         menu.OnGoBack += () => MenuScreenNavigation.GoBack(2);
@@ -121,14 +121,14 @@ internal static class DemoTextAdventure
         kills.Add(new("A Primal Aspid"));
         kills.Add(new("The Void"));
         kills.Add(new("Bilewater"));
-        menu.Add(kills);
+        menu.AddRange(kills);
 
         foreach (var kill in kills)
             kill.OnSubmit += () => MenuScreenNavigation.GoBack(2);
         return menu;
     }
 
-    private static SimpleMenuScreen South()
+    private static BasicMenuScreen South()
     {
         SimpleMenuScreen menu = new("You found three chests!  Open one.") { AllowGoBack = false };
         menu.OnGoBack += () => MenuScreenNavigation.GoBack(2);
@@ -139,7 +139,7 @@ internal static class DemoTextAdventure
         chests.Add(
             new("This one is already empty?", "It had a false bottom, with 50 rosaries beneath!")
         );
-        menu.Add(chests);
+        menu.AddRange(chests);
         ChestButton.SynchronizeGroup(chests);
 
         menu.OnHide += _ =>
@@ -150,7 +150,7 @@ internal static class DemoTextAdventure
         return menu;
     }
 
-    private static SimpleMenuScreen EastSlow()
+    private static BasicMenuScreen EastSlow()
     {
         SimpleMenuScreen menu = new("You fell into a ravine!") { AllowGoBack = false };
         menu.OnGoBack += () => MenuScreenNavigation.GoBack(2);
@@ -167,7 +167,7 @@ internal static class DemoTextAdventure
         return menu;
     }
 
-    private static SimpleMenuScreen EastFast()
+    private static BasicMenuScreen EastFast()
     {
         SimpleMenuScreen menu = new("You jumped a ravine!") { AllowGoBack = false };
         menu.OnGoBack += () => MenuScreenNavigation.GoBack(2);

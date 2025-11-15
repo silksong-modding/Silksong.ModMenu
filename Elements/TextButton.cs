@@ -1,5 +1,6 @@
 ﻿using System;
 using Silksong.ModMenu.Internal;
+using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
 using Silksong.UnityHelper.Extensions;
@@ -26,10 +27,14 @@ public abstract class AbstractMenuScreen : MenuDisposable
         ControlsPane = Container!.FindChild("Controls")!;
         BackButton = ControlsPane!.FindChild("ApplyButton")!.GetComponent<MenuButton>();
 
-        BackButton.gameObject.GetComponent<EventTrigger>().SetCallback(OnGoBackImpl);
+        BackButton.gameObject.GetComponent<EventTrigger>().SetCallback(InvokeOnGoBack);
         MenuScreen.backButton = BackButton;
 
-        Container.AddComponent<OnDestroyHelper>().Action += Dispose;
+        Container.GetOrAddComponent<OnDestroyHelper>().Action += Dispose;
+        var lateUpdate = Container.GetOrAddComponent<LateUpdateHelper>();
+        lateUpdate.OnLateUpdate += UpdateLayout;
+        lateUpdate.OnLateUpdate += UpdateLastSelected;
+
         TitleText.text = title;
     }
     #endregion
@@ -94,32 +99,17 @@ public abstract class AbstractMenuScreen : MenuDisposable
 
     #region Layout
     /// <summary>
-    /// Invoke the delegate to update the menu layout. Prevents re-entry caused by listeners.
+    /// Update the layout of all elements in this screen. Called automatically once per frame while the screen is active.
     /// </summary>
     protected abstract void UpdateLayout();
 
     /// <summary>
-    /// Helper to update the layout when a relevant property is modified.
+    /// Get all elements recursively contained within this menu screen.
     /// </summary>
-    protected void MaybeUpdateLayout<T>(ref T self, T value)
-    {
-        if (EqualityComparer<T>.Default.Equals(self, value))
-            return;
-
-        self = value;
-        UpdateLayout();
-    }
+    protected abstract IEnumerable<MenuElement> AllElements();
     #endregion
 
     #region SelectOnShow
-    /// <summary>
-    /// Record that this selectable element is part of the menu screen. This is used for SelectOnShow.
-    /// </summary>
-    protected void RegisterSelectable(SelectableElement selectableElement) =>
-        selectableElement
-            .SelectableComponent.gameObject.GetOrAddComponent<OnSelectHelper>()
-            .OnSelect += () => lastSelected = selectableElement;
-
     /// <summary>
     /// Standard behaviours for which element to select when showing the menu screen.
     /// </summary>
@@ -150,13 +140,23 @@ public abstract class AbstractMenuScreen : MenuDisposable
         OnShow?.Invoke(navigationType);
     }
 
+    private void UpdateLastSelected()
+    {
+        var sel = AllElements()
+            .OfType<SelectableElement>()
+            .Where(s => s.IsSelected)
+            .FirstOrDefault();
+        if (sel != null)
+            lastSelected = sel;
+    }
+
     private IEnumerator SelectDelayed(Selectable selectable)
     {
         yield return new WaitUntil(() => selectable.gameObject.activeInHierarchy);
         selectable.ForceSelect();
     }
 
-    private void OnGoBackImpl()
+    internal void InvokeOnGoBack()
     {
         if (
             !ExceptionUtil.Try(() => OnGoBack?.Invoke(), "Custom GoBack action failed")

@@ -10,11 +10,11 @@ namespace Silksong.ModMenu.Internal;
 /// Utility for navigating enums through reflection, retrieving a map from values -> string representations.
 /// Respects ModMenu attributes.
 /// </summary>
-internal static class EnumStrings
+internal static class EnumUtil
 {
     private static readonly Dictionary<Type, ReadOnlyDictionary<object, string>> enumStrings = [];
 
-    internal static ReadOnlyDictionary<object, string> ForType(Type enumType)
+    internal static ReadOnlyDictionary<object, string> StringsForType(Type enumType)
     {
         if (!enumType.IsEnum)
             throw new ArgumentException($"{enumType.Name} is not an Enumeration");
@@ -60,4 +60,7 @@ internal static class EnumStrings
         enumStrings.Add(enumType, readOnlyDict);
         return readOnlyDict;
     }
+
+    internal static ArgumentException UnsupportedEnum<T>(this T self)
+        where T : Enum => new($"Unsupported: {self}");
 }
