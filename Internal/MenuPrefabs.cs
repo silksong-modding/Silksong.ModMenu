@@ -26,16 +26,25 @@ internal class MenuPrefabs
         canvas = uiManager.gameObject.FindChild("UICanvas")!;
         var optionsScreen = canvas.FindChild("OptionsMenuScreen")!;
 
+        // On destruction, reset MenuPrefabs.
+        uiManager.gameObject.GetOrAddComponent<OnDestroyHelper>().Action += () =>
+        {
+            if (instance == this)
+                instance = null;
+        };
+
         menuTemplate = Object.Instantiate(optionsScreen);
         menuTemplate.SetActive(false);
         menuTemplate.name = "ModMenuScreen";
         Object.Destroy(menuTemplate.GetComponent<MenuButtonList>());
         Object.Destroy(menuTemplate.FindChild("Title")!.GetComponent<AutoLocalizeTextUI>());
+        Object.DontDestroyOnLoad(menuTemplate);
+
         emptyContentPane = menuTemplate.FindChild("Content")!;
         emptyContentPane.DestroyAllChildren();
         Object.Destroy(emptyContentPane.GetComponent<VerticalLayoutGroup>());
         Object.Destroy(emptyContentPane.GetComponent<MenuButtonList>());
-        Object.DontDestroyOnLoad(menuTemplate);
+        Object.DontDestroyOnLoad(emptyContentPane);
 
         textButtonTemplate = Object.Instantiate(optionsScreen.FindChild("Content/GameOptions")!);
         textButtonTemplate.SetActive(false);
