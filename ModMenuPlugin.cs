@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Logging;
 using MonoDetour;
@@ -67,9 +68,10 @@ public partial class ModMenuPlugin : BaseUnityPlugin
         modOptions.SetGameObjectParent(optionsScreen.gameObject.FindChild("Content")!);
 
         // Track the selectable at the correct index (BackButton is on the end of the list from a separate container).
-        optionsScreen
-            .gameObject.GetComponent<MenuButtonList>()
-            .InsertButton(modOptions.MenuButton, 5);
+        var mbl = optionsScreen.gameObject.GetComponent<MenuButtonList>();
+        List<MenuButtonList.Entry> entries = [.. mbl.entries];
+        entries.Insert(5, new() { selectable = modOptions.MenuButton });
+        mbl.entries = [.. entries];
     }
 
     private static AbstractMenuScreen? modsMenu;

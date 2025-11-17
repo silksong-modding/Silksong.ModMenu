@@ -7,19 +7,12 @@ namespace Silksong.ModMenu.Internal;
 
 internal static class UIManagerUtil
 {
-    private static readonly FieldInfo isFadingMenuField = typeof(UIManager).GetField(
-        "isFadingMenu",
-        BindingFlags.NonPublic | BindingFlags.Instance
-    );
     private static readonly List<FieldInfo> menuScreenFields =
     [
         .. typeof(UIManager)
             .GetFields(BindingFlags.Instance | BindingFlags.Public)
             .Where(f => f.FieldType == typeof(MenuScreen)),
     ];
-
-    internal static void SetIsFadingMenu(this UIManager self, bool value) =>
-        isFadingMenuField.SetValue(self, value);
 
     internal static MenuScreen? GetActiveMenuScreen(this UIManager self)
     {
