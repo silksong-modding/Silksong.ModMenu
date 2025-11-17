@@ -57,3 +57,4 @@ It is recommended, though not required, that you create new Models every time yo
 *   New menu element implementations:
 	*   Labels, icons
 	*   Raw text input
+	*   Keybinds
