@@ -147,10 +147,10 @@ public static class MenuScreenNavigation
         IEnumerator Routine()
         {
             var ui = UIManager.instance;
-            ui.SetIsFadingMenu(true);
+            ui.isFadingMenu = true;
             yield return ui.StartCoroutine(ui.HideMenu(screen.MenuScreen, true));
 
-            ui.SetIsFadingMenu(false);
+            ui.isFadingMenu = false;
             screen?.InvokeOnHide(navigationType);
         }
         return Routine();
