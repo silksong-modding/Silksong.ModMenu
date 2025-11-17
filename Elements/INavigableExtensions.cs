@@ -65,7 +65,6 @@ public static class INavigableExtensions
         public void SetNeighborRight(Selectable selectable) =>
             self.SetNeighbor(NavigationDirection.Right, selectable);
 
-
         /// <summary>
         /// Set the rightwards neighbor of this navigable.
         /// </summary>
