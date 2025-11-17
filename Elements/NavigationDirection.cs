@@ -1,8 +1,10 @@
-﻿using System;
-using Silksong.ModMenu.Internal;
+﻿using Silksong.ModMenu.Internal;
 
 namespace Silksong.ModMenu.Elements;
 
+/// <summary>
+/// Cardinal directions for navigating through the UI.
+/// </summary>
 public enum NavigationDirection
 {
     Up,
@@ -11,7 +13,7 @@ public enum NavigationDirection
     Down,
 }
 
-public static class NavigationDirectinExtensions
+public static class NavigationDirectionExtensions
 {
     public static NavigationDirection Opposte(this NavigationDirection self) =>
         self switch
