@@ -97,7 +97,7 @@ public class ConfigEntryFactory
         return false;
     }
 
-    private static bool GenerateCustomElement(
+    public static bool GenerateCustomElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
     )
