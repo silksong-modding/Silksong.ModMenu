@@ -16,7 +16,8 @@ public abstract class AbstractValueModel<T> : IValueModel<T>
     /// <summary>
     /// Construct an AbstractValueModel with the specified value.
     /// </summary>
-    protected AbstractValueModel(T value) : this()
+    protected AbstractValueModel(T value)
+        : this()
     {
         Value = value;
     }
