@@ -1,68 +1,154 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using BepInEx;
 using BepInEx.Configuration;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
+using Silksong.ModMenu.Screens;
 
 namespace Silksong.ModMenu.Plugin;
 
 /// <summary>
-/// Generate MenuElements for ConfigurationManager entries.
+/// Factory to generate a menu screen from a config file. Clients can instantiate this class directly, or subclass it, to inject their own behaviours.
 /// </summary>
-public static class ConfigEntryFactory
+public class ConfigEntryFactory
 {
+    /// <summary>
+    /// Function to generate a menu element for a specific config setting.
+    /// Can also be used as an attribute on a config setting to define its own behaviour explicitly.
+    /// </summary>
+    public delegate bool MenuElementGenerator(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    );
+
+    private static readonly List<MenuElementGenerator> defaultGenerators =
+    [
+        GenerateCustomElement,
+        GenerateBoolElement,
+        GenerateEnumChoiceElement,
+        GenerateAcceptableValuesChoiceElement,
+    ];
+
+    /// <summary>
+    /// Register a new ConfigEntryBase handler which runs after all the built-in defaults.
+    /// </summary>
+    public static void AddDefaultGenerator(MenuElementGenerator generator) =>
+        defaultGenerators.Add(generator ?? throw new ArgumentNullException(nameof(generator)));
+
+    /// <summary>
+    /// Ordered list of generators to use on individual config entries. Callers can modify this for custom behavior.
+    /// </summary>
+    public readonly List<MenuElementGenerator> Generators = [.. defaultGenerators];
+
+    /// <summary>
+    /// Generate a button for this plugin which opens a sub-menu for its ConfigFile.
+    /// </summary>
+    public virtual bool GenerateEntryButton(
+        string name,
+        BaseUnityPlugin plugin,
+        [MaybeNullWhen(false)] out SelectableElement selectableElement
+    )
+    {
+        List<MenuElement> elements = [];
+        foreach (var entry in plugin.Config)
+        {
+            if (GenerateMenuElement(entry.Value, out var element))
+                elements.Add(element);
+        }
+
+        if (elements.Count == 0)
+        {
+            selectableElement = default;
+            return false;
+        }
+
+        PaginatedMenuScreenBuilder builder = new(name);
+        builder.AddRange(elements);
+        var menu = builder.Build();
+
+        selectableElement = new TextButton(name)
+        {
+            OnSubmit = () => MenuScreenNavigation.Show(menu),
+        };
+        return true;
+    }
+
     /// <summary>
     /// Generate a selectable menu element for the given config entry, if possible.
     ///
     /// Right now only booleans, enums, and entries with an explicit AcceptableValuesList are supported.
     /// In the future support for numeric and other types may be added.
     /// </summary>
-    public static bool GenerateMenuElement(
+    protected virtual bool GenerateMenuElement(
         ConfigEntryBase entry,
-        [MaybeNullWhen(false)] out SelectableElement selectableMenuElement
+        [MaybeNullWhen(false)] out MenuElement menuElement
     )
     {
-        if (entry is ConfigEntry<bool> boolEntry)
+        foreach (var generator in Generators)
         {
-            selectableMenuElement = GenerateMenuElement(boolEntry);
-            return true;
+            if (generator(entry, out menuElement))
+                return true;
         }
-        else if (entry.SettingType.IsEnum)
-            return GenerateEnumChoiceElement(entry.SettingType, entry, out selectableMenuElement);
-        else if (ExtractAcceptableValues(entry, out var array))
-            return GenerateChoiceElement(entry, array, out selectableMenuElement);
 
-        // TODO: Numerics, other types?
-        selectableMenuElement = default;
+        menuElement = default;
         return false;
     }
 
-    private static ChoiceElement<bool> GenerateMenuElement(ConfigEntry<bool> entry)
-    {
-        ChoiceElement<bool> choice = new(
-            entry.LabelName(),
-            ChoiceModels.ForBool(),
-            entry.DescriptionLine()
-        );
-        choice.SynchronizeWith(entry);
-        return choice;
-    }
-
-    private static bool GenerateEnumChoiceElement(
-        Type enumType,
+    private static bool GenerateCustomElement(
         ConfigEntryBase entry,
-        [MaybeNullWhen(false)] out SelectableElement selectableMenuElement
+        [MaybeNullWhen(false)] out MenuElement menuElement
     )
     {
-        selectableMenuElement = default;
-        if (!ChoiceModels.TryForEnum<object>(enumType, out var model))
+        foreach (var tag in entry.Description.Tags)
+        {
+            if (tag is MenuElementGenerator generator && generator(entry, out menuElement))
+                return true;
+        }
+
+        menuElement = default;
+        return false;
+    }
+
+    public static bool GenerateBoolElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<bool> boolEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        ChoiceElement<bool> choice = new(
+            boolEntry.LabelName(),
+            ChoiceModels.ForBool(),
+            boolEntry.DescriptionLine()
+        );
+        choice.SynchronizeWith(boolEntry);
+
+        menuElement = choice;
+        return true;
+    }
+
+    public static bool GenerateEnumChoiceElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        menuElement = default;
+        if (!entry.SettingType.IsEnum)
+            return false;
+        if (!ChoiceModels.TryForEnum<object>(entry.SettingType, out var model))
             return false;
 
         ChoiceElement<object> choice = new(entry.LabelName(), model, entry.DescriptionLine());
         choice.SynchronizeRawWith(entry);
 
-        selectableMenuElement = choice;
+        menuElement = choice;
         return true;
     }
 
@@ -92,17 +178,15 @@ public static class ConfigEntryFactory
         return false;
     }
 
-    private static bool GenerateChoiceElement(
+    public static bool GenerateAcceptableValuesChoiceElement(
         ConfigEntryBase entry,
-        Array values,
-        [MaybeNullWhen(false)] out SelectableElement selectableMenuElement
+        [MaybeNullWhen(false)] out MenuElement menuElement
     )
     {
-        if (values.Length == 0)
-        {
-            selectableMenuElement = default;
+        menuElement = default;
+
+        if (!ExtractAcceptableValues(entry, out var values) || values.Length == 0)
             return false;
-        }
 
         ChoiceElement<object> choice = new(
             entry.LabelName(),
@@ -111,13 +195,19 @@ public static class ConfigEntryFactory
         );
         choice.SynchronizeRawWith(entry);
 
-        selectableMenuElement = choice;
+        menuElement = choice;
         return true;
     }
+}
 
+/// <summary>
+/// Helpful extensions within a ConfigEntryFactory.
+/// </summary>
+public static class ConfigEntryFactoryExtensions
+{
     /// <summary>
     /// Synchronize the menu element model and config setting so that if/when one changes, so does the other.
-    /// Callers should prefer SynchronizeWith instead of WithRaw when possible, for type safety.
+    /// Callers should prefer SynchronizeWith instead of SynchronizeRawWith when possible, for type safety.
     /// </summary>
     public static void SynchronizeRawWith(
         this BaseSelectableValueElement element,
@@ -155,9 +245,9 @@ public static class ConfigEntryFactory
         element.OnDispose += () => entry.SettingChanged -= handler;
     }
 
-    private static string LabelName(this ConfigEntryBase self) =>
+    public static string LabelName(this ConfigEntryBase self) =>
         self.Definition.Key.UnCamelCase().Truncate(50);
 
-    private static string DescriptionLine(this ConfigEntryBase self) =>
+    public static string DescriptionLine(this ConfigEntryBase self) =>
         self.Description.Description.FirstLine(150);
 }
