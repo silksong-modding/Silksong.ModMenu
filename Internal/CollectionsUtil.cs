@@ -8,34 +8,10 @@ internal static class CollectionsUtil
     /// <summary>
     /// Sort a list by distance from the median element.
     /// </summary>
-    internal static IEnumerable<T> MedianOutwards<T>(this IList<T> self)
-    {
-        if (self.Count == 0)
-            yield break;
-
-        int mid = self.Count / 2;
-        int low = mid - 1;
-        int high = mid + 1;
-        while (low >= 0 || high < self.Count)
-        {
-            if (low >= 0)
-            {
-                yield return self[low];
-                low--;
-            }
-            if (high < self.Count)
-            {
-                yield return self[high];
-                high++;
-            }
-        }
-    }
-
     internal static IEnumerable<T> MedianOutwards<T>(this IEnumerable<T> self)
     {
-        if (self is not IList<T> list)
+        if (self is not IReadOnlyList<T> list)
             list = [.. self];
-
         if (list.Count == 0)
             yield break;
 
