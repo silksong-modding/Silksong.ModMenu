@@ -4,7 +4,7 @@ using Silksong.ModMenu.Elements;
 namespace Silksong.ModMenu.Screens;
 
 /// <summary>
-/// A basic menu screen with a single VerticalGroup for the content panel. Sufficient for most simple menus with not many elements.
+/// A basic menu screen with a single VerticalGroup for the content panel. Sufficient for simple menus with 8 or fewer elements of standard size.
 /// </summary>
 public class SimpleMenuScreen(string title) : BasicMenuScreen(title, new VerticalGroup())
 {
