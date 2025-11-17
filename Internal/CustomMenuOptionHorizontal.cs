@@ -51,8 +51,8 @@ internal class CustomMenuOptionHorizontal : MonoBehaviour
                 return false;
         }
 
-        if (orig != null)
-            orig.PlaySlider();
+        if (orig != null && orig.uiAudioPlayer != null)
+            orig.uiAudioPlayer.PlaySlider();
         return true;
     }
 
@@ -79,7 +79,7 @@ internal class CustomMenuOptionHorizontal : MonoBehaviour
     }
 
     [MonoDetourHookInitialize]
-    static void Hook()
+    private static void Hook()
     {
         Md.UnityEngine.UI.MenuOptionHorizontal.MoveOption.ControlFlowPrefix(OverrideMoveOption);
         Md.UnityEngine.UI.MenuOptionHorizontal.UpdateText.ControlFlowPrefix(OverrideUpdateText);
