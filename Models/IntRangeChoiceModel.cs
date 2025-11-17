@@ -7,6 +7,9 @@ namespace Silksong.ModMenu.Models;
 /// </summary>
 public class IntRangeChoiceModel : AbstractValueModel<int>, IChoiceModel<int>
 {
+    /// <summary>
+    /// Construct a choice model with minimum and maximum integer constraints, both inclusive.
+    /// </summary>
     public IntRangeChoiceModel(int min, int max, int value) => ResetParamsInternal(min, max, value);
 
     /// <summary>
@@ -84,8 +87,12 @@ public class IntRangeChoiceModel : AbstractValueModel<int>, IChoiceModel<int>
         return true;
     }
 
+    /// <summary>
+    /// A custom display function to use for the selected integer value.
+    /// </summary>
     public Func<int, string>? DisplayFn;
 
+    /// <inheritdoc/>
     public override string DisplayString() => DisplayFn?.Invoke(GetValue()) ?? $"{GetValue()}";
 
     private void ResetParamsInternal(int min, int max, int value)

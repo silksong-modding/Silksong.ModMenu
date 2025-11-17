@@ -12,6 +12,9 @@ public abstract class MenuElement : MenuDisposable, IMenuEntity
 {
     private readonly VisibilityManager visibility = new();
 
+    /// <summary>
+    /// Construct a MenuElement with the provided container object.
+    /// </summary>
     protected MenuElement(GameObject container)
     {
         Container = container;
@@ -80,18 +83,25 @@ public abstract class MenuElement : MenuDisposable, IMenuEntity
     /// </summary>
     public bool ApplyDefaultColors = true;
 
+    /// <summary>
+    /// Apply default colors on state changes, if `ApplyDefaultColors` is true.
+    /// </summary>
     protected void MaybeApplyDefaultColors()
     {
         if (!ApplyDefaultColors)
             return;
-        ApplyDefaultColorsImpl();
+
+        SetMainColor(GetDefaultColorInternal());
     }
 
     /// <inheritdoc/>
     public void UpdateLayout(Vector2 localAnchorPos) =>
         RectTransform.SetAnchoredPosition(localAnchorPos);
 
-    protected virtual void ApplyDefaultColorsImpl() => Colors.GetDefaultColor(this);
+    /// <summary>
+    /// Overridable implementation for getting the default color for this element.
+    /// </summary>
+    protected virtual Color GetDefaultColorInternal() => Colors.GetDefaultColor(this);
 
     /// <summary>
     /// Set the general font size of the text(s) within the MenuElement.

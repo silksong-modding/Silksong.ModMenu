@@ -5,10 +5,13 @@ namespace Silksong.ModMenu.Models;
 
 /// <summary>
 /// A float slider which linearly interpolates between the given minimum and maximum.
-/// It is not required that min < max; the two can be inverted for a reversed slider.
+/// It is not required that min &lt; max; the two can be inverted for a reversed slider.
 /// </summary>
 public class LinearFloatSliderModel : SliderModel<float>
 {
+    /// <summary>
+    /// Construct a slider model with the given minimum and maximum values, and the specified number of discrete ticks.
+    /// </summary>
     public LinearFloatSliderModel(float min, float max, int ticks)
         : base(0, ticks)
     {
@@ -23,10 +26,19 @@ public class LinearFloatSliderModel : SliderModel<float>
         MaximumValue = max;
     }
 
+    /// <summary>
+    /// The minimum value for this slider.
+    /// </summary>
     public readonly float MinimumValue;
 
+    /// <summary>
+    /// The maximum value for this slider.
+    /// </summary>
     public readonly float MaximumValue;
 
+    /// <summary>
+    /// The number of discrete ticks on the slider, at least 2.
+    /// </summary>
     public readonly int Ticks;
 
     /// <inheritdoc/>
@@ -53,5 +65,6 @@ public class LinearFloatSliderModel : SliderModel<float>
         return true;
     }
 
+    /// <inheritdoc/>
     protected override string DefaultDisplayString(int index, float item) => $"{item:0.###}";
 }

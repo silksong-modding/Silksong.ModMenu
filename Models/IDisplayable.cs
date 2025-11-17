@@ -5,5 +5,8 @@
 /// </summary>
 public interface IDisplayable
 {
+    /// <summary>
+    /// The UI string to display for this entity.
+    /// </summary>
     string DisplayString();
 }

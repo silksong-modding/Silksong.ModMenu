@@ -11,6 +11,9 @@ public class VisibilityManager
 {
     private VisibilityManager? parent;
 
+    /// <summary>
+    /// Whether this entity should be visible if its ancestors are visible.
+    /// </summary>
     public bool VisibleSelf
     {
         get => field;
@@ -24,6 +27,9 @@ public class VisibilityManager
         }
     } = true;
 
+    /// <summary>
+    /// Whether this entity is visible in conjunction with its ancestors.
+    /// </summary>
     public bool VisibleInHierarchy
     {
         get => field;
@@ -42,6 +48,9 @@ public class VisibilityManager
     /// </summary>
     public event Action<bool>? OnVisibilityChanged;
 
+    /// <summary>
+    /// Set the direct parent of this entity. Can only be set once.
+    /// </summary>
     public void SetParent(VisibilityManager parent)
     {
         if (this.parent != null)

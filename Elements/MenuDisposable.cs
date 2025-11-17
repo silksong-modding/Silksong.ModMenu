@@ -22,6 +22,7 @@ public abstract class MenuDisposable : IDisposable
         remove => OnDisposeInternal -= value;
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
         if (disposed)

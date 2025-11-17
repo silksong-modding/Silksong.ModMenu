@@ -5,10 +5,24 @@
 /// </summary>
 public static class FontSizeConstants
 {
+    /// <summary>
+    /// Small font size for a selected choice string.
+    /// </summary>
     public const int CHOICE_SMALL = 24;
+
+    /// <summary>
+    /// Medium font size for a selected choice string.
+    /// </summary>
     public const int CHOICE_MEDIUM = 38;
+
+    /// <summary>
+    /// Large font size for a selected choice string.
+    /// </summary>
     public const int CHOICE_LARGE = 56;
 
+    /// <summary>
+    /// Corresponding font size for a selected choice string.
+    /// </summary>
     public static int ChoiceSize(this FontSizes self) =>
         self switch
         {
@@ -18,10 +32,24 @@ public static class FontSizeConstants
             _ => CHOICE_MEDIUM,
         };
 
+    /// <summary>
+    /// Small font size for a choice description string.
+    /// </summary>
     public const int DESCRIPTION_SMALL = 4;
+
+    /// <summary>
+    /// Standard font size for a choice description string.
+    /// </summary>
     public const int DESCRIPTION_MEDIUM = 6;
+
+    /// <summary>
+    /// Large font size for a choice description string.
+    /// </summary>
     public const int DESCRIPTION_LARGE = 9;
 
+    /// <summary>
+    /// Corresponding font size for a choice description string.
+    /// </summary>
     public static int DescriptionSize(this FontSizes self) =>
         self switch
         {
@@ -31,10 +59,24 @@ public static class FontSizeConstants
             _ => DESCRIPTION_MEDIUM,
         };
 
+    /// <summary>
+    /// Small font size for a basic label string.
+    /// </summary>
     public const int LABEL_SMALL = 30;
+
+    /// <summary>
+    /// Standard font size for a basic label string.
+    /// </summary>
     public const int LABEL_MEDIUM = 45;
+
+    /// <summary>
+    /// Large font size for a basic label string.
+    /// </summary>
     public const int LABEL_LARGE = 68;
 
+    /// <summary>
+    /// Corresponding font size for a basic label string.
+    /// </summary>
     public static int LabelSize(this FontSizes self) =>
         self switch
         {
@@ -44,10 +86,24 @@ public static class FontSizeConstants
             _ => LABEL_MEDIUM,
         };
 
+    /// <summary>
+    /// Small font size for a slider value string.
+    /// </summary>
     public const int SLIDER_SMALL = 22;
+
+    /// <summary>
+    /// Standard font size for a slider value string.
+    /// </summary>
     public const int SLIDER_MEDIUM = 32;
+
+    /// <summary>
+    /// Large font size for a slider value string.
+    /// </summary>
     public const int SLIDER_LARGE = 48;
 
+    /// <summary>
+    /// Corresponding font size for a slider value string.
+    /// </summary>
     public static int SliderSize(this FontSizes self) =>
         self switch
         {

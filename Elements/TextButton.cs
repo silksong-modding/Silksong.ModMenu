@@ -12,6 +12,9 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class TextButton : SelectableElement
 {
+    /// <summary>
+    /// Construct a text button with the given text.
+    /// </summary>
     public TextButton(string text)
         : base(MenuPrefabs.Get().NewTextButtonContainer(out var menuButton), menuButton)
     {

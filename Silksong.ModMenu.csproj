@@ -24,6 +24,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ManagedFolder Condition="$(SilksongFolder) != ''"
       >$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
     >
@@ -72,6 +73,7 @@
     <ItemGroup>
       <Binaries Include="$(TargetPath)" />
       <Binaries Include="$(TargetDir)/$(TargetName).pdb" />
+      <Binaries Include="$(TargetDir)/$(TargetName).xml" />
     </ItemGroup>
     <PropertyGroup>
       <ThunderstoreDir>$(ProjectDir)/thunderstore</ThunderstoreDir>

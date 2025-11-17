@@ -17,6 +17,9 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     private readonly IntRangeChoiceModel pageNumberModel;
     private readonly ChoiceElement<int> pageNumberElement;
 
+    /// <summary>
+    /// Construct a PaginatedMenuScreen with the given title.
+    /// </summary>
     public PaginatedMenuScreen(string title)
         : base(title)
     {
@@ -53,6 +56,7 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     /// </summary>
     public Vector2 Anchor = SpacingConstants.TOP_CENTER_ANCHOR;
 
+    /// <inheritdoc/>
     protected override IEnumerable<MenuElement> AllElements() =>
         pages.SelectMany(p => p.AllElements()).Concat([pageNumberElement]);
 
@@ -76,9 +80,11 @@ public class PaginatedMenuScreen : AbstractMenuScreen
 
     private INavigableMenuEntity? ActivePage => pages.Count > 0 ? pages[PageNumber] : null;
 
+    /// <inheritdoc/>
     protected override SelectableElement? GetDefaultSelectableInternal() =>
         ActivePage?.GetDefaultSelectable();
 
+    /// <inheritdoc/>
     protected override void UpdateLayout()
     {
         if (pages.Count == 0)
