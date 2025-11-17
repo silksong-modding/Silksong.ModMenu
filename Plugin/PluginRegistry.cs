@@ -27,7 +27,7 @@ public static class PluginRegistry
     ];
 
     /// <summary>
-    /// Register a custom plugin interface handler.
+    /// Register a custom plugin interface handler. This allows other plugins to define their own IModMenuInterface extensions with custom implementations.
     /// </summary>
     public static void AddHandler(PluginHandler handler) => registeredHandlers.Add(handler);
 
@@ -79,34 +79,9 @@ public static class PluginRegistry
             }
         }
 
-        return GenerateDefaultMenuElement(name, plugin, out menuElement);
-    }
-
-    private static bool GenerateDefaultMenuElement(
-        string name,
-        BaseUnityPlugin plugin,
-        [MaybeNullWhen(false)] out SelectableElement menuElement
-    )
-    {
-        List<SelectableElement> elements = [];
-        foreach (var entry in plugin.Config)
-        {
-            if (ConfigEntryFactory.GenerateMenuElement(entry.Value, out var element))
-                elements.Add(element);
-        }
-
-        if (elements.Count == 0)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        PaginatedMenuScreenBuilder builder = new(name);
-        builder.AddRange(elements);
-        var menu = builder.Build();
-
-        menuElement = new TextButton(name) { OnSubmit = () => MenuScreenNavigation.Show(menu) };
-        return true;
+        // By default, generate the menu from the config file.
+        ConfigEntryFactory factory = new();
+        return factory.GenerateEntryButton(name, plugin, out menuElement);
     }
 
     private static SelectableElement GenerateCustomElement(IModMenuCustomElement plugin) =>
