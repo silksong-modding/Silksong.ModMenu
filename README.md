@@ -14,12 +14,6 @@ By default, any installed plugin's [`ConfigFile`](https://docs.bepinex.dev/maste
 
 Plugins can add aub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow. Plugins can add the [`ModMenuIgnore`](Plugin/ModMenuIgnore.cs) attribute to opt out of automatic menu creation.
 
-## New Game Types
-
-ModMenu also modifies the "New Game" menu, allowing the addition of new game modes, such as modded playthroughs, plandos, and Randomizer runs.
-
-Like the options menus, these new modes can be injected through the [`Registry`](Registry.cs) class.
-
 ## API
 
 The ModMenu API can be understood in three separate, hierarchical categories.
@@ -49,3 +43,17 @@ Developers can implement their own [`MenuElement`](Elements/MenuElement.cs) subc
 For instance, a [`ChoiceElement`](Elements/ChoiceElement.cs) has its data modeled by a [`IChoiceModel`](Models/IChoiceModel.cs), which controls what the underlying data type is, and what happens to it when the user navigates left or right. In most cases, a [`ListChoiceModel`](Models/ListChoiceModel.cs) is sufficient, but advanced use cases may call for custom behavior, such as dynamic filtering, or infinite scroll. The low-level model interfaces support such use cases.
 
 Models are stateful and remember which value they currently represent, so you should construct new instances for every piece of data you want to model; i.e., if your configuration has 3 different `boolean` parameters, you need 3 separate models to represent them, you should not *reuse* an existing model unless you really do want to show the same data in multiple parts of the UI.
+
+It is recommended, though not required, that you create new Models every time your menu is regenerated (and remove old subscribers when the previous menu is disposed).
+
+## Future work
+
+*   Extending the 'new game' menu with new game modes.
+*   New content pane implementations:
+	*   Free placement
+	*   Multi-row
+	*   Grid
+	*   Scroll pane
+*   New menu element implementations:
+	*   Labels, icons
+	*   Raw text input
