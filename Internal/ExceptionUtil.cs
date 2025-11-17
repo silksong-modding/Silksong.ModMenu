@@ -13,7 +13,7 @@ internal static class ExceptionUtil
         }
         catch (Exception e)
         {
-            ModMenuPlugin.LogError($"{header}: {e}:\n{e.StackTrace}");
+            ModMenuPlugin.LogError($"{header}: {e}");
             return false;
         }
     }
