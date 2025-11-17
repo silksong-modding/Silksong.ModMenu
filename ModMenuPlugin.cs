@@ -3,18 +3,19 @@ using BepInEx.Logging;
 using MonoDetour;
 using MonoDetour.HookGen;
 using Silksong.ModMenu.Elements;
-using Silksong.ModMenu.Examples;
 using Silksong.ModMenu.Internal;
-using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 
 namespace Silksong.ModMenu;
 
+/// <summary>
+/// Plugin implementation for ModMenu.
+/// </summary>
 [MonoDetourTargets(typeof(UIManager), GenerateControlFlowVariants = true)] // We don't need these but another class does :')
 [BepInAutoPlugin(id: "org.silksong-modding.modmenu")]
-public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
+public partial class ModMenuPlugin : BaseUnityPlugin
 {
     private static ModMenuPlugin? instance;
 
@@ -22,20 +23,6 @@ public partial class ModMenuPlugin : BaseUnityPlugin, IModMenuCustomMenu
     {
         MonoDetourManager.InvokeHookInitializers(typeof(ModMenuPlugin).Assembly);
         instance = this;
-    }
-
-    public AbstractMenuScreen BuildCustomMenu()
-    {
-        SimpleMenuScreen menu = new("Mod Menu");
-
-        AbstractMenuScreen example = DemoTextAdventure.BuildMenu();
-        menu.Add(
-            new TextButton("Browse Demo Menu")
-            {
-                OnSubmit = () => MenuScreenNavigation.Show(example),
-            }
-        );
-        return menu;
     }
 
     public string ModMenuName() => "Mod Menu";

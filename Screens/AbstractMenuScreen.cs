@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
+using Silksong.ModMenu.Util;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;

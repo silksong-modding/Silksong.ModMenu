@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Silksong.ModMenu.Internal;
+namespace Silksong.ModMenu.Util;
 
 /// <summary>
 /// Helpers for working with Selectables and navigation.
