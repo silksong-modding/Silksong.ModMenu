@@ -26,8 +26,6 @@ public partial class ModMenuPlugin : BaseUnityPlugin
         instance = this;
     }
 
-    public string ModMenuName() => "Mod Menu";
-
     internal static void LogWarning(string message)
     {
         if (instance != null)

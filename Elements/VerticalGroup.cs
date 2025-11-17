@@ -34,8 +34,10 @@ public class VerticalGroup : INavigableMenuEntity
     /// <inheritdoc/>
     public VisibilityManager Visibility => visibility;
 
+    /// <inheritdoc/>
     public IEnumerable<MenuElement> AllElements() => entities.SelectMany(e => e.AllElements());
 
+    /// <inheritdoc/>
     public SelectableElement? GetDefaultSelectable() =>
         NonHiddenEntities()
             .OfType<INavigableMenuEntity>()

@@ -5,6 +5,9 @@
 /// </summary>
 public static class IMenuEntityExtensions
 {
+    /// <summary>
+    /// Helper functions for IMenuEntities.
+    /// </summary>
     extension(IMenuEntity self)
     {
         /// <summary>
@@ -12,12 +15,18 @@ public static class IMenuEntityExtensions
         /// </summary>
         public bool Visible => self.Visibility.VisibleInHierarchy;
 
+        /// <summary>
+        /// Convenience accessor for VisibleSelf.
+        /// </summary>
         public bool VisibleSelf
         {
             get => self.Visibility.VisibleSelf;
             set => self.Visibility.VisibleSelf = value;
         }
 
+        /// <summary>
+        /// Convenience accessor for VisibileInHierarchy.
+        /// </summary>
         public bool VisibleInHierarchy => self.Visibility.VisibleInHierarchy;
     }
 }

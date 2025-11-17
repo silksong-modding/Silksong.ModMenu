@@ -10,8 +10,8 @@ public abstract class SliderModel<T> : AbstractValueModel<T>
     /// <summary>
     /// Constructs a new slider model for a given range.
     /// </summary>
-    /// <param name="min">Inclusive minimum bound, must be < max.</param>
-    /// <param name="max">Inclusive maximum bound, must be > min.</param>
+    /// <param name="min">Inclusive minimum bound, must be &lt; max.</param>
+    /// <param name="max">Inclusive maximum bound, must be *gt; min.</param>
     protected SliderModel(int min, int max)
     {
         if (max <= min)
@@ -92,5 +92,8 @@ public abstract class SliderModel<T> : AbstractValueModel<T>
     public override string DisplayString() =>
         (DisplayFn ?? DefaultDisplayString).Invoke(Index, GetValue());
 
+    /// <summary>
+    /// The default display string for this model, in the absence of a DisplayFn.
+    /// </summary>
     protected virtual string DefaultDisplayString(int index, T item) => $"{item}";
 }

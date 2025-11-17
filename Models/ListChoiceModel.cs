@@ -105,6 +105,9 @@ public class ListChoiceModel<T>(List<T> values) : AbstractValueModel<T>, IChoice
     public override string DisplayString() =>
         (DisplayFn ?? DefaultDisplayString).Invoke(Index, GetValue());
 
+    /// <summary>
+    /// Default string to display, in the absence of a DisplayFn.
+    /// </summary>
     protected virtual string DefaultDisplayString(int index, T item) => $"{item}";
 
     private bool Move(int delta)

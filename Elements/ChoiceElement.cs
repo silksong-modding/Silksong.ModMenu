@@ -14,6 +14,9 @@ namespace Silksong.ModMenu.Elements;
 /// <typeparam name="T">The type of value represented.</typeparam>
 public class ChoiceElement<T> : SelectableValueElement<T>
 {
+    /// <summary>
+    /// Construct a ChoiceElement with the given label text, model, and description text.
+    /// </summary>
     public ChoiceElement(string label, IChoiceModel<T> model, string description = "")
         : base(
             MenuPrefabs.Get().NewTextChoiceContainer(out var menuOptionHorizontal),
@@ -38,6 +41,9 @@ public class ChoiceElement<T> : SelectableValueElement<T>
         custom.UpdateText();
     }
 
+    /// <summary>
+    /// Shortcut for building a ChoiceElement from a finite list of values.
+    /// </summary>
     public ChoiceElement(string label, List<T> items, string description = "")
         : this(label, ChoiceModels.ForValues(items), description) { }
 

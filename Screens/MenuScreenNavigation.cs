@@ -21,7 +21,14 @@ public static class MenuScreenNavigation
     /// </summary>
     public enum NavigationType
     {
+        /// <summary>
+        /// Indicating this screen is being entered/exited in order to open a *new* screen.
+        /// </summary>
         Forwards,
+
+        /// <summary>
+        /// Indicating this screen is being entered/exited in order to open a *previous* screen.
+        /// </summary>
         Backwards,
     }
 
