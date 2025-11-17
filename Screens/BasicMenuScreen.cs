@@ -10,6 +10,9 @@ namespace Silksong.ModMenu.Screens;
 /// </summary>
 public class BasicMenuScreen : AbstractMenuScreen
 {
+    /// <summary>
+    /// Construct a BasicMenuScreen with the given title and content pane.
+    /// </summary>
     public BasicMenuScreen(string title, INavigableMenuEntity content)
         : base(title)
     {
@@ -27,11 +30,14 @@ public class BasicMenuScreen : AbstractMenuScreen
     /// </summary>
     public Vector2 Anchor = SpacingConstants.TOP_CENTER_ANCHOR;
 
+    /// <inheritdoc/>
     protected override IEnumerable<MenuElement> AllElements() => Content.AllElements();
 
+    /// <inheritdoc/>
     protected override SelectableElement? GetDefaultSelectableInternal() =>
         Content.GetDefaultSelectable();
 
+    /// <inheritdoc/>
     protected override void UpdateLayout()
     {
         Content.UpdateLayout(Anchor);

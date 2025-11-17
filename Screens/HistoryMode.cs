@@ -5,9 +5,13 @@
 /// </summary>
 public enum HistoryMode
 {
-    // Navigate forwards, adding this window to the end of the history stack.
+    /// <summary>
+    /// Navigate forwards, adding this window to the end of the history stack.
+    /// </summary>
     Add,
 
-    // Navigate sideways, replacing the previously shown window in the history stack.
+    /// <summary>
+    /// Navigate sideways, replacing the previously shown window in the history stack.
+    /// </summary>
     Replace,
 }

@@ -62,6 +62,9 @@ public static class ChoiceModels
     public static bool TryForEnum<T>([MaybeNullWhen(false)] out ListChoiceModel<T> model)
         where T : Enum => TryForEnum(typeof(T), out model);
 
+    /// <summary>
+    /// Generate a ChoiceModel for the given enum type, or throw if the enum is empty.
+    /// </summary>
     public static ListChoiceModel<T> ForEnum<T>()
         where T : Enum =>
         TryForEnum<T>(out var model)

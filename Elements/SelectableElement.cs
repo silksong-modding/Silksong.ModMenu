@@ -12,6 +12,9 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public abstract class SelectableElement : MenuElement, INavigableMenuEntity
 {
+    /// <summary>
+    /// Construct a SelectableElement with a given container and a Selectable within it.
+    /// </summary>
     protected SelectableElement(GameObject container, Selectable selectable)
         : base(container)
     {
@@ -86,5 +89,5 @@ public abstract class SelectableElement : MenuElement, INavigableMenuEntity
     }
 
     /// <inheritdoc/>
-    protected override void ApplyDefaultColorsImpl() => SetMainColor(Colors.GetDefaultColor(this));
+    protected override Color GetDefaultColorInternal() => Colors.GetDefaultColor(this);
 }

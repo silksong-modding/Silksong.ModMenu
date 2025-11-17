@@ -24,11 +24,20 @@ public class PaginatedMenuScreenBuilder(string title, int pageSize = 8)
     /// </summary>
     public float VerticalSpacing = SpacingConstants.VSPACE_MEDIUM;
 
+    /// <summary>
+    /// Add a MenuElement to the set of pages to be built.
+    /// </summary>
     public void Add(MenuElement menuElement) => menuElements.Add(menuElement);
 
+    /// <summary>
+    /// Add a range of MenuElements to the set of pages to be built.
+    /// </summary>
     public void AddRange(IEnumerable<MenuElement> menuElements) =>
         this.menuElements.AddRange(menuElements);
 
+    /// <summary>
+    /// Build a PaginatedMenuScreen from the provided inputs and configuration.
+    /// </summary>
     public PaginatedMenuScreen Build()
     {
         PaginatedMenuScreen screen = new(title) { Anchor = Anchor };

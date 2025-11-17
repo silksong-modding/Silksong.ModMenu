@@ -97,6 +97,9 @@ public class ConfigEntryFactory
         return false;
     }
 
+    /// <summary>
+    /// Generate a menu element for a config with a custom generator.
+    /// </summary>
     public static bool GenerateCustomElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
@@ -112,6 +115,9 @@ public class ConfigEntryFactory
         return false;
     }
 
+    /// <summary>
+    /// Generate a menu element for a config setting with a boolean value.
+    /// </summary>
     public static bool GenerateBoolElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
@@ -134,6 +140,9 @@ public class ConfigEntryFactory
         return true;
     }
 
+    /// <summary>
+    /// Generate a menu element for a config entry on an enum type.
+    /// </summary>
     public static bool GenerateEnumChoiceElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
@@ -178,6 +187,9 @@ public class ConfigEntryFactory
         return false;
     }
 
+    /// <summary>
+    /// Generate a menu element for a config setting with an explicit list of acceptable values.
+    /// </summary>
     public static bool GenerateAcceptableValuesChoiceElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
@@ -245,9 +257,15 @@ public static class ConfigEntryFactoryExtensions
         element.OnDispose += () => entry.SettingChanged -= handler;
     }
 
+    /// <summary>
+    /// Short, stylized text label for a config entry.
+    /// </summary>
     public static string LabelName(this ConfigEntryBase self) =>
         self.Definition.Key.UnCamelCase().Truncate(50);
 
+    /// <summary>
+    /// Truncated description for a config entry.
+    /// </summary>
     public static string DescriptionLine(this ConfigEntryBase self) =>
         self.Description.Description.FirstLine(150);
 }

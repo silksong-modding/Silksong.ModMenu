@@ -7,10 +7,12 @@ namespace Silksong.ModMenu.Models;
 /// <summary>
 /// Provides a custom name for any enum value represented through the Models helper.
 /// </summary>
-/// <param name="name"></param>
 [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 public class ModMenuNameAttribute(string customName) : Attribute
 {
+    /// <summary>
+    /// The UI name to use for this enum value.
+    /// </summary>
     public string CustomName => customName;
 }
 

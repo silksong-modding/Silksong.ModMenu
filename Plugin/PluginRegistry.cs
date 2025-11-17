@@ -9,6 +9,9 @@ using Silksong.ModMenu.Screens;
 
 namespace Silksong.ModMenu.Plugin;
 
+/// <summary>
+/// Delegate to generate a mod menu item from the given plugin, returning false if this handler should not handle this plugin.
+/// </summary>
 public delegate bool PluginHandler(
     IModMenuInterface plugin,
     [MaybeNullWhen(false)] out SelectableElement menuElement

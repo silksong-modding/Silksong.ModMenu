@@ -19,6 +19,9 @@ namespace Silksong.ModMenu.Screens;
 public abstract class AbstractMenuScreen : MenuDisposable
 {
     #region Constructor
+    /// <summary>
+    /// Construct a menu screen with the given title.
+    /// </summary>
     protected AbstractMenuScreen(string title)
     {
         Container = MenuPrefabs.Get().NewCustomMenu(title);
@@ -182,6 +185,9 @@ public abstract class AbstractMenuScreen : MenuDisposable
         return (s != null && s.Visible && s.Interactable) ? s.SelectableComponent : BackButton;
     }
 
+    /// <summary>
+    /// Return the last Selectable in this menu screen that was selected, or else the default selectable.
+    /// </summary>
     protected Selectable GetLastSelectableOrDefault() =>
         (lastSelected != null && lastSelected.Visible && lastSelected.Interactable)
             ? lastSelected.SelectableComponent

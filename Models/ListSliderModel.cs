@@ -10,11 +10,13 @@ public class ListSliderModel<T>(List<T> items) : SliderModel<T>(0, items.Count -
 {
     private readonly T[] items = [.. items];
 
+    /// <inheritdoc/>
     protected override bool GetIndex(T value, out int index)
     {
         index = Array.IndexOf(items, value);
         return index >= 0;
     }
 
+    /// <inheritdoc/>
     protected override T GetValue(int index) => items[index];
 }

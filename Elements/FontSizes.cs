@@ -5,7 +5,18 @@
 /// </summary>
 public enum FontSizes
 {
+    /// <summary>
+    /// Smaller font sizes for more compact menus.
+    /// </summary>
     Small,
+
+    /// <summary>
+    /// Standard font sizes seen throughout most of the menu.
+    /// </summary>
     Medium,
+
+    /// <summary>
+    /// Larger font sizes for menus with egos.
+    /// </summary>
     Large,
 }

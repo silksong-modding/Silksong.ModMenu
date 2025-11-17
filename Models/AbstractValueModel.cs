@@ -8,7 +8,18 @@ namespace Silksong.ModMenu.Models;
 /// </summary>
 public abstract class AbstractValueModel<T> : IValueModel<T>
 {
+    /// <summary>
+    /// Construct an AbstractValueModel with the default value.
+    /// </summary>
     protected AbstractValueModel() => OnValueChanged += o => OnObjectValueChangedImpl?.Invoke(o!);
+
+    /// <summary>
+    /// Construct an AbstractValueModel with the specified value.
+    /// </summary>
+    protected AbstractValueModel(T value) : this()
+    {
+        Value = value;
+    }
 
     /// <inheritdoc/>
     public event Action<T>? OnValueChanged;

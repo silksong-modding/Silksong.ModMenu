@@ -13,6 +13,9 @@ namespace Silksong.ModMenu;
 /// </summary>
 public static class Registry
 {
+    /// <summary>
+    /// Functor to generate a SelectableElement for the mods menu.
+    /// </summary>
     public delegate SelectableElement MenuElementGenerator();
 
     private static readonly List<(string, MenuElementGenerator)> modMenuGenerators = [];

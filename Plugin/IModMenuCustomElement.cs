@@ -7,5 +7,8 @@ namespace Silksong.ModMenu.Plugin;
 /// </summary>
 public interface IModMenuCustomElement : IModMenuInterface
 {
+    /// <summary>
+    /// The custom menu element provided by this mod menu plugin.
+    /// </summary>
     public SelectableElement BuildCustomElement();
 }
