@@ -44,7 +44,8 @@ public partial class ModMenuPlugin : BaseUnityPlugin
             Debug.LogError(message);
     }
 
-    // BepInEx logging has a 2000ms flush delay which is useless for debugging crashes, so we do a manual flush.
+    // BepInEx logging has a 2000ms flush delay which can make debugging crashes difficult.
+    // If debugging a crash, use this method after logging diagnostics to ensure they're persisted.
     internal static void FlushLogs()
     {
         foreach (var listener in BepInEx.Logging.Logger.Listeners)
