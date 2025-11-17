@@ -2,6 +2,9 @@
 
 namespace Silksong.ModMenu.Elements;
 
+/// <summary>
+/// Standard color scheme for menu elements. By default, changes to ElementState use these colors.
+/// </summary>
 public static class Colors
 {
     public static readonly Color DEFAULT = Color.white;

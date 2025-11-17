@@ -2,6 +2,9 @@
 
 namespace Silksong.ModMenu.Models;
 
+/// <summary>
+/// A wrapped value that notifies subscribers on change.
+/// </summary>
 public interface IValueModel<T> : IBaseValueModel
 {
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Silksong.ModMenu.Internal;
+using Silksong.ModMenu.Util;
 using UnityEngine;
 using UnityEngine.UI;
 
