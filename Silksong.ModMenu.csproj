@@ -24,6 +24,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
+    <Description>API for modifying Silksong menus</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ManagedFolder Condition="$(SilksongFolder) != ''"
       >$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
