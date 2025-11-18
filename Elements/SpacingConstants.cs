@@ -7,35 +7,37 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public static class SpacingConstants
 {
+    // TODO: Define HSPACE accessors based on aspect ratio
+
     /// <summary>
     /// About 1/4 the screen's width, making it good for 4-column setups.
     /// </summary>
-    public const float HSPACE_SMALL = 10;
+    // public static float HSPACE_SMALL => ?;
 
     /// <summary>
     /// About 1/3 the screen's width, making it good for 3-column setups.
     /// </summary>
-    public const float HSPACE_MEDIUM = 20;
+    // public static float HSPACE_MEDIUM => ??;
 
     /// <summary>
     /// About 1/2 the screen's width, making it good for 2-column setups.
     /// </summary>
-    public const float HSPACE_LARGE = 30;
+    // public static float HSPACE_LARGE => ???;
 
     /// <summary>
-    /// Spacing for about X small-font elements in a single column.
+    /// Spacing for about 12 small-font elements in a single column.
     /// </summary>
-    public const float VSPACE_SMALL = 70f;
+    public static float VSPACE_SMALL => 70f;
 
     /// <summary>
     /// Spacing for about 8 medium-font elements in a single column.
     /// </summary>
-    public const float VSPACE_MEDIUM = 105f;
+    public static float VSPACE_MEDIUM => 105f;
 
     /// <summary>
-    /// Spacing for about X large-font elements in a single column.
+    /// Spacing for about 6 large-font elements in a single column.
     /// </summary>
-    public const float VSPACE_LARGE = 160f;
+    public static float VSPACE_LARGE => 160f;
 
     /// <summary>
     /// The RectTransform anchor position for the top center element of a standard menu.
