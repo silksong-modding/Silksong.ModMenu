@@ -48,6 +48,8 @@ It is recommended, though not required, that you create new Models every time yo
 
 ## Future work
 
+The ModMenu mod should be considered _unstable_ until future work is pared down and version 1.0 is released. Breaking API changes may occur in the pursuit of implementing these additional features.
+
 *   Extending the 'new game' menu with new game modes.
 *   New content pane implementations:
 	*   Free placement
