@@ -9,19 +9,13 @@ public static class SpacingConstants
 {
     // TODO: Define HSPACE accessors based on aspect ratio
 
-    /// <summary>
-    /// About 1/4 the screen's width, making it good for 4-column setups.
-    /// </summary>
+    // About 1/4 the screen's width, making it good for 4-column setups.
     // public static float HSPACE_SMALL => ?;
 
-    /// <summary>
-    /// About 1/3 the screen's width, making it good for 3-column setups.
-    /// </summary>
+    // About 1/3 the screen's width, making it good for 3-column setups.
     // public static float HSPACE_MEDIUM => ??;
 
-    /// <summary>
-    /// About 1/2 the screen's width, making it good for 2-column setups.
-    /// </summary>
+    // About 1/2 the screen's width, making it good for 2-column setups.
     // public static float HSPACE_LARGE => ???;
 
     /// <summary>
