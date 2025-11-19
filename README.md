@@ -48,15 +48,21 @@ It is recommended, though not required, that you create new Models every time yo
 
 ## Future work
 
-The ModMenu mod should be considered _unstable_ until future work is pared down and version 1.0 is released. Breaking API changes may occur in the pursuit of implementing these additional features.
+The ModMenu mod should be considered _unstable_ version 1.0 is released. Breaking API changes may occur in the pursuit of implementing additional features to reach 1.0.
 
-*   Extending the 'new game' menu with new game modes.
+Required for 1.0:
 *   New content pane implementations:
 	*   Free placement
-	*   Multi-row
 	*   Grid
-	*   Scroll pane
 *   New menu element implementations:
 	*   Labels, icons
 	*   Raw text input
+
+Optional future work:
+*   Extending the 'new game' menu with new game modes.
+*   New content pane implementations:
+	*   Multi-row
+	*   Scroll pane
+*   New menu element implementations:
+	*   Icons/images
 	*   Keybinds
