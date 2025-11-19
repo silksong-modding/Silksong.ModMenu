@@ -40,4 +40,4 @@ communities = [ "hollow-knight-silksong" ]
 
 [publish.categories]
 # available categories can be found at https://github.com/thunderstore-io/ecosystem-schema/blob/master/games/data/hollow-knight-silksong.yml
-hollow-knight-silksong = [ "Libraries", "Mods", "Utilities" ]
+hollow-knight-silksong = [ "libraries", "mods" ]
