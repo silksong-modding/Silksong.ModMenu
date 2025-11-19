@@ -82,7 +82,7 @@ public class ConfigEntryFactory
     /// Right now only booleans, enums, and entries with an explicit AcceptableValuesList are supported.
     /// In the future support for numeric and other types may be added.
     /// </summary>
-    protected virtual bool GenerateMenuElement(
+    public virtual bool GenerateMenuElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
     )
