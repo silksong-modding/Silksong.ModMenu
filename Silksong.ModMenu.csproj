@@ -26,7 +26,9 @@
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
     <Description>API for modifying Silksong menus</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <ManagedFolder Condition="$(SilksongFolder) != ''">$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder>
+    <ManagedFolder Condition="$(SilksongFolder) != ''"
+      >$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
+    >
     <!-- Set to true to use local references for development purposes. -->
     <UseLocalRefs>false</UseLocalRefs>
   </PropertyGroup>
@@ -50,7 +52,10 @@
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Condition="$(UseLocalRefs) And Exists($(ManagedFolder))">
-    <LocalReferences Include="$(ManagedFolder)*.dll" Exclude="$(ManagedFolder)Mono*.dll;$(ManagedFolder)netstandard.dll;$(ManagedFolder)System*.dll;$(ManagedFolder)mscorlib.dll" />
+    <LocalReferences
+      Include="$(ManagedFolder)*.dll"
+      Exclude="$(ManagedFolder)Mono*.dll;$(ManagedFolder)netstandard.dll;$(ManagedFolder)System*.dll;$(ManagedFolder)mscorlib.dll"
+    />
     <Reference Include="@(LocalReferences)" Private="false" />
   </ItemGroup>
   <ItemGroup>
@@ -67,15 +72,32 @@
     <PropertyGroup>
       <ThunderstoreDir>$(ProjectDir)/thunderstore</ThunderstoreDir>
     </PropertyGroup>
-    <Copy SourceFiles="@(Binaries)" DestinationFolder="$(SilksongPluginsFolder)/silksong_modding-ModMenu" Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')" />
+    <Copy
+      SourceFiles="@(Binaries)"
+      DestinationFolder="$(SilksongPluginsFolder)/silksong_modding-ModMenu"
+      Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')"
+    />
     <RemoveDir Directories="$(ThunderstoreDir)/tmp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/tmp" />
     <Copy SourceFiles="@(Binaries)" DestinationFolder="$(ThunderstoreDir)/tmp" />
     <Exec Command="dotnet tool restore" />
-    <Exec Command="dotnet tcli build --config-path &quot;$(ThunderstoreDir)/thunderstore.toml&quot; --package-name &quot;$(AssemblyTitle)&quot; --package-version $(Version)" StandardOutputImportance="High" StandardErrorImportance="High" />
+    <Exec
+      Command="dotnet tcli build --config-path &quot;$(ThunderstoreDir)/thunderstore.toml&quot; --package-name &quot;$(AssemblyTitle)&quot; --package-version $(Version)"
+      StandardOutputImportance="High"
+      StandardErrorImportance="High"
+    />
   </Target>
   <Target Name="Husky" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != 0">
-    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High" />
-    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="." />
+    <Exec
+      Command="dotnet tool restore"
+      StandardOutputImportance="Low"
+      StandardErrorImportance="High"
+    />
+    <Exec
+      Command="dotnet husky install"
+      StandardOutputImportance="Low"
+      StandardErrorImportance="High"
+      WorkingDirectory="."
+    />
   </Target>
 </Project>
