@@ -14,9 +14,15 @@ By default, any installed plugin's [`ConfigFile`](https://docs.bepinex.dev/api/B
 
 Plugins can add sub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow.
 
-Plugins can opt out of automatic menu creation by doing one of:
-* Adding the [`[ModMenuIgnore]`](Models/Attributes.cs) attribute to their plugin class
-* Creating an attribute named `ModMenuIgnoreAttribute` and adding it to their plugin class
+Plugins can opt out of automatic menu creation by doing one of the following:
+* Adding the [`[ModMenuIgnore]`](Models/Attributes.cs) attribute to their plugin class.
+* Creating an attribute named `ModMenuIgnoreAttribute` and adding it to their plugin class.
+This can be done by pasting the following line into your project
+```cs
+internal class ModMenuIgnoreAttribute : System.Attribute { }
+```
+and then putting `[ModMenuIgnore]` above your plugin class (just above or below the `[BepInAutoPlugin(...)]` line).
+
 
 ## API
 
