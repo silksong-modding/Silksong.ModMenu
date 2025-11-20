@@ -4,6 +4,7 @@ using MonoDetour;
 using MonoDetour.Cil;
 using MonoDetour.HookGen;
 using MonoMod.Cil;
+using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
@@ -20,7 +21,7 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
     internal const string RIGHT_DESCRIPTION_NAME = "ModMenu-Right Description";
 
     /// <summary>
-    /// The Unity component for the text object added on the right hand side (below the option)
+    /// The Unity component for the text object added on the right hand side (below the <see cref="ChoiceElement{T}.ChoiceText"/>).
     /// </summary>
     public readonly Text RightText;
 
@@ -35,6 +36,24 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
     {
         RightText = SetupRightDescription();
         RightText.text = rightDescription;
+    }
+
+    /// <summary>
+    /// Create a choice element with a description below the choice that updates based on the value of the underlying Model.
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="model"></param>
+    /// <param name="description"></param>
+    /// <param name="getRightDescription">Function used to determine the description below the choice.</param>
+    public RightDescriptionChoiceElement(
+        string label,
+        IChoiceModel<T> model,
+        string description,
+        Func<T, string> getRightDescription
+    )
+        : this(label, model, description, getRightDescription(model.Value))
+    {
+        model.OnValueChanged += t => RightText.text = getRightDescription(model.Value);
     }
 
     private Text SetupRightDescription()
@@ -95,49 +114,54 @@ internal static class RightDescriptionChoiceElementHooks
         )
         {
             cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitDelegate<Action<MenuSelectable>>(s =>
-            {
-                GameObject? rightDesc = s.gameObject.FindChild(
-                    RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
-                );
-
-                if (rightDesc != null)
-                {
-                    Animator anim = rightDesc.GetComponent<Animator>();
-                    anim.ResetTrigger(MenuSelectable._hidePropId);
-                    anim.SetTrigger(MenuSelectable._showPropId);
-                }
-            });
+            cursor.EmitDelegate(AnimateUp);
         }
     }
 
     private static void HookOnDeselect(ILManipulationInfo info)
     {
         ILCursor cursor = new(info.Context);
+        int locIndex = 1;
         while (
             cursor.TryGotoNext(
                 MoveType.After,
-                i => i.MatchLdloc(1),
+                i => i.MatchLdloc(out locIndex),
                 i => i.MatchLdfld<MenuSelectable>(nameof(MenuSelectable.descriptionText)),
                 i => i.MatchLdsfld<MenuSelectable>(nameof(MenuSelectable._hidePropId)),
                 i => i.MatchCallOrCallvirt<Animator>(nameof(Animator.SetTrigger))
             )
         )
         {
-            cursor.Emit(OpCodes.Ldloc_1);
-            cursor.EmitDelegate<Action<MenuSelectable>>(s =>
-            {
-                GameObject? rightDesc = s.gameObject.FindChild(
-                    RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
-                );
+            cursor.Emit(OpCodes.Ldloc, locIndex);
+            cursor.EmitDelegate(AnimateDown);
+        }
+    }
 
-                if (rightDesc != null)
-                {
-                    Animator anim = rightDesc.GetComponent<Animator>();
-                    anim.ResetTrigger(MenuSelectable._showPropId);
-                    anim.SetTrigger(MenuSelectable._hidePropId);
-                }
-            });
+    private static void AnimateUp(MenuSelectable selectable)
+    {
+        GameObject? rightDesc = selectable.gameObject.FindChild(
+            RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
+        );
+
+        if (rightDesc != null)
+        {
+            Animator anim = rightDesc.GetComponent<Animator>();
+            anim.ResetTrigger(MenuSelectable._hidePropId);
+            anim.SetTrigger(MenuSelectable._showPropId);
+        }
+    }
+
+    private static void AnimateDown(MenuSelectable selectable)
+    {
+        GameObject? rightDesc = selectable.gameObject.FindChild(
+            RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
+        );
+
+        if (rightDesc != null)
+        {
+            Animator anim = rightDesc.GetComponent<Animator>();
+            anim.ResetTrigger(MenuSelectable._showPropId);
+            anim.SetTrigger(MenuSelectable._hidePropId);
         }
     }
 }
