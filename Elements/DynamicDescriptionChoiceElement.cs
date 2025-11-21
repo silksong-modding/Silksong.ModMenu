@@ -76,7 +76,7 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
         newRect.anchorMax = new(1f, 0.5f);
         newRect.pivot = new(1f, 0.5f);
         newRect.anchoredPosition = new(
-            optionRect.anchoredPosition.x + (0.5f * optionRect.sizeDelta.x), // TODO - fix this
+            optionRect.anchoredPosition.x + ((1f - optionRect.pivot.x) * optionRect.sizeDelta.x),
             originalRect.anchoredPosition.y
         );
 
