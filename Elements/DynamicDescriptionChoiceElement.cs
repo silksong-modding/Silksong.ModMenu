@@ -4,7 +4,6 @@ using MonoDetour;
 using MonoDetour.Cil;
 using MonoDetour.HookGen;
 using MonoMod.Cil;
-using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
@@ -16,17 +15,12 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// Subclass of <see cref="ChoiceElement{T}"/> with a second description object that lies below the choice text.
 /// </summary>
-public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
+public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
 {
     internal const string RIGHT_DESCRIPTION_NAME = "ModMenu-Right Description";
 
-    /// <summary>
-    /// The Unity component for the text object added on the right hand side (below the <see cref="ChoiceElement{T}.ChoiceText"/>).
-    /// </summary>
-    public readonly Text RightText;
-
     /// <inheritdoc cref="ChoiceElement{T}.ChoiceElement(string, IChoiceModel{T}, string)"/>
-    public RightDescriptionChoiceElement(
+    public DynamicDescriptionChoiceElement(
         string label,
         IChoiceModel<T> model,
         string description,
@@ -34,7 +28,7 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
     )
         : base(label, model, description)
     {
-        RightText = SetupRightDescription();
+        RightText = SetupRightDescription(DescriptionText, ChoiceText);
         RightText.text = rightDescription;
     }
 
@@ -45,7 +39,7 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
     /// <param name="model"></param>
     /// <param name="description"></param>
     /// <param name="getRightDescription">Function used to determine the description below the choice.</param>
-    public RightDescriptionChoiceElement(
+    public DynamicDescriptionChoiceElement(
         string label,
         IChoiceModel<T> model,
         string description,
@@ -53,12 +47,17 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
     )
         : this(label, model, description, getRightDescription(model.Value))
     {
-        model.OnValueChanged += t => RightText.text = getRightDescription(model.Value);
+        model.OnValueChanged += value => RightText.text = getRightDescription(value);
     }
 
-    private Text SetupRightDescription()
+    /// <summary>
+    /// The Unity component for the text object added on the right hand side (below the <see cref="ChoiceElement{T}.ChoiceText"/>).
+    /// </summary>
+    public readonly Text RightText;
+
+    private static Text SetupRightDescription(Text descriptionText, Text choiceText)
     {
-        GameObject desc = DescriptionText.gameObject;
+        GameObject desc = descriptionText.gameObject;
         GameObject rightDesc = UObject.Instantiate(
             desc,
             desc.transform.parent,
@@ -71,7 +70,7 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
 
         RectTransform originalRect = desc.GetComponent<RectTransform>();
         RectTransform newRect = rightDesc.GetComponent<RectTransform>();
-        RectTransform optionRect = ChoiceText.gameObject.GetComponent<RectTransform>();
+        RectTransform optionRect = choiceText.gameObject.GetComponent<RectTransform>();
 
         newRect.anchorMin = new(1f, 0.5f);
         newRect.anchorMax = new(1f, 0.5f);
@@ -81,9 +80,10 @@ public class RightDescriptionChoiceElement<T> : ChoiceElement<T>
             originalRect.anchoredPosition.y
         );
 
-        rightDesc.GetComponent<ChangePositionByLanguage>().originalPosition = rightDesc
-            .transform
-            .localPosition;
+        if (rightDesc.TryGetComponent<ChangePositionByLanguage>(out var cpbl))
+        {
+            cpbl.originalPosition = rightDesc.transform.localPosition;
+        }
 
         return rightText;
     }
@@ -106,6 +106,7 @@ internal static class RightDescriptionChoiceElementHooks
         while (
             cursor.TryGotoNext(
                 MoveType.After,
+                // this.descriptionText.SetTrigger(MenuSelectable._showPropId)
                 i => i.MatchLdarg(0),
                 i => i.MatchLdfld<MenuSelectable>(nameof(MenuSelectable.descriptionText)),
                 i => i.MatchLdsfld<MenuSelectable>(nameof(MenuSelectable._showPropId)),
@@ -125,6 +126,9 @@ internal static class RightDescriptionChoiceElementHooks
         while (
             cursor.TryGotoNext(
                 MoveType.After,
+                // this.descriptionText.SetTrigger(MenuSelectable._hidePropId)
+                // It is Ldloc rather than Ldarg.0 because it is the IEnumerator.MoveNext method
+                // that is being hooked
                 i => i.MatchLdloc(out locIndex),
                 i => i.MatchLdfld<MenuSelectable>(nameof(MenuSelectable.descriptionText)),
                 i => i.MatchLdsfld<MenuSelectable>(nameof(MenuSelectable._hidePropId)),
@@ -140,7 +144,7 @@ internal static class RightDescriptionChoiceElementHooks
     private static void AnimateUp(MenuSelectable selectable)
     {
         GameObject? rightDesc = selectable.gameObject.FindChild(
-            RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
+            DynamicDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
         );
 
         if (rightDesc != null)
@@ -154,7 +158,7 @@ internal static class RightDescriptionChoiceElementHooks
     private static void AnimateDown(MenuSelectable selectable)
     {
         GameObject? rightDesc = selectable.gameObject.FindChild(
-            RightDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
+            DynamicDescriptionChoiceElement<object>.RIGHT_DESCRIPTION_NAME
         );
 
         if (rightDesc != null)

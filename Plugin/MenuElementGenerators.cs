@@ -72,7 +72,7 @@ public static class MenuElementGenerators
 
             string leftDesc = includeSettingDescription ? entry.DescriptionLine() : string.Empty;
 
-            RightDescriptionChoiceElement<object> typedElement = new(
+            DynamicDescriptionChoiceElement<object> typedElement = new(
                 entry.LabelName(),
                 model,
                 leftDesc,
