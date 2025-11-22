@@ -30,11 +30,11 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       attestation-url: ${{ steps.attest.outputs.attestation-url }}
       # when you are ready to publish your first release, change this to 'true'
-      allow-release: 'false'
+      allow-release: 'true'
       is-new-version: ${{ !fromJSON(steps.needs-release.outputs.exists || 'true') }}
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
@@ -95,7 +95,7 @@ jobs:
       THUNDERSTORE_API_KEY: ${{ secrets.THUNDERSTORE_API_KEY }}
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:

@@ -12,7 +12,17 @@ This mod adds a 'Mods' sub-menu to the bottom of the Options menu as its main fe
 
 By default, any installed plugin's [`ConfigFile`](https://docs.bepinex.dev/api/BepInEx.Configuration.ConfigFile.html) data will be used to generate an ingame menu that can modify those configuration options. At this time, only booleans, enums, and explicit value lists are supported; for more complex configuration including arbitrary integers and floats, manual menu construction is needed.
 
-Plugins can add sub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow. Plugins can add the [`ModMenuIgnore`](Plugin/ModMenuIgnore.cs) attribute to opt out of automatic menu creation.
+Plugins can add sub-menus to the main menu through the [`Registry`](Registry.cs) class manually, or by implementing one of the [Plugin](Plugin) interfaces that extend from [`IModMenuInterface`](Plugin/IModMenuInterface.cs) for a simplified workflow.
+
+Plugins can opt out of automatic menu creation by doing one of the following:
+* Adding the [`[ModMenuIgnore]`](Models/Attributes.cs) attribute to their plugin class.
+* Creating an attribute named `ModMenuIgnoreAttribute` and adding it to their plugin class.
+This can be done by pasting the following line into your project
+```cs
+internal class ModMenuIgnoreAttribute : System.Attribute { }
+```
+and then putting `[ModMenuIgnore]` above your plugin class (just above or below the `[BepInAutoPlugin(...)]` line).
+
 
 ## API
 
