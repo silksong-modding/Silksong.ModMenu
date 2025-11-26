@@ -87,6 +87,20 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
 
         return rightText;
     }
+
+    /// <inheritdoc />
+    public override void SetFontSizes(FontSizes fontSizes)
+    {
+        base.SetFontSizes(fontSizes);
+        RightText.fontSize = fontSizes.DescriptionSize();
+    }
+
+    /// <inheritdoc />
+    public override void SetMainColor(Color color)
+    {
+        base.SetMainColor(color);
+        RightText.color = color;
+    }
 }
 
 // Separate class because this can't be done on a generic class
