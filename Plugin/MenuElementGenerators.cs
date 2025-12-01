@@ -111,7 +111,7 @@ public static class MenuElementGenerators
             }
 
             IntSliderModel model = new(intValueRange.MinValue, intValueRange.MaxValue);
-            SliderElement<int> slider = new(entry.LabelName(), model);
+            SliderElement<int> slider = new(typedEntry.LabelName(), model);
             slider.SynchronizeWith(typedEntry);
 
             menuElement = slider;
