@@ -86,4 +86,38 @@ public static class MenuElementGenerators
 
         return gen;
     }
+
+    /// <summary>
+    /// Create a generator that converts an int-valued <see cref="ConfigEntry{T}"/>
+    /// with a AcceptableValueRange to a slider element.
+    /// </summary>
+    public static ConfigEntryFactory.MenuElementGenerator CreateIntSliderGenerator()
+    {
+        bool gen(ConfigEntryBase entry, [MaybeNullWhen(false)] out MenuElement menuElement)
+        {
+            menuElement = default;
+
+            if (entry is not ConfigEntry<int> typedEntry)
+            {
+                return false;
+            }
+
+            if (
+                typedEntry.Description.AcceptableValues
+                is not AcceptableValueRange<int> intValueRange
+            )
+            {
+                return false;
+            }
+
+            IntSliderModel model = new(intValueRange.MinValue, intValueRange.MaxValue);
+            SliderElement<int> slider = new(typedEntry.LabelName(), model);
+            slider.SynchronizeWith(typedEntry);
+
+            menuElement = slider;
+            return true;
+        }
+
+        return gen;
+    }
 }
