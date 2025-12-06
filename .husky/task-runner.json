@@ -10,6 +10,7 @@
     {
       "name": "Refresh index",
       "command": "git",
+      "group": "pre-commit",
       "args": [ "update-index", "--again" ]
     }
   ]
