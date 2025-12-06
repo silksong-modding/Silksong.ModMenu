@@ -61,8 +61,6 @@ It is recommended, though not required, that you create new Models every time yo
 The ModMenu mod should be considered _unstable_ version 1.0 is released. Breaking API changes may occur in the pursuit of implementing additional features to reach 1.0.
 
 Required for 1.0:
-*   New content pane implementations:
-	*   Grid
 *   New menu element implementations:
 	*   Labels, icons
 	*   Raw text input
