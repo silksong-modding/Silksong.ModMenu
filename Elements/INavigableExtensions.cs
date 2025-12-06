@@ -104,5 +104,16 @@ public static class INavigableExtensions
         /// </summary>
         public bool GetNeighborDown([MaybeNullWhen(false)] out Selectable selectable) =>
             self.GetSelectable(NavigationDirection.Down, out selectable);
+
+        /// <summary>
+        /// Symmetrically connect two INavigables.
+        /// </summary>
+        public void ConnectSymmetric(INavigable dest, NavigationDirection direction)
+        {
+            if (dest.GetSelectable(direction, out var s))
+                self.SetNeighbor(direction, s);
+            if (self.GetSelectable(direction.Opposite(), out s))
+                dest.SetNeighbor(direction.Opposite(), s);
+        }
     }
 }

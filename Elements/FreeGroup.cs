@@ -47,7 +47,7 @@ public class FreeGroup : INavigableMenuEntity
         entities
             .Keys.OfType<INavigableMenuEntity>()
             .Select(e => e.GetDefaultSelectable())
-            .Where(s => s != null)
+            .WhereNonNull()
             .FirstOrDefault();
 
     /// <summary>
@@ -94,7 +94,7 @@ public class FreeGroup : INavigableMenuEntity
             .Select(e =>
                 ((e.Key as INavigable)?.GetSelectable(direction, out var s) ?? false) ? s : null
             )
-            .Where(s => s != null)
+            .WhereNonNull()
             .FirstOrDefault();
         return selectable != null;
     }
