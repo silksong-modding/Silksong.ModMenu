@@ -1,10 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Silksong.ModMenu.Internal;
 
 internal static class CollectionsUtil
 {
+    internal static IEnumerable<T> WhereNonNull<T>(this IEnumerable<T?> self) =>
+        self.Where(t => t != null).Select(t => t!);
+
+    internal static IEnumerable<T> WhereNonNull<T>(
+        this IEnumerable<T?> self,
+        Func<T, bool> predicate
+    ) => self.Where(t => t != null && predicate(t)).Select(t => t!);
+
     /// <summary>
     /// Sort a list by distance from the median element.
     /// </summary>

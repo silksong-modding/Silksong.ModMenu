@@ -7,16 +7,20 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public static class SpacingConstants
 {
-    // TODO: Define HSPACE accessors based on aspect ratio
+    /// <summary>
+    /// About 1/4 the screen's width, making it good for 4-column setups.
+    /// </summary>
+    public static float HSPACE_SMALL => 1000f / Camera.main.aspect;
 
-    // About 1/4 the screen's width, making it good for 4-column setups.
-    // public static float HSPACE_SMALL => ?;
+    /// <summary>
+    /// About 1/3 the screen's width, making it good for 3-column setups.
+    /// </summary>
+    public static float HSPACE_MEDIUM => 1333f / Camera.main.aspect;
 
-    // About 1/3 the screen's width, making it good for 3-column setups.
-    // public static float HSPACE_MEDIUM => ??;
-
-    // About 1/2 the screen's width, making it good for 2-column setups.
-    // public static float HSPACE_LARGE => ???;
+    /// <summary>
+    /// About 1/2 the screen's width, making it good for 2-column setups.
+    /// </summary>
+    public static float HSPACE_LARGE => 2000f / Camera.main.aspect;
 
     /// <summary>
     /// Spacing for about 12 small-font elements in a single column.

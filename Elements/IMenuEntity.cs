@@ -20,6 +20,13 @@ public interface IMenuEntity
 
     /// <summary>
     /// Update the positioning of this element and all nested elements.
+    ///
+    /// Implementations of UpdateLayout should:
+    ///   1) Clear all navigation.
+    ///   2) Invoke UpdateLayout recursively on children (DFS).
+    ///   3) Reset navigation at the current layer.
+    ///
+    /// This convention ensures that different container types will play nicely when nested inside each other.
     /// </summary>
     void UpdateLayout(Vector2 localAnchorPos);
 

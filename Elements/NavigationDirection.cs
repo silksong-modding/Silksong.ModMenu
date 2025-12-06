@@ -1,6 +1,4 @@
-﻿using Silksong.ModMenu.Internal;
-
-namespace Silksong.ModMenu.Elements;
+﻿namespace Silksong.ModMenu.Elements;
 
 /// <summary>
 /// Cardinal directions for navigating through the UI.

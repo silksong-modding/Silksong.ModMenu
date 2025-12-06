@@ -17,11 +17,6 @@ public class FreeGroup : INavigableMenuEntity
     private readonly VisibilityManager visibility = new();
     private readonly LinkedDictionary<IMenuEntity, Vector2> entities = [];
 
-    /// <summary>
-    /// Base offset for all contained elements, relative to the parent container.
-    /// </summary>
-    public Vector2 Offset = SpacingConstants.TOP_CENTER_ANCHOR;
-
     /// <inheritdoc/>
     public VisibilityManager Visibility => visibility;
 
@@ -133,7 +128,8 @@ public class FreeGroup : INavigableMenuEntity
     /// <inheritdoc/>
     public void UpdateLayout(Vector2 localAnchorPos)
     {
+        ClearNeighbors();
         foreach (var e in entities)
-            e.Key.UpdateLayout(localAnchorPos + Offset + e.Value);
+            e.Key.UpdateLayout(localAnchorPos + e.Value);
     }
 }
