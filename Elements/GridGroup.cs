@@ -11,9 +11,8 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// A fixed-width grid with a specific number of columns and an unbounded number of rows.
 /// </summary>
-public class GridGroup(int columns) : INavigableMenuEntity
+public class GridGroup(int columns) : AbstractGroup
 {
-    private readonly VisibilityManager visibility = new();
     private readonly List<IMenuEntity?[]> entitiesByRow = [];
 
     /// <summary>
@@ -41,12 +40,6 @@ public class GridGroup(int columns) : INavigableMenuEntity
     /// If true, make navigation wrap from right to left.
     /// </summary>
     public bool WrapHorizontal = false;
-
-    /// <inheritdoc/>
-    public VisibilityManager Visibility => visibility;
-
-    /// <inheritdoc/>
-    public IEnumerable<MenuElement> AllElements() => AllEntities().SelectMany(e => e.AllElements());
 
     /// <summary>
     /// Add this entity to the next available empty cell in the grid.
@@ -79,37 +72,11 @@ public class GridGroup(int columns) : INavigableMenuEntity
             entitiesByRow.Add(new IMenuEntity?[Columns]);
         entitiesByRow[row][column] = entity;
 
-        entity.SetMenuParent(this);
-        if (gameObjectParent != null)
-            entity.SetGameObjectParent(gameObjectParent);
+        ParentEntity(entity);
     }
 
     /// <inheritdoc/>
-    public void ClearNeighbor(NavigationDirection direction)
-    {
-        foreach (var navigable in GetNavigables(direction))
-            navigable.ClearNeighbor(direction);
-    }
-
-    /// <inheritdoc/>
-    public void ClearNeighbors()
-    {
-        ClearNeighbor(NavigationDirection.Up);
-        ClearNeighbor(NavigationDirection.Left);
-        ClearNeighbor(NavigationDirection.Right);
-        ClearNeighbor(NavigationDirection.Down);
-    }
-
-    /// <inheritdoc/>
-    public SelectableElement? GetDefaultSelectable() =>
-        entitiesByRow
-            .SelectMany(row => row.OfType<INavigableMenuEntity>())
-            .Select(n => n.GetDefaultSelectable())
-            .WhereNonNull()
-            .FirstOrDefault();
-
-    /// <inheritdoc/>
-    public bool GetSelectable(
+    public override bool GetSelectable(
         NavigationDirection direction,
         [MaybeNullWhen(false)] out Selectable selectable
     )
@@ -141,31 +108,8 @@ public class GridGroup(int columns) : INavigableMenuEntity
         return navigable != null && navigable.GetSelectable(direction, out selectable);
     }
 
-    private GameObject? gameObjectParent;
-
     /// <inheritdoc/>
-    public void SetGameObjectParent(GameObject parent)
-    {
-        if (gameObjectParent != null)
-            throw new ArgumentException("GameObjectParent already set");
-
-        gameObjectParent = parent;
-        foreach (var entity in AllEntities())
-            entity.SetGameObjectParent(gameObjectParent);
-    }
-
-    /// <inheritdoc/>
-    public void SetMenuParent(IMenuEntity parent) => visibility.SetParent(parent.Visibility);
-
-    /// <inheritdoc/>
-    public void SetNeighbor(NavigationDirection direction, Selectable selectable)
-    {
-        foreach (var navigable in GetNavigables(direction))
-            navigable.SetNeighbor(direction, selectable);
-    }
-
-    /// <inheritdoc/>
-    public void UpdateLayout(Vector2 localAnchorPos)
+    public override void UpdateLayout(Vector2 localAnchorPos)
     {
         ClearNeighbors();
 
@@ -248,18 +192,26 @@ public class GridGroup(int columns) : INavigableMenuEntity
             prevRow = nextRow;
 
             // Connect columns.
-            foreach (var (left, right) in (WrapHorizontal ? nextRow.WhereNonNull().CircularPairs() : nextRow.WhereNonNull().Pairs()))
+            foreach (
+                var (left, right) in (
+                    WrapHorizontal
+                        ? nextRow.WhereNonNull().CircularPairs()
+                        : nextRow.WhereNonNull().Pairs()
+                )
+            )
                 NavigationDirection.Right.ConnectPair(left, right);
         }
     }
 
-    private IEnumerable<IMenuEntity> AllEntities() =>
+    /// <inheritdoc/>
+    protected override IEnumerable<IMenuEntity> AllEntities() =>
         entitiesByRow.SelectMany(row => row.WhereNonNull());
 
     private ListView<ListView<IMenuEntity?>> GetColumns() =>
         new(column => new(row => entitiesByRow[row][column], entitiesByRow.Count), Columns);
 
-    private IEnumerable<INavigable> GetNavigables(NavigationDirection direction) =>
+    /// <inheritdoc/>
+    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction) =>
         direction switch
         {
             // All elements of first row with stuff in it.
