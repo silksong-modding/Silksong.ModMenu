@@ -17,6 +17,11 @@ public class FreeGroup : INavigableMenuEntity
     private readonly VisibilityManager visibility = new();
     private readonly LinkedDictionary<IMenuEntity, Vector2> entities = [];
 
+    /// <summary>
+    /// Base offset for all contained elements, relative to the parent container.
+    /// </summary>
+    public Vector2 Offset = SpacingConstants.TOP_CENTER_ANCHOR;
+
     /// <inheritdoc/>
     public VisibilityManager Visibility => visibility;
 
@@ -49,6 +54,29 @@ public class FreeGroup : INavigableMenuEntity
             .Select(e => e.GetDefaultSelectable())
             .Where(s => s != null)
             .FirstOrDefault();
+
+    /// <summary>
+    /// Add an entity to this free group at the specified position.
+    /// </summary>
+    public void Add(IMenuEntity entity, Vector2 offset)
+    {
+        entities.Add(entity, offset);
+        entity.SetMenuParent(this);
+
+        if (gameObjectParent != null)
+            entity.SetGameObjectParent(gameObjectParent);
+    }
+
+    /// <summary>
+    /// Update the specified position of the given entity.
+    /// </summary>
+    public void Update(IMenuEntity entity, Vector2 offset)
+    {
+        if (!entities.ContainsKey(entity))
+            throw new ArgumentException($"Entity not present in FreeGroup");
+
+        entities[entity] = offset;
+    }
 
     private static float SortKey(NavigationDirection direction, Vector2 pos) =>
         direction switch
@@ -106,6 +134,6 @@ public class FreeGroup : INavigableMenuEntity
     public void UpdateLayout(Vector2 localAnchorPos)
     {
         foreach (var e in entities)
-            e.Key.UpdateLayout(localAnchorPos + e.Value);
+            e.Key.UpdateLayout(localAnchorPos + Offset + e.Value);
     }
 }
