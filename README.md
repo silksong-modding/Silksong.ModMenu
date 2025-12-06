@@ -52,7 +52,6 @@ The ModMenu mod should be considered _unstable_ version 1.0 is released. Breakin
 
 Required for 1.0:
 *   New content pane implementations:
-	*   Free placement
 	*   Grid
 *   New menu element implementations:
 	*   Labels, icons
