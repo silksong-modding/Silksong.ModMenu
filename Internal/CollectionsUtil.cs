@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Silksong.ModMenu.Internal;
@@ -13,6 +14,26 @@ internal static class CollectionsUtil
         this IEnumerable<T?> self,
         Func<T, bool> predicate
     ) => self.Where(t => t != null && predicate(t))!;
+
+    // Version of min() which is safe on empty enumerables.
+    internal static bool TryGetMin<T>(this IEnumerable<T> self, [MaybeNullWhen(false)] out T min)
+        where T : IComparable<T>
+    {
+        min = default;
+        bool first = true;
+        foreach (var item in self)
+        {
+            if (first)
+            {
+                min = item;
+                first = false;
+            }
+            else if (item.CompareTo(min!) <= 0)
+                min = item;
+        }
+
+        return !first;
+    }
 
     /// <summary>
     /// Sort a list by distance from the median element.

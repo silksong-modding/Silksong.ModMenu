@@ -11,9 +11,8 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// A single column of menu elements, evenly spaced.
 /// </summary>
-public class VerticalGroup : INavigableMenuEntity
+public class VerticalGroup : AbstractGroup
 {
-    private readonly VisibilityManager visibility = new();
     private readonly List<IMenuEntity> entities = [];
 
     /// <summary>
@@ -27,18 +26,7 @@ public class VerticalGroup : INavigableMenuEntity
     public bool HideInactiveElements = true;
 
     /// <inheritdoc/>
-    public VisibilityManager Visibility => visibility;
-
-    /// <inheritdoc/>
-    public IEnumerable<MenuElement> AllElements() => entities.SelectMany(e => e.AllElements());
-
-    /// <inheritdoc/>
-    public SelectableElement? GetDefaultSelectable() =>
-        NonHiddenEntities()
-            .OfType<INavigableMenuEntity>()
-            .Select(e => e.GetDefaultSelectable())
-            .WhereNonNull()
-            .FirstOrDefault();
+    protected override IEnumerable<IMenuEntity> AllEntities() => entities;
 
     /// <summary>
     /// Add an entity to this vertical column group.
@@ -46,10 +34,7 @@ public class VerticalGroup : INavigableMenuEntity
     public void Add(IMenuEntity entity)
     {
         entities.Add(entity);
-        entity.SetMenuParent(this);
-
-        if (gameObjectParent != null)
-            entity.SetGameObjectParent(gameObjectParent);
+        ParentEntity(entity);
     }
 
     /// <summary>
@@ -62,23 +47,7 @@ public class VerticalGroup : INavigableMenuEntity
     }
 
     /// <inheritdoc/>
-    public void ClearNeighbor(NavigationDirection direction)
-    {
-        foreach (var neighbor in GetNavigables(direction))
-            neighbor.ClearNeighbor(direction);
-    }
-
-    /// <inheritdoc/>
-    public void ClearNeighbors()
-    {
-        ClearNeighbor(NavigationDirection.Up);
-        ClearNeighbor(NavigationDirection.Left);
-        ClearNeighbor(NavigationDirection.Right);
-        ClearNeighbor(NavigationDirection.Down);
-    }
-
-    /// <inheritdoc/>
-    public bool GetSelectable(
+    public override bool GetSelectable(
         NavigationDirection direction,
         [MaybeNullWhen(false)] out Selectable selectable
     )
@@ -111,14 +80,7 @@ public class VerticalGroup : INavigableMenuEntity
     }
 
     /// <inheritdoc/>
-    public void SetNeighbor(NavigationDirection direction, Selectable selectable)
-    {
-        foreach (var navigable in GetNavigables(direction))
-            navigable.SetNeighbor(direction, selectable);
-    }
-
-    /// <inheritdoc/>
-    public void UpdateLayout(Vector2 pos)
+    public override void UpdateLayout(Vector2 pos)
     {
         ClearNeighbors();
         foreach (var entity in NonHiddenEntities())
@@ -131,26 +93,11 @@ public class VerticalGroup : INavigableMenuEntity
             top.ConnectSymmetric(bot, NavigationDirection.Down);
     }
 
-    /// <inheritdoc/>
-    public void SetMenuParent(IMenuEntity parent) => visibility.SetParent(parent.Visibility);
-
-    private GameObject? gameObjectParent;
-
-    /// <inheritdoc/>
-    public void SetGameObjectParent(GameObject parent)
-    {
-        if (gameObjectParent != null)
-            throw new ArgumentException("GameObjectParent already set");
-
-        gameObjectParent = parent;
-        foreach (var entity in entities)
-            entity.SetGameObjectParent(gameObjectParent);
-    }
-
     private IEnumerable<IMenuEntity> NonHiddenEntities() =>
         HideInactiveElements ? entities.Where(e => e.VisibleSelf) : entities;
 
-    private IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
+    /// <inheritdoc/>
+    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
     {
         return direction switch
         {
