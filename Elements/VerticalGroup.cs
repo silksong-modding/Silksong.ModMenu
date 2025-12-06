@@ -17,11 +17,6 @@ public class VerticalGroup : INavigableMenuEntity
     private readonly List<IMenuEntity> entities = [];
 
     /// <summary>
-    /// Offset for the top center anchor point of the elements, relative to the parent container.
-    /// </summary>
-    public Vector2 Offset = SpacingConstants.TOP_CENTER_ANCHOR;
-
-    /// <summary>
     /// Vertical space between rendered elements.
     /// </summary>
     public float VerticalSpacing = SpacingConstants.VSPACE_MEDIUM;
@@ -125,21 +120,15 @@ public class VerticalGroup : INavigableMenuEntity
     /// <inheritdoc/>
     public void UpdateLayout(Vector2 pos)
     {
+        ClearNeighbors();
         foreach (var entity in NonHiddenEntities())
         {
             entity.UpdateLayout(pos);
             pos.y -= VerticalSpacing;
         }
 
-        foreach (var navigable in NonHiddenEntities().OfType<INavigable>())
-            navigable.ClearNeighbors();
         foreach (var (top, bot) in NonHiddenEntities().OfType<INavigable>().Pairs())
-        {
-            if (bot.GetSelectable(NavigationDirection.Down, out var s))
-                top.SetNeighborDown(s);
-            if (top.GetSelectable(NavigationDirection.Up, out s))
-                bot.SetNeighborUp(s);
-        }
+            NavigationDirection.Down.ConnectPair(top, bot);
     }
 
     /// <inheritdoc/>
