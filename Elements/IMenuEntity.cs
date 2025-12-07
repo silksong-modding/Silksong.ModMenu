@@ -31,12 +31,12 @@ public interface IMenuEntity
     void UpdateLayout(Vector2 localAnchorPos);
 
     /// <summary>
-    /// Set the visibility parent of this entity. Can only be done once.
-    /// </summary>
-    void SetMenuParent(IMenuEntity parent);
-
-    /// <summary>
-    /// Sets the GameObject container for this entity, from which all positions are relative. Can only be done once.
+    /// Sets the GameObject container for this entity, from which all positions are relative.
     /// </summary>
     void SetGameObjectParent(GameObject container);
+
+    /// <summary>
+    /// Make this entity parent-less, which in most cases also renders it invisible.
+    /// </summary>
+    void ClearGameObjectParent();
 }

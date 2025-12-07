@@ -10,7 +10,7 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public abstract class MenuElement : MenuDisposable, IMenuEntity
 {
-    private readonly VisibilityManager visibility = new();
+    private readonly VisibilityManager visibility = new(false);
 
     /// <summary>
     /// Construct a MenuElement with the provided container object.
@@ -109,16 +109,9 @@ public abstract class MenuElement : MenuDisposable, IMenuEntity
     public virtual void SetFontSizes(FontSizes fontSizes) { }
 
     /// <inheritdoc/>
-    public void SetMenuParent(IMenuEntity parent) => visibility.SetParent(parent.Visibility);
-
-    /// <summary>
-    /// Add this MenuElement directly to a UI GameObject without an associated IMenuEntity.
-    /// </summary>
-    public void SetGameObjectParent(GameObject container)
-    {
-        if (Container.transform.parent != null)
-            throw new ArgumentException("GameObject parent already set");
-
+    public void SetGameObjectParent(GameObject container) =>
         Container.transform.SetParent(container.transform, false);
-    }
+
+    /// <inheritdoc/>
+    public void ClearGameObjectParent() => Container.transform.parent = null;
 }

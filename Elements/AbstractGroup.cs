@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Silksong.ModMenu.Internal;
@@ -13,7 +12,7 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public abstract class AbstractGroup : INavigableMenuEntity
 {
-    private readonly VisibilityManager visibility = new();
+    private readonly VisibilityManager visibility = new(false);
 
     /// <inheritdoc/>
     public VisibilityManager Visibility => visibility;
@@ -27,14 +26,9 @@ public abstract class AbstractGroup : INavigableMenuEntity
     public IEnumerable<MenuElement> AllElements() => AllEntities().SelectMany(e => e.AllElements());
 
     /// <summary>
-    /// Record `entity` as a child of this group. The group is responsible for storing it in whatever data structure makes sense for it.
+    /// Register `entity` as a child of this group.
     /// </summary>
-    protected void ParentEntity(IMenuEntity entity)
-    {
-        entity.SetMenuParent(this);
-        if (gameObjectParent != null)
-            entity.SetGameObjectParent(gameObjectParent);
-    }
+    protected void AddChild(IMenuEntity entity) => entity.SetParents(this, gameObjectParent);
 
     /// <summary>
     /// Enumerate all navigables which should be directly connected in `direction`.
@@ -77,8 +71,7 @@ public abstract class AbstractGroup : INavigableMenuEntity
     /// <inheritdoc/>
     public virtual void SetGameObjectParent(GameObject parent)
     {
-        if (gameObjectParent != null)
-            throw new ArgumentException("GameObjectParent already set");
+        ClearGameObjectParent();
 
         gameObjectParent = parent;
         foreach (var entity in AllEntities())
@@ -86,8 +79,14 @@ public abstract class AbstractGroup : INavigableMenuEntity
     }
 
     /// <inheritdoc/>
-    public virtual void SetMenuParent(IMenuEntity parent) =>
-        visibility.SetParent(parent.Visibility);
+    public virtual void ClearGameObjectParent()
+    {
+        if (gameObjectParent == null)
+            return;
+
+        foreach (var entity in AllEntities())
+            entity.ClearGameObjectParent();
+    }
 
     /// <inheritdoc/>
     public virtual void SetNeighbor(NavigationDirection direction, Selectable selectable)

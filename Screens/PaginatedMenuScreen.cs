@@ -12,7 +12,7 @@ namespace Silksong.ModMenu.Screens;
 /// </summary>
 public class PaginatedMenuScreen : AbstractMenuScreen
 {
-    private readonly List<INavigableMenuEntity> pages = [];
+    private readonly IndexedList<INavigableMenuEntity> pages = [];
 
     private readonly IntRangeChoiceModel pageNumberModel;
     private readonly ChoiceElement<int> pageNumberElement;
@@ -57,8 +57,7 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     public Vector2 Anchor = SpacingConstants.TOP_CENTER_ANCHOR;
 
     /// <inheritdoc/>
-    protected override IEnumerable<MenuElement> AllElements() =>
-        pages.SelectMany(p => p.AllElements()).Concat([pageNumberElement]);
+    protected override IEnumerable<IMenuEntity> AllEntities() => pages.Concat([pageNumberElement]);
 
     /// <summary>
     /// Add a singular page to the list of pages.
@@ -66,7 +65,7 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     public void AddPage(INavigableMenuEntity page)
     {
         pages.Add(page);
-        page.SetGameObjectParent(ContentPane);
+        AddChild(page);
     }
 
     /// <summary>
@@ -76,6 +75,36 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     {
         foreach (var page in pages)
             AddPage(page);
+    }
+
+    /// <summary>
+    /// Insert the given page at a specific index.
+    /// </summary>
+    public void InsertPage(int index, INavigableMenuEntity page)
+    {
+        pages.Insert(index, page);
+        AddChild(page);
+    }
+
+    /// <summary>
+    /// Remove the specified page from this menu screen.
+    /// </summary>
+    public bool RemovePage(INavigableMenuEntity page)
+    {
+        if (!pages.Remove(page))
+            return false;
+
+        page.ClearParents();
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the page at the specified index from this screen.
+    /// </summary>
+    public void RemoveAt(int index)
+    {
+        if (pages.TryRemoveAt(index, out var page))
+            page.ClearParents();
     }
 
     private INavigableMenuEntity? ActivePage => pages.Count > 0 ? pages[PageNumber] : null;

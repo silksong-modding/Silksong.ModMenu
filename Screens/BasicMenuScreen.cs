@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
@@ -8,22 +9,31 @@ namespace Silksong.ModMenu.Screens;
 /// <summary>
 /// A simple menu screen with a single content entity.
 /// </summary>
-public class BasicMenuScreen : AbstractMenuScreen
+public class BasicMenuScreen(string title, INavigableMenuEntity content) : AbstractMenuScreen(title)
 {
-    /// <summary>
-    /// Construct a BasicMenuScreen with the given title and content pane.
-    /// </summary>
-    public BasicMenuScreen(string title, INavigableMenuEntity content)
-        : base(title)
-    {
-        Content = content;
-        content.SetGameObjectParent(ContentPane);
-    }
-
     /// <summary>
     /// The content displayed by this menu screen, minus the back button.
     /// </summary>
-    public readonly INavigableMenuEntity Content;
+    public INavigableMenuEntity Content
+    {
+        get => field;
+        set
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(Content));
+
+            if (field != value)
+                field.ClearParents();
+
+            field = value;
+            AddChild(field);
+        }
+    } = content;
+
+    /// <summary>
+    /// Remove the content pane for this menu, showing nothing instead.
+    /// </summary>
+    public void ClearContent() => Content = new VerticalGroup();
 
     /// <summary>
     /// Top anchor point for the elements.
@@ -31,7 +41,7 @@ public class BasicMenuScreen : AbstractMenuScreen
     public Vector2 Anchor = SpacingConstants.TOP_CENTER_ANCHOR;
 
     /// <inheritdoc/>
-    protected override IEnumerable<MenuElement> AllElements() => Content.AllElements();
+    protected override IEnumerable<IMenuEntity> AllEntities() => [Content];
 
     /// <inheritdoc/>
     protected override SelectableElement? GetDefaultSelectableInternal() =>

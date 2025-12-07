@@ -13,7 +13,7 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class VerticalGroup : AbstractGroup
 {
-    private readonly List<IMenuEntity> entities = [];
+    private readonly IndexedList<IMenuEntity> entities = [];
 
     /// <summary>
     /// Vertical space between rendered elements.
@@ -34,7 +34,7 @@ public class VerticalGroup : AbstractGroup
     public void Add(IMenuEntity entity)
     {
         entities.Add(entity);
-        ParentEntity(entity);
+        AddChild(entity);
     }
 
     /// <summary>
@@ -44,6 +44,36 @@ public class VerticalGroup : AbstractGroup
     {
         foreach (var entity in entities)
             Add(entity);
+    }
+
+    /// <summary>
+    /// Insert the entity at the specified index.
+    /// </summary>
+    public void Insert(int index, IMenuEntity entity)
+    {
+        entities.Insert(index, entity);
+        AddChild(entity);
+    }
+
+    /// <summary>
+    /// Remove the specified entity from this layout group.
+    /// </summary>
+    public bool Remove(IMenuEntity entity)
+    {
+        if (!entities.Remove(entity))
+            return false;
+
+        entity.ClearParents();
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the entity at the specified index.
+    /// </summary>
+    public void RemoveAt(int index)
+    {
+        if (entities.TryRemoveAt(index, out var entity))
+            entity.ClearParents();
     }
 
     /// <inheritdoc/>

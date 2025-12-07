@@ -1,4 +1,6 @@
-﻿namespace Silksong.ModMenu.Elements;
+﻿using UnityEngine;
+
+namespace Silksong.ModMenu.Elements;
 
 /// <summary>
 /// Helper functions for IMenuEntities.
@@ -28,5 +30,27 @@ public static class IMenuEntityExtensions
         /// Convenience accessor for VisibileInHierarchy.
         /// </summary>
         public bool VisibleInHierarchy => self.Visibility.VisibleInHierarchy;
+
+        /// <summary>
+        /// Set the parent(s) of this entity, clearing any previous parents.
+        /// </summary>
+        public void SetParents(IMenuEntity parent, GameObject? container = null)
+        {
+            self.Visibility.SetParent(parent.Visibility);
+
+            if (container != null)
+                self.SetGameObjectParent(container);
+            else
+                self.ClearGameObjectParent();
+        }
+
+        /// <summary>
+        /// Unset the parent(s) of this entity, which in most cases makes it invisible.
+        /// </summary>
+        public void ClearParents()
+        {
+            self.Visibility.ClearParent();
+            self.ClearGameObjectParent();
+        }
     }
 }

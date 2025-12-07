@@ -24,8 +24,8 @@ public class FreeGroup : AbstractGroup
     /// </summary>
     public void Add(IMenuEntity entity, Vector2 offset)
     {
-        entities.Add(entity, offset);
-        ParentEntity(entity);
+        entities[entity] = offset;
+        AddChild(entity);
     }
 
     /// <summary>
@@ -37,6 +37,20 @@ public class FreeGroup : AbstractGroup
             throw new ArgumentException($"Entity not present in FreeGroup");
 
         entities[entity] = offset;
+    }
+
+    /// <summary>
+    /// Remove the specified entity from this group.
+    /// </summary>
+    public bool Remove(IMenuEntity entity)
+    {
+        if (entities.Remove(entity))
+        {
+            entity.ClearParents();
+            return true;
+        }
+
+        return false;
     }
 
     // Sort low values first.
