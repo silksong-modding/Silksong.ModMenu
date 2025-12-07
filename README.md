@@ -62,7 +62,7 @@ The ModMenu mod should be considered _unstable_ version 1.0 is released. Breakin
 
 Required for 1.0:
 *   New menu element implementations:
-	*   Labels, icons
+	*   Icons/images
 	*   Raw text input
 
 Optional future work:
@@ -71,5 +71,4 @@ Optional future work:
 	*   Multi-row
 	*   Scroll pane
 *   New menu element implementations:
-	*   Icons/images
 	*   Keybinds
