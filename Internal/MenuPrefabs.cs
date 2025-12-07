@@ -18,6 +18,7 @@ internal class MenuPrefabs
     private readonly GameObject menuTemplate;
     private readonly GameObject emptyContentPane;
     private readonly GameObject textButtonTemplate;
+    private readonly GameObject textLabelTemplate;
     private readonly GameObject textChoiceTemplate;
     private readonly GameObject sliderTemplate;
 
@@ -54,6 +55,13 @@ internal class MenuPrefabs
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
         Object.Destroy(buttonChild.GetComponent<AutoLocalizeTextUI>());
+
+        textLabelTemplate = Object.Instantiate(
+            optionsScreen.FindChild("Content/GameOptions/GameOptionsButton/Menu Button Text")!
+        );
+        textLabelTemplate.SetActive(false);
+        textLabelTemplate.name = "TextLabel";
+        Object.DontDestroyOnLoad(textLabelTemplate);
 
         textChoiceTemplate = Object.Instantiate(
             canvas.FindChild("GameOptionsMenuScreen/Content/CamShakeSetting")!
@@ -110,6 +118,8 @@ internal class MenuPrefabs
         menuButton = obj.FindChild("TextButton")!.GetComponent<MenuButton>();
         return obj;
     }
+
+    internal GameObject NewTextLabel() => Object.Instantiate(textLabelTemplate);
 
     internal GameObject NewTextChoiceContainer(out MenuOptionHorizontal menuOptionHorizontal)
     {
