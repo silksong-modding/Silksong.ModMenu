@@ -1,5 +1,6 @@
 ﻿using Silksong.UnityHelper.Extensions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Internal;
@@ -20,6 +21,7 @@ internal class MenuPrefabs
     private readonly GameObject textButtonTemplate;
     private readonly GameObject textLabelTemplate;
     private readonly GameObject textChoiceTemplate;
+    private readonly GameObject textInputTemplate;
     private readonly GameObject sliderTemplate;
 
     private MenuPrefabs(UIManager uiManager)
@@ -82,6 +84,26 @@ internal class MenuPrefabs
             choiceChild.FindChild("Menu Option Label")!.GetComponent<AutoLocalizeTextUI>()
         );
 
+        textInputTemplate = Object.Instantiate(textChoiceTemplate);
+        textInputTemplate.SetActive(false);
+        textInputTemplate.name = "TextInputContainer";
+        Object.DontDestroyOnLoad(textInputTemplate);
+
+        var textInputChild = textInputTemplate.FindChild("ValueChoice")!;
+        textInputChild.name = "TextInput";
+        Object.Destroy(textInputChild.GetComponent<EventTrigger>());
+        Object.Destroy(textInputChild.GetComponent<FixVerticalAlign>());
+        Object.DestroyImmediate(textInputChild.GetComponent<MenuOptionHorizontal>()); // We must delete the Selectable immediately to add a new one.
+        Object.Destroy(textInputChild.GetComponent<MenuSetting>());
+        var textInputField = textInputChild.AddComponent<CustomInputField>();
+        textInputField.textComponent = textInputChild
+            .FindChild("Menu Option Text")!
+            .GetComponent<Text>();
+        textInputField.caretColor = Color.white;
+        textInputField.contentType = InputField.ContentType.Standard;
+        textInputField.caretWidth = 8;
+        textInputField.text = "";
+
         sliderTemplate = Object.Instantiate(
             canvas.FindChild("AudioMenuScreen/Content/MasterVolume")!
         );
@@ -125,6 +147,13 @@ internal class MenuPrefabs
     {
         var obj = Object.Instantiate(textChoiceTemplate);
         menuOptionHorizontal = obj.FindChild("ValueChoice")!.GetComponent<MenuOptionHorizontal>();
+        return obj;
+    }
+
+    internal GameObject NewTextInputContainer(out CustomInputField customInputField)
+    {
+        var obj = Object.Instantiate(textInputTemplate);
+        customInputField = obj.FindChild("TextInput")!.GetComponent<CustomInputField>();
         return obj;
     }
 

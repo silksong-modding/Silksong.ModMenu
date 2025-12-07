@@ -27,9 +27,12 @@ public class ConfigEntryFactory
     private static readonly List<MenuElementGenerator> defaultGenerators =
     [
         GenerateCustomElement,
-        GenerateBoolElement,
         GenerateEnumChoiceElement,
         GenerateAcceptableValuesChoiceElement,
+        GenerateBoolElement,
+        GenerateIntElement,
+        GenerateFloatElement,
+        GenerateStringElement,
     ];
 
     /// <summary>
@@ -116,31 +119,6 @@ public class ConfigEntryFactory
     }
 
     /// <summary>
-    /// Generate a menu element for a config setting with a boolean value.
-    /// </summary>
-    public static bool GenerateBoolElement(
-        ConfigEntryBase entry,
-        [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<bool> boolEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        ChoiceElement<bool> choice = new(
-            boolEntry.LabelName(),
-            ChoiceModels.ForBool(),
-            boolEntry.DescriptionLine()
-        );
-        choice.SynchronizeWith(boolEntry);
-
-        menuElement = choice;
-        return true;
-    }
-
-    /// <summary>
     /// Generate a menu element for a config entry on an enum type.
     /// </summary>
     public static bool GenerateEnumChoiceElement(
@@ -208,6 +186,110 @@ public class ConfigEntryFactory
         choice.SynchronizeRawWith(entry);
 
         menuElement = choice;
+        return true;
+    }
+
+    /// <summary>
+    /// Generate a menu element for a config setting with a boolean value.
+    /// </summary>
+    public static bool GenerateBoolElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<bool> boolEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        ChoiceElement<bool> choice = new(
+            boolEntry.LabelName(),
+            ChoiceModels.ForBool(),
+            boolEntry.DescriptionLine()
+        );
+        choice.SynchronizeWith(boolEntry);
+
+        menuElement = choice;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged int value.
+    /// </summary>
+    public static bool GenerateIntElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<int> intEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<int> range)
+                ? TextModels.ForIntegers(range.MinValue, range.MaxValue)
+                : TextModels.ForIntegers();
+
+        TextInput<int> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(intEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged float value.
+    /// </summary>
+    public static bool GenerateFloatElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<float> floatEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<float> range)
+                ? TextModels.ForFloats(range.MinValue, range.MaxValue)
+                : TextModels.ForFloats();
+
+        TextInput<float> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(floatEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generate a text element for an arbitrary string.
+    /// </summary>
+    public static bool GenerateStringElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<string> stringEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        TextInput<string> text = new(
+            entry.LabelName(),
+            TextModels.ForStrings(),
+            entry.DescriptionLine()
+        );
+        text.SynchronizeWith(stringEntry);
+
+        menuElement = text;
         return true;
     }
 }
