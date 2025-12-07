@@ -73,6 +73,11 @@ public abstract class AbstractMenuScreen : MenuDisposable
     /// The 'Back' button at the bottom of the menu screen.
     /// </summary>
     public readonly MenuButton BackButton;
+
+    /// <summary>
+    /// MenuScreens are root objects and visibile by default without a parent.
+    /// </summary>
+    private readonly VisibilityManager visibility = new(true) { VisibleSelf = false };
     #endregion
 
     #region Events
@@ -108,9 +113,18 @@ public abstract class AbstractMenuScreen : MenuDisposable
     protected abstract void UpdateLayout();
 
     /// <summary>
-    /// Get all elements recursively contained within this menu screen.
+    /// Register the given entity as a child of this menu screen.
     /// </summary>
-    protected abstract IEnumerable<MenuElement> AllElements();
+    protected void AddChild(IMenuEntity entity)
+    {
+        entity.Visibility.SetParent(visibility);
+        entity.SetGameObjectParent(Container);
+    }
+
+    /// <summary>
+    /// Get all entities directly contained within this menu screen.
+    /// </summary>
+    protected abstract IEnumerable<IMenuEntity> AllEntities();
     #endregion
 
     #region SelectOnShow
@@ -140,13 +154,15 @@ public abstract class AbstractMenuScreen : MenuDisposable
     #region Internal
     internal void InvokeOnShow(MenuScreenNavigation.NavigationType navigationType)
     {
+        visibility.VisibleSelf = true;
         UIManager.instance.StartCoroutine(SelectDelayed(SelectOnShow(navigationType)));
         OnShow?.Invoke(navigationType);
     }
 
     private void UpdateLastSelected()
     {
-        var sel = AllElements()
+        var sel = AllEntities()
+            .SelectMany(e => e.AllElements())
             .OfType<SelectableElement>()
             .Where(s => s.IsSelected)
             .FirstOrDefault();
@@ -169,8 +185,11 @@ public abstract class AbstractMenuScreen : MenuDisposable
             MenuScreenNavigation.GoBack();
     }
 
-    internal void InvokeOnHide(MenuScreenNavigation.NavigationType navigationType) =>
+    internal void InvokeOnHide(MenuScreenNavigation.NavigationType navigationType)
+    {
         OnHide?.Invoke(navigationType);
+        visibility.VisibleSelf = false;
+    }
 
     private SelectableElement? lastSelected;
 

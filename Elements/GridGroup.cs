@@ -13,7 +13,8 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class GridGroup(int columns) : AbstractGroup
 {
-    private readonly List<IMenuEntity?[]> entitiesByRow = [];
+    private readonly List<IMenuEntity?[]> rows = [];
+    private readonly Dictionary<IMenuEntity, GridCell> index = [];
 
     /// <summary>
     /// The number of columns in this grid.
@@ -24,7 +25,7 @@ public class GridGroup(int columns) : AbstractGroup
     /// <summary>
     /// The number of rows in this grid.
     /// </summary>
-    public int Rows => entitiesByRow.Count;
+    public int Rows => rows.Count;
 
     /// <summary>
     /// Spacing between different columns.
@@ -46,11 +47,11 @@ public class GridGroup(int columns) : AbstractGroup
     /// </summary>
     public void Add(IMenuEntity entity)
     {
-        while (IsFull(nextEmpty))
-            nextEmpty = nextEmpty.Next(this);
+        while (IsFull(nextEmptyCell))
+            nextEmptyCell = nextEmptyCell.Next(this);
 
-        AddAt(nextEmpty.Row, nextEmpty.Column, entity);
-        nextEmpty = nextEmpty.Next(this);
+        AddAt(nextEmptyCell.Row, nextEmptyCell.Column, entity);
+        nextEmptyCell = nextEmptyCell.Next(this);
     }
 
     /// <summary>
@@ -65,15 +66,51 @@ public class GridGroup(int columns) : AbstractGroup
             throw new ArgumentException($"{nameof(row)}: {row} (Must be >= 0)");
         if (column < 0 || column >= Columns)
             throw new ArgumentException($"{nameof(column)}: {column} (Must be in [0, {Columns}))");
-        if (IsFull(new(row, column)))
-            throw new ArgumentException($"Cell({row}, {column}) is already filled.");
 
-        while (entitiesByRow.Count <= row)
-            entitiesByRow.Add(new IMenuEntity?[Columns]);
-        entitiesByRow[row][column] = entity;
+        GridCell cell = new(row, column);
+        if (index.TryGetValue(entity, out var prevCell))
+        {
+            if (cell == prevCell)
+                return; // Nothing to do.
+            else
+                throw new ArgumentException($"Entity already present at ({row}, {column})");
+        }
 
-        ParentEntity(entity);
+        if (IsFull(cell))
+            throw new ArgumentException($"({row}, {column}) is already filled.");
+
+        while (rows.Count <= row)
+            rows.Add(new IMenuEntity?[Columns]);
+        rows[row][column] = entity;
+        index[entity] = cell;
+        AddChild(entity);
     }
+
+    /// <summary>
+    /// Remove the specified entity from the grid.
+    /// </summary>
+    public bool Remove(IMenuEntity entity)
+    {
+        if (!index.TryGetValue(entity, out var cell))
+            return false;
+
+        index.Remove(entity);
+        rows[cell.Row][cell.Column] = null;
+        nextEmptyCell = cell.CompareTo(nextEmptyCell) <= 0 ? cell : nextEmptyCell;
+        entity.ClearParents();
+
+        // Truncate empty rows.
+        if (cell.Row == rows.Count - 1)
+            for (int row = cell.Row; row >= 0 && rows[row].All(e => e == null); row--)
+                rows.RemoveAt(row);
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the entity at the specified cell.
+    /// </summary>
+    public bool RemoveAt(int row, int column) =>
+        TryGetValue(new(row, column), out var entity) && Remove(entity);
 
     /// <inheritdoc/>
     public override bool GetSelectable(
@@ -114,24 +151,19 @@ public class GridGroup(int columns) : AbstractGroup
         ClearNeighbors();
 
         // Update positions.
-        for (int row = 0; row < entitiesByRow.Count; row++)
+        foreach (var e in index)
         {
-            for (int column = 0; column < Columns; column++)
-            {
-                var entity = entitiesByRow[row][column];
-                if (entity == null)
-                    continue;
+            var (entity, cell) = (e.Key, e.Value);
 
-                Vector2 pos = localAnchorPos;
-                pos.y -= VerticalSpacing * row;
-                pos.x += HorizontalSpacing * (column - (Columns - 1) / 2f);
-                entity.UpdateLayout(pos);
-            }
+            Vector2 pos = localAnchorPos;
+            pos.y -= VerticalSpacing * cell.Row;
+            pos.x += HorizontalSpacing * (cell.Column - (Columns - 1) / 2f);
+            entity.UpdateLayout(pos);
         }
 
         // Update navigation.
         INavigable?[]? prevRow = null;
-        foreach (var row in entitiesByRow)
+        foreach (var row in rows)
         {
             INavigable?[] nextRow =
             [
@@ -205,46 +237,62 @@ public class GridGroup(int columns) : AbstractGroup
 
     /// <inheritdoc/>
     protected override IEnumerable<IMenuEntity> AllEntities() =>
-        entitiesByRow.SelectMany(row => row.WhereNonNull());
+        rows.SelectMany(row => row.WhereNonNull());
 
     private ListView<ListView<IMenuEntity?>> GetColumns() =>
-        new(column => new(row => entitiesByRow[row][column], entitiesByRow.Count), Columns);
+        new(column => new(row => rows[row][column], rows.Count), Columns);
 
     /// <inheritdoc/>
     protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction) =>
         direction switch
         {
             // All elements of first row with stuff in it.
-            NavigationDirection.Up => entitiesByRow
-                .Where(row => row.Any(e => e is INavigable && e.VisibleSelf))
+            NavigationDirection.Up => rows.Where(row =>
+                    row.Any(e => e is INavigable && e.VisibleSelf)
+                )
                 .FirstOrDefault()
                 ?.OfType<INavigable>()
                 ?? [],
             // Leftmost element of every row.
-            NavigationDirection.Left => entitiesByRow
-                .SelectMany(row => row.Where(e => e is INavigable && e.VisibleSelf).Take(1))
+            NavigationDirection.Left => rows.SelectMany(row =>
+                    row.Where(e => e is INavigable && e.VisibleSelf).Take(1)
+                )
                 .OfType<INavigable>(),
             // Rightmost element of every row.
-            NavigationDirection.Right => entitiesByRow
-                .SelectMany(row => row.Where(e => e is INavigable && e.VisibleSelf).TakeLast(1))
+            NavigationDirection.Right => rows.SelectMany(row =>
+                    row.Where(e => e is INavigable && e.VisibleSelf).TakeLast(1)
+                )
                 .OfType<INavigable>(),
             // All elements of last row with stuff in it.
-            NavigationDirection.Down => entitiesByRow
-                .Where(row => row.Any(e => e is INavigable && e.VisibleSelf))
+            NavigationDirection.Down => rows.Where(row =>
+                    row.Any(e => e is INavigable && e.VisibleSelf)
+                )
                 .LastOrDefault()
                 ?.OfType<INavigable>()
                 ?? [],
             _ => throw new ArgumentException($"{direction}"),
         };
 
-    private record GridCell(int Row, int Column)
+    private record GridCell(int Row, int Column) : IComparable<GridCell>
     {
         internal GridCell Next(GridGroup parent) =>
             Column == parent.Columns - 1 ? new(Row + 1, 0) : new(Row, Column + 1);
+
+        public int CompareTo(GridCell other) =>
+            Row == other.Row ? Column.CompareTo(other.Column) : Row.CompareTo(other.Row);
     }
 
-    private GridCell nextEmpty = new(0, 0);
+    private GridCell nextEmptyCell = new(0, 0);
 
-    private bool IsFull(GridCell cell) =>
-        cell.Row < Rows && entitiesByRow[cell.Row][cell.Column] != null;
+    private bool TryGetValue(GridCell cell, [MaybeNullWhen(false)] out IMenuEntity entity)
+    {
+        entity = default;
+        if (cell.Row < 0 || cell.Row >= rows.Count || cell.Column < 0 || cell.Column >= Columns)
+            return false;
+
+        entity = rows[cell.Row][cell.Column];
+        return entity != null;
+    }
+
+    private bool IsFull(GridCell cell) => TryGetValue(cell, out _);
 }

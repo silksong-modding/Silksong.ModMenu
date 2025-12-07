@@ -7,7 +7,8 @@ namespace Silksong.ModMenu.Elements;
 ///
 /// This mirrors the GameObject visibility model, without requiring a GameObject.
 /// </summary>
-public class VisibilityManager
+/// <param name="DefaultVisibility">Whether this entity should be treated as visible without a parent.</param>
+public class VisibilityManager(bool DefaultVisibility)
 {
     private VisibilityManager? parent;
 
@@ -53,14 +54,24 @@ public class VisibilityManager
     /// </summary>
     public void SetParent(VisibilityManager parent)
     {
-        if (this.parent != null)
-            throw new ArgumentException($"{nameof(parent)} akready set");
-
+        this.parent?.OnVisibilityChanged -= UpdateVisibleInHierarchy;
         this.parent = parent;
-        parent.OnVisibilityChanged += _ => UpdateVisibleInHierarchy();
+        this.parent.OnVisibilityChanged += UpdateVisibleInHierarchy;
         UpdateVisibleInHierarchy();
     }
 
+    /// <summary>
+    /// Remove this entity from its parent, make it headless.
+    /// </summary>
+    public void ClearParent()
+    {
+        parent?.OnVisibilityChanged -= UpdateVisibleInHierarchy;
+        parent = null;
+        UpdateVisibleInHierarchy();
+    }
+
+    private void UpdateVisibleInHierarchy(bool parentVisible) => UpdateVisibleInHierarchy();
+
     private void UpdateVisibleInHierarchy() =>
-        VisibleInHierarchy = VisibleSelf && (parent?.VisibleInHierarchy ?? true);
+        VisibleInHierarchy = VisibleSelf && (parent?.VisibleInHierarchy ?? DefaultVisibility);
 }
