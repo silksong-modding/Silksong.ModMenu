@@ -63,7 +63,6 @@ The ModMenu mod should be considered _unstable_ version 1.0 is released. Breakin
 Required for 1.0:
 *   New menu element implementations:
 	*   Icons/images
-	*   Raw text input
 
 Optional future work:
 *   Extending the 'new game' menu with new game modes.
