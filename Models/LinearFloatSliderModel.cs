@@ -13,17 +13,18 @@ public class LinearFloatSliderModel : SliderModel<float>
     /// Construct a slider model with the given minimum and maximum values, and the specified number of discrete ticks.
     /// </summary>
     public LinearFloatSliderModel(float min, float max, int ticks)
-        : base(0, ticks)
+        : base(0, ticks - 1)
     {
         if (ticks < 2)
-            throw new ArgumentException($"{nameof(ticks)} ({ticks}) must be positive");
-        if (MathF.Abs(MaximumValue - MinimumValue) < 1e-6f)
+            throw new ArgumentException($"{nameof(ticks)} ({ticks}) must be at least 2");
+        if (MathF.Abs(max - min) < 1e-6f)
             throw new ArgumentException(
                 $"{nameof(min)} ({min}) and {nameof(max)} ({max}) are too close."
             );
 
         MinimumValue = min;
         MaximumValue = max;
+        Ticks = ticks;
     }
 
     /// <summary>
