@@ -219,7 +219,7 @@ public class GridGroup(int columns) : AbstractGroup
                 .Where(row => row.Any(e => e is INavigable && e.VisibleSelf))
                 .FirstOrDefault()
                 ?.OfType<INavigable>()
-            ?? [],
+                ?? [],
             // Leftmost element of every row.
             NavigationDirection.Left => entitiesByRow
                 .SelectMany(row => row.Where(e => e is INavigable && e.VisibleSelf).Take(1))
@@ -233,7 +233,7 @@ public class GridGroup(int columns) : AbstractGroup
                 .Where(row => row.Any(e => e is INavigable && e.VisibleSelf))
                 .LastOrDefault()
                 ?.OfType<INavigable>()
-            ?? [],
+                ?? [],
             _ => throw new ArgumentException($"{direction}"),
         };
 
