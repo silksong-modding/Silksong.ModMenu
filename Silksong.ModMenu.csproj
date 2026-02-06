@@ -49,11 +49,16 @@
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Condition="$(UseLocalRefs) And Exists($(ManagedFolder))">
-    <LocalReferences
-      Include="$(ManagedFolder)*.dll"
-      Exclude="$(ManagedFolder)Mono*.dll;$(ManagedFolder)netstandard.dll;$(ManagedFolder)System*.dll;$(ManagedFolder)mscorlib.dll"
+    <PackageReference
+      Include="BepInEx.AssemblyPublicizer.MSBuild"
+      Version="0.4.2"
+      PrivateAssets="all"
     />
-    <Reference Include="@(LocalReferences)" Private="false" />
+    <LocalReferences
+      Include="$(ManagedFolder)/*.dll"
+      Exclude="$(ManagedFolder)/Mono*.dll;$(ManagedFolder)/netstandard.dll;$(ManagedFolder)/System*.dll;$(ManagedFolder)/mscorlib.dll"
+    />
+    <Reference Include="@(LocalReferences)" Private="false" Publicize="true" />
   </ItemGroup>
   <ItemGroup>
     <Folder Remove="thunderstore/tmp;thunderstore/dist" />
