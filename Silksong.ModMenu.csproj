@@ -43,7 +43,7 @@
     </PackageReference>
     <PackageReference Include="Silksong.UnityHelper" Version="1.0.1" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
-    <PackageReference Include="CSharpier.MsBuild" Version="1.1.2" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MsBuild" Version="1.2.6" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup Condition="!$(UseLocalRefs) Or !Exists($(ManagedFolder))">
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
