@@ -69,5 +69,3 @@ Optional future work:
 *   New content pane implementations:
 	*   Multi-row
 	*   Scroll pane
-*   New menu element implementations:
-	*   Keybinds

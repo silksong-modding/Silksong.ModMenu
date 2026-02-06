@@ -1,10 +1,14 @@
-﻿using Silksong.UnityHelper.Extensions;
+﻿using MonoDetour;
+using MonoDetour.DetourTypes;
+using MonoDetour.HookGen;
+using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Internal;
 
+[MonoDetourTargets(typeof(MappableKey), GenerateControlFlowVariants = true)]
 internal class MenuPrefabs
 {
     private static MenuPrefabs? instance;
@@ -18,6 +22,7 @@ internal class MenuPrefabs
 
     private readonly GameObject menuTemplate;
     private readonly GameObject emptyContentPane;
+    private readonly GameObject keyBindTemplate;
     private readonly GameObject textButtonTemplate;
     private readonly GameObject textLabelTemplate;
     private readonly GameObject textChoiceTemplate;
@@ -48,6 +53,19 @@ internal class MenuPrefabs
         Object.Destroy(emptyContentPane.GetComponent<VerticalLayoutGroup>());
         Object.Destroy(emptyContentPane.GetComponent<MenuButtonList>());
         Object.DontDestroyOnLoad(emptyContentPane);
+
+        // MappableKey.OnEnable() breaks when instantiated outside the UIButtonSkins hierarchy.
+        using (mappableKeyInit.Suppress())
+        {
+            keyBindTemplate = Object.Instantiate(
+                canvas.FindChild("KeyboardMenuScreen/Content/MappableKeys/UpButton")!
+            );
+        }
+        keyBindTemplate.SetActive(false);
+        Object.Destroy(
+            keyBindTemplate.FindChild("Input Button Text")!.GetComponent<AutoLocalizeTextUI>()
+        );
+        Object.DontDestroyOnLoad(keyBindTemplate);
 
         textButtonTemplate = Object.Instantiate(optionsScreen.FindChild("Content/GameOptions")!);
         textButtonTemplate.SetActive(false);
@@ -134,6 +152,13 @@ internal class MenuPrefabs
 
     internal GameObject NewEmptyContentPane() => Object.Instantiate(emptyContentPane);
 
+    internal GameObject NewKeyBindContainer(out CustomMappableKey customMappableKey)
+    {
+        var obj = Object.Instantiate(keyBindTemplate);
+        customMappableKey = CustomMappableKey.Replace(obj.GetComponent<MappableKey>());
+        return obj;
+    }
+
     internal GameObject NewTextButtonContainer(out MenuButton menuButton)
     {
         var obj = Object.Instantiate(textButtonTemplate);
@@ -162,5 +187,18 @@ internal class MenuPrefabs
         var obj = Object.Instantiate(sliderTemplate);
         slider = obj.FindChild("Slider")!.GetComponent<Slider>();
         return obj;
+    }
+
+    private static readonly EventSuppressor mappableKeyInit = new();
+
+    private static ReturnFlow MappableKeyInit(MappableKey self) =>
+        mappableKeyInit.Suppressed ? ReturnFlow.SkipOriginal : ReturnFlow.None;
+
+    [MonoDetourHookInitialize]
+    private static void Hook()
+    {
+        Md.MappableKey.OnEnable.ControlFlowPrefix(MappableKeyInit);
+        Md.MappableKey.SetupRefs.ControlFlowPrefix(MappableKeyInit);
+        Md.MappableKey.Start.ControlFlowPrefix(MappableKeyInit);
     }
 }
