@@ -7,6 +7,7 @@ using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
+using UnityEngine;
 
 namespace Silksong.ModMenu.Plugin;
 
@@ -27,6 +28,7 @@ public class ConfigEntryFactory
     private static readonly List<MenuElementGenerator> defaultGenerators =
     [
         GenerateCustomElement,
+        GenerateKeyCodeElement,
         GenerateEnumChoiceElement,
         GenerateAcceptableValuesChoiceElement,
         GenerateBoolElement,
@@ -116,6 +118,27 @@ public class ConfigEntryFactory
 
         menuElement = default;
         return false;
+    }
+
+    /// <summary>
+    /// Generate a menu element for a key bind.
+    /// </summary>
+    public static bool GenerateKeyCodeElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<KeyCode> keyCodeEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        KeyBindElement element = new(entry.LabelName());
+        element.SynchronizeWith(keyCodeEntry);
+
+        menuElement = element;
+        return true;
     }
 
     /// <summary>
