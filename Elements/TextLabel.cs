@@ -12,12 +12,12 @@ public class TextLabel : MenuElement
     /// <summary>
     /// Construct a label with the given text contents.
     /// </summary>
-    public TextLabel(string text)
+    public TextLabel(LocalizedText text)
         : base(MenuPrefabs.Get().NewTextLabel())
     {
-        Container.name = text;
+        Container.name = text.Text;
         Text = Container.GetComponent<Text>();
-        Text.text = text;
+        Text.LocalizedText = text;
     }
 
     /// <summary>

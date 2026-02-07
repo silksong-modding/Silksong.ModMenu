@@ -1,4 +1,5 @@
 ﻿using System;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Models;
 
@@ -89,11 +90,11 @@ public abstract class SliderModel<T> : AbstractValueModel<T>
     public IndexedToString<T>? DisplayFn;
 
     /// <inheritdoc/>
-    public override string DisplayString() =>
+    public override LocalizedText DisplayString() =>
         (DisplayFn ?? DefaultDisplayString).Invoke(Index, GetValue());
 
     /// <summary>
     /// The default display string for this model, in the absence of a DisplayFn.
     /// </summary>
-    protected virtual string DefaultDisplayString(int index, T item) => $"{item}";
+    protected virtual LocalizedText DefaultDisplayString(int index, T item) => $"{item}";
 }

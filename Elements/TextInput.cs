@@ -28,7 +28,7 @@ public class TextInput<T> : SelectableValueElement<T>
     /// <summary>
     /// Construct a basic text input.
     /// </summary>
-    public TextInput(string label, ITextModel<T> model, string description = "")
+    public TextInput(LocalizedText label, ITextModel<T> model, LocalizedText description)
         : base(MenuPrefabs.Get().NewTextInputContainer(out var inputField), inputField, model)
     {
         TextModel = model;
@@ -40,14 +40,20 @@ public class TextInput<T> : SelectableValueElement<T>
 
         OnTextValueChanged += value => InputField.text = value;
 
-        LabelText.text = label;
-        DescriptionText.text = description;
+        LabelText.LocalizedText = label;
+        DescriptionText.LocalizedText = description;
 
         if (intTypes.Contains(typeof(T)))
             InputField.contentType = InputField.ContentType.IntegerNumber;
         else if (floatTypes.Contains(typeof(T)))
             InputField.contentType = InputField.ContentType.DecimalNumber;
     }
+
+    /// <summary>
+    /// Construct a basic text input with no description.
+    /// </summary>
+    public TextInput(LocalizedText label, ITextModel<T> model)
+        : this(label, model, "") { }
 
     /// <summary>
     /// The value holder and model underlying this choice element.

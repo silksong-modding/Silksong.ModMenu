@@ -1,4 +1,5 @@
 ﻿using System;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Models;
 
@@ -57,5 +58,5 @@ public abstract class AbstractValueModel<T> : IValueModel<T>
     }
 
     /// <inheritdoc/>
-    public virtual string DisplayString() => $"{GetValue()}";
+    public virtual LocalizedText DisplayString() => $"{GetValue()}";
 }

@@ -14,7 +14,7 @@ public class KeyBindElement : SelectableValueElement<KeyCode>
     /// <summary>
     /// Construct a KeyBindElement with a custom model.
     /// </summary>
-    public KeyBindElement(string label, IValueModel<KeyCode> model)
+    public KeyBindElement(LocalizedText label, IValueModel<KeyCode> model)
         : base(
             MenuPrefabs.Get().NewKeyBindContainer(out var customMappableKey),
             customMappableKey,
@@ -27,13 +27,13 @@ public class KeyBindElement : SelectableValueElement<KeyCode>
         KeyBindText = customMappableKey.KeymapText!;
         KeyBindImage = customMappableKey.KeymapImage!;
 
-        LabelText.text = label;
+        LabelText.LocalizedText = label;
     }
 
     /// <summary>
     /// Construct a KeyBindElement with a default model that accepts any KeyCode.
     /// </summary>
-    public KeyBindElement(string label)
+    public KeyBindElement(LocalizedText label)
         : this(label, new ValueModel<KeyCode>(KeyCode.A)) { }
 
     /// <summary>

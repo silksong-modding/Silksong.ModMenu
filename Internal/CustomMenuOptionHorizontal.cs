@@ -1,6 +1,7 @@
 ﻿using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
+using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Models;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -27,7 +28,7 @@ internal class CustomMenuOptionHorizontal : MonoBehaviour
         if (orig == null)
             return;
 
-        orig.optionText.text = Model?.DisplayString() ?? "???";
+        orig.optionText.LocalizedText = Model?.DisplayString() ?? "???";
         if (orig.optionText.TryGetComponent<FixVerticalAlign>(out var align))
             align.AlignText();
     }

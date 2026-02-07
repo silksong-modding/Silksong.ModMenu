@@ -19,10 +19,10 @@ public class SliderElement<T> : SelectableValueElement<T>
     /// </summary>
     /// <param name="label">The label text for the slider.</param>
     /// <param name="model">The model for the domain range and underlying value.</param>
-    public SliderElement(string label, SliderModel<T> model)
+    public SliderElement(LocalizedText label, SliderModel<T> model)
         : base(MenuPrefabs.Get().NewSliderContainer(out var slider), slider, model)
     {
-        Container.name = label;
+        Container.name = label.Text;
 
         Slider = slider;
         var sliderObj = Slider.gameObject;
@@ -57,7 +57,7 @@ public class SliderElement<T> : SelectableValueElement<T>
             }
         });
 
-        LabelText.text = label;
+        LabelText.LocalizedText = label;
         UpdateValueText();
     }
 
@@ -95,5 +95,5 @@ public class SliderElement<T> : SelectableValueElement<T>
         ValueText.fontSize = fontSizes.SliderSize();
     }
 
-    private void UpdateValueText() => ValueText.text = SliderModel.DisplayString();
+    private void UpdateValueText() => ValueText.LocalizedText = SliderModel.DisplayString();
 }

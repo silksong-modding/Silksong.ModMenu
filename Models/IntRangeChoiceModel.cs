@@ -1,4 +1,5 @@
 ﻿using System;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Models;
 
@@ -90,10 +91,11 @@ public class IntRangeChoiceModel : AbstractValueModel<int>, IChoiceModel<int>
     /// <summary>
     /// A custom display function to use for the selected integer value.
     /// </summary>
-    public Func<int, string>? DisplayFn;
+    public Func<int, LocalizedText>? DisplayFn;
 
     /// <inheritdoc/>
-    public override string DisplayString() => DisplayFn?.Invoke(GetValue()) ?? $"{GetValue()}";
+    public override LocalizedText DisplayString() =>
+        DisplayFn?.Invoke(GetValue()) ?? $"{GetValue()}";
 
     private void ResetParamsInternal(int min, int max, int value)
     {

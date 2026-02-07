@@ -1,4 +1,6 @@
-﻿namespace Silksong.ModMenu.Models;
+﻿using Silksong.ModMenu.Elements;
+
+namespace Silksong.ModMenu.Models;
 
 /// <summary>
 /// Base interface for all models which ultimately display a string to represent the chosen value.
@@ -8,5 +10,5 @@ public interface IDisplayable
     /// <summary>
     /// The UI string to display for this entity.
     /// </summary>
-    string DisplayString();
+    LocalizedText DisplayString();
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Silksong.ModMenu.Elements;
 using UnityEngine;
 
 namespace Silksong.ModMenu.Models;
@@ -67,5 +68,5 @@ public class LinearFloatSliderModel : SliderModel<float>
     }
 
     /// <inheritdoc/>
-    protected override string DefaultDisplayString(int index, float item) => $"{item:0.###}";
+    protected override LocalizedText DefaultDisplayString(int index, float item) => $"{item:0.###}";
 }

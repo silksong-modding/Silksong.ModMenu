@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Models;
 
@@ -109,7 +110,7 @@ public class ParserTextModel<T> : ITextModel<T>
     }
 
     /// <inheritdoc/>
-    public string DisplayString() => text;
+    public LocalizedText DisplayString() => text;
 
     /// <inheritdoc/>
     public T Value
