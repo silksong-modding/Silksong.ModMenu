@@ -6,6 +6,7 @@ using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
 using Silksong.ModMenu.Internal;
+using Steamworks;
 
 namespace Silksong.ModMenu.Screens;
 
@@ -34,6 +35,14 @@ public static class MenuScreenNavigation
 
     private static (MainMenuState, MenuScreen)? lastBaseMenuScreen;
     private static readonly Stack<AbstractMenuScreen> history = [];
+
+    /// <summary>
+    /// Get the current custom mod screen currently visible, if any.
+    /// </summary>
+    public static AbstractMenuScreen? CurrentModMenuScreen
+    {
+        get => history.Count > 0 ? history.Peek() : null;
+    }
 
     /// <summary>
     /// Switch from the current menu screen to the provided custom menu screen.
