@@ -32,6 +32,7 @@ public abstract class AbstractMenuScreen : MenuDisposable
         BackButton = ControlsPane!.FindChild("ApplyButton")!.GetComponent<MenuButton>();
 
         BackButton.gameObject.GetComponent<EventTrigger>().SetCallback(InvokeOnGoBack);
+        MenuScreen.gameObject.AddComponent<Marker>().AbstractMenuScreen = this;
         MenuScreen.backButton = BackButton;
 
         Container.GetOrAddComponent<OnDestroyHelper>().Action += Dispose;
@@ -164,8 +165,7 @@ public abstract class AbstractMenuScreen : MenuDisposable
         var sel = AllEntities()
             .SelectMany(e => e.AllElements())
             .OfType<SelectableElement>()
-            .Where(s => s.IsSelected)
-            .FirstOrDefault();
+            .FirstOrDefault(s => s.IsSelected);
         if (sel != null)
             lastSelected = sel;
     }
@@ -187,6 +187,7 @@ public abstract class AbstractMenuScreen : MenuDisposable
 
     internal void InvokeOnHide(MenuScreenNavigation.NavigationType navigationType)
     {
+        ModMenuPlugin.LogError($"{Container.name}{nameof(InvokeOnHide)}: {navigationType}");
         OnHide?.Invoke(navigationType);
         visibility.VisibleSelf = false;
     }
@@ -212,4 +213,9 @@ public abstract class AbstractMenuScreen : MenuDisposable
             ? lastSelected.SelectableComponent
             : GetDefaultSelectable();
     #endregion
+
+    internal class Marker : MonoBehaviour
+    {
+        internal AbstractMenuScreen? AbstractMenuScreen;
+    }
 }

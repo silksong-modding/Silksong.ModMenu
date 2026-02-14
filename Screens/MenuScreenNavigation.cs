@@ -6,6 +6,7 @@ using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
 using Silksong.ModMenu.Internal;
+using Steamworks;
 
 namespace Silksong.ModMenu.Screens;
 
@@ -36,6 +37,14 @@ public static class MenuScreenNavigation
     private static readonly Stack<AbstractMenuScreen> history = [];
 
     /// <summary>
+    /// Get the current custom mod screen currently visible, if any.
+    /// </summary>
+    public static AbstractMenuScreen? CurrentModMenuScreen
+    {
+        get => history.Count > 0 ? history.Peek() : null;
+    }
+
+    /// <summary>
     /// Switch from the current menu screen to the provided custom menu screen.
     /// </summary>
     public static void Show(
@@ -43,7 +52,6 @@ public static class MenuScreenNavigation
         HistoryMode historyMode = HistoryMode.Add
     )
     {
-        AbstractMenuScreen? toHide = null;
         if (history.Count == 0)
             CaptureBaseMenuState();
         else if (history.Peek() == customMenuScreen)
@@ -51,13 +59,11 @@ public static class MenuScreenNavigation
             // We're already showing this screen.
             return;
         }
-        else
-            toHide = history.Peek();
 
         var ui = UIManager.instance;
         IEnumerator Routine()
         {
-            yield return ui.StartCoroutine(HideCurrentMenu(ui, toHide, NavigationType.Forwards));
+            yield return ui.StartCoroutine(HideCurrentMenu(NavigationType.Forwards));
             customMenuScreen.InvokeOnShow(NavigationType.Forwards);
             yield return ui.StartCoroutine(ui.ShowMenu(customMenuScreen.MenuScreen));
 
@@ -92,12 +98,11 @@ public static class MenuScreenNavigation
     /// <param name="filter"></param>
     public static void GoBackWhile(Func<AbstractMenuScreen, bool> filter)
     {
-        AbstractMenuScreen? toHide = history.Count > 0 ? history.Peek() : null;
-
+        AbstractMenuScreen? toHide = null;
         bool anyPop = false;
         while (history.Count > 0 && filter(history.Peek()))
         {
-            history.Pop();
+            toHide = history.Pop();
             anyPop = true;
         }
         if (!anyPop)
@@ -106,7 +111,10 @@ public static class MenuScreenNavigation
         var ui = UIManager.instance;
         IEnumerator Routine()
         {
-            yield return ui.StartCoroutine(HideCurrentMenu(ui, toHide, NavigationType.Backwards));
+            yield return ui.StartCoroutine(
+                ui.HideMenu(toHide!.MenuScreen)
+                    .WithContext<NavigationTypeContext>(new(NavigationType.Backwards))
+            );
 
             if (history.Count > 0)
             {
@@ -142,45 +150,10 @@ public static class MenuScreenNavigation
             lastBaseMenuScreen = (state, screen);
     }
 
-    private static IEnumerator HideCurrentMenu(
-        UIManager ui,
-        AbstractMenuScreen? screen,
-        NavigationType navigationType
-    )
-    {
-        if (screen == null)
-            return ui.HideCurrentMenu();
-
-        IEnumerator Routine()
-        {
-            var ui = UIManager.instance;
-            ui.isFadingMenu = true;
-            yield return ui.StartCoroutine(ui.HideMenu(screen.MenuScreen, true));
-
-            ui.isFadingMenu = false;
-            screen?.InvokeOnHide(navigationType);
-        }
-        return Routine();
-    }
-
-    private static void HideMenus()
-    {
-        if (history.Count == 0)
-            return;
-
-        UIManager.instance.HideMenuInstant(history.Peek().MenuScreen);
-        history.Peek().InvokeOnHide(NavigationType.Backwards);
-        history.Clear();
-    }
-
-    private static void PostfixGameManagerAwake(GameManager self)
-    {
-        self.GamePausedChange += isPaused =>
-        {
-            if (!isPaused && self.IsGameplayScene())
-                HideMenus();
-        };
-    }
+    private static IEnumerator HideCurrentMenu(NavigationType navigationType) =>
+        UIManager
+            .instance.HideCurrentMenu()
+            .WithContext<NavigationTypeContext>(new(navigationType));
 
     private static ReturnFlow OverrideUIGoBack(UIManager self, ref bool returnValue)
     {
@@ -192,17 +165,86 @@ public static class MenuScreenNavigation
         return ReturnFlow.SkipOriginal;
     }
 
+    private class NavigationTypeContext(NavigationType navigationType)
+    {
+        internal readonly NavigationType NavigationType = navigationType;
+    }
+
+    private static void OnHideMenu(MenuScreen menuScreen)
+    {
+        if (!menuScreen.gameObject.TryGetComponent<AbstractMenuScreen.Marker>(out var marker))
+            return;
+
+        var screen = marker.AbstractMenuScreen;
+        if (screen == null)
+            return;
+
+        // Invoke the hide event.
+        if (ThreadLocalContext<NavigationTypeContext>.Get(out var context))
+        {
+            screen.InvokeOnHide(context.NavigationType);
+
+            // Update history only if going backwards.
+            if (
+                context.NavigationType == NavigationType.Backwards
+                && history.Count > 0
+                && history.Peek() == screen
+            )
+                history.Pop();
+        }
+        else
+        {
+            screen.InvokeOnHide(NavigationType.Backwards);
+            // We've been wiped externally.
+            history.Clear();
+        }
+    }
+
+    private static ReturnFlow PrefixHideCurrentMenu(UIManager self, ref IEnumerator returnValue)
+    {
+        if (history.Count == 0)
+            return ReturnFlow.None;
+
+        var screen = history.Peek();
+        IEnumerator Routine()
+        {
+            var ui = UIManager.instance;
+            ui.isFadingMenu = true;
+            yield return ui.StartCoroutine(ui.HideMenu(screen.MenuScreen));
+            ui.isFadingMenu = false;
+        }
+
+        returnValue = Routine();
+        return ReturnFlow.SkipOriginal;
+    }
+
+    private static void PostfixHideMenu(
+        UIManager self,
+        ref MenuScreen menuScreen,
+        ref bool disable,
+        ref IEnumerator returnValue
+    )
+    {
+        var localCopy = menuScreen;
+        returnValue = returnValue.Append(() => OnHideMenu(localCopy));
+    }
+
+    private static void PostfixHideMenuInstant(UIManager self, ref MenuScreen menuScreen) =>
+        OnHideMenu(menuScreen);
+
     private static void PrefixUIOnDestroy(UIManager self)
     {
-        if (UIManager.instance == self)
-            HideMenus();
+        if (history.Count > 0)
+            UIManager.instance.HideMenuInstant(history.Peek().MenuScreen);
     }
 
     [MonoDetourHookInitialize]
     private static void Hook()
     {
-        Md.GameManager.Awake.Postfix(PostfixGameManagerAwake);
         Md.UIManager.UIGoBack.ControlFlowPrefix(OverrideUIGoBack);
+        Md.UIManager.HideCurrentMenu.ControlFlowPrefix(PrefixHideCurrentMenu);
+        Md.UIManager.HideMenu.Postfix(PostfixHideMenu);
+        Md.UIManager.HideMenuInstant.Postfix(PostfixHideMenuInstant);
         Md.UIManager.OnDestroy.Prefix(PrefixUIOnDestroy);
     }
 }
