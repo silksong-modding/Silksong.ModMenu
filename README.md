@@ -58,7 +58,7 @@ It is recommended, though not required, that you create new Models every time yo
 
 ## Future work
 
-The ModMenu mod should be considered _unstable_ version 1.0 is released. Breaking API changes may occur in the pursuit of implementing additional features to reach 1.0.
+The ModMenu mod should be considered _unstable_ until version 1.0 is released. Breaking API changes may occur in the pursuit of implementing additional features to reach 1.0.
 
 Optional future work:
 *   Extending the 'new game' menu with new game modes.
