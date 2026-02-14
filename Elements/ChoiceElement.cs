@@ -17,7 +17,7 @@ public class ChoiceElement<T> : SelectableValueElement<T>
     /// <summary>
     /// Construct a ChoiceElement with the given label text, model, and description text.
     /// </summary>
-    public ChoiceElement(string label, IChoiceModel<T> model, string description = "")
+    public ChoiceElement(LocalizedText label, IChoiceModel<T> model, LocalizedText description)
         : base(
             MenuPrefabs.Get().NewTextChoiceContainer(out var menuOptionHorizontal),
             menuOptionHorizontal,
@@ -36,16 +36,28 @@ public class ChoiceElement<T> : SelectableValueElement<T>
 
         OnValueChanged += _ => custom.UpdateText();
 
-        LabelText.text = label;
-        DescriptionText.text = description;
+        LabelText.LocalizedText = label;
+        DescriptionText.LocalizedText = description;
         custom.UpdateText();
     }
 
     /// <summary>
+    /// Construct a ChoiceElement with the given label and model.
+    /// </summary>
+    public ChoiceElement(LocalizedText label, IChoiceModel<T> model)
+        : this(label, model, "") { }
+
+    /// <summary>
     /// Shortcut for building a ChoiceElement from a finite list of values.
     /// </summary>
-    public ChoiceElement(string label, List<T> items, string description = "")
+    public ChoiceElement(LocalizedText label, List<T> items, LocalizedText description)
         : this(label, ChoiceModels.ForValues(items), description) { }
+
+    /// <summary>
+    /// Shortcut for building a ChoiceElement from a finite list of values.
+    /// </summary>
+    public ChoiceElement(LocalizedText label, List<T> items)
+        : this(label, ChoiceModels.ForValues(items), "") { }
 
     /// <summary>
     /// The value holder and model underlying this choice element.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Models;
 
@@ -102,13 +103,13 @@ public class ListChoiceModel<T>(List<T> values) : AbstractValueModel<T>, IChoice
     public IndexedToString<T>? DisplayFn;
 
     /// <inheritdoc/>
-    public override string DisplayString() =>
+    public override LocalizedText DisplayString() =>
         (DisplayFn ?? DefaultDisplayString).Invoke(Index, GetValue());
 
     /// <summary>
     /// Default string to display, in the absence of a DisplayFn.
     /// </summary>
-    protected virtual string DefaultDisplayString(int index, T item) => $"{item}";
+    protected virtual LocalizedText DefaultDisplayString(int index, T item) => $"{item}";
 
     private bool Move(int delta)
     {

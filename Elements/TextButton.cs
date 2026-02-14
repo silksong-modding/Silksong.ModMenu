@@ -15,10 +15,10 @@ public class TextButton : SelectableElement
     /// <summary>
     /// Construct a text button with the given text.
     /// </summary>
-    public TextButton(string text)
+    public TextButton(LocalizedText text)
         : base(MenuPrefabs.Get().NewTextButtonContainer(out var menuButton), menuButton)
     {
-        Container.name = text;
+        Container.name = text.Text;
 
         MenuButton = menuButton;
         MenuButton
@@ -35,7 +35,7 @@ public class TextButton : SelectableElement
         MenuButton.buttonType = MenuButton.MenuButtonType.Activate;
 
         ButtonText = menuButton.gameObject.FindChild("Menu Button Text")!.GetComponent<Text>();
-        ButtonText.text = text;
+        ButtonText.LocalizedText = text;
     }
 
     /// <summary>

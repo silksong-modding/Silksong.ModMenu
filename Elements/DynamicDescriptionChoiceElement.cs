@@ -19,17 +19,17 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
 {
     internal const string RIGHT_DESCRIPTION_NAME = "ModMenu-Right Description";
 
-    /// <inheritdoc cref="ChoiceElement{T}.ChoiceElement(string, IChoiceModel{T}, string)"/>
+    /// <inheritdoc cref="ChoiceElement{T}.ChoiceElement(LocalizedText, IChoiceModel{T}, LocalizedText)"/>
     public DynamicDescriptionChoiceElement(
-        string label,
+        LocalizedText label,
         IChoiceModel<T> model,
-        string description,
-        string rightDescription
+        LocalizedText description,
+        LocalizedText rightDescription
     )
         : base(label, model, description)
     {
         RightText = SetupRightDescription(DescriptionText, ChoiceText);
-        RightText.text = rightDescription;
+        RightText.LocalizedText = rightDescription;
     }
 
     /// <summary>
@@ -40,14 +40,14 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
     /// <param name="description"></param>
     /// <param name="getRightDescription">Function used to determine the description below the choice.</param>
     public DynamicDescriptionChoiceElement(
-        string label,
+        LocalizedText label,
         IChoiceModel<T> model,
-        string description,
-        Func<T, string> getRightDescription
+        LocalizedText description,
+        Func<T, LocalizedText> getRightDescription
     )
         : this(label, model, description, getRightDescription(model.Value))
     {
-        model.OnValueChanged += value => RightText.text = getRightDescription(value);
+        model.OnValueChanged += value => RightText.LocalizedText = getRightDescription(value);
     }
 
     /// <summary>
