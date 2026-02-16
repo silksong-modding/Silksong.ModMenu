@@ -9,8 +9,14 @@ namespace Silksong.ModMenu.Screens;
 /// <summary>
 /// A simple menu screen with a single content entity.
 /// </summary>
-public class BasicMenuScreen(string title, INavigableMenuEntity content) : AbstractMenuScreen(title)
+public class BasicMenuScreen : AbstractMenuScreen
 {
+    /// <summary>
+    /// Construct a basic menu screen with a single content entity.
+    /// </summary>
+    public BasicMenuScreen(string title, INavigableMenuEntity content)
+        : base(title) => Content = content;
+
     /// <summary>
     /// The content displayed by this menu screen, minus the back button.
     /// </summary>
@@ -23,12 +29,12 @@ public class BasicMenuScreen(string title, INavigableMenuEntity content) : Abstr
                 throw new ArgumentNullException(nameof(Content));
 
             if (field != value)
-                field.ClearParents();
+                field?.ClearParents();
 
             field = value;
             AddChild(field);
         }
-    } = content;
+    }
 
     /// <summary>
     /// Remove the content pane for this menu, showing nothing instead.
