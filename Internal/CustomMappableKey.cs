@@ -49,25 +49,26 @@ internal class CustomMappableKey
         var obj = src.gameObject;
         DestroyImmediate(src); // We cannot wait 1 frame to add a new Selectable component.
 
-        var wasActive = obj.activeSelf;
-        obj.SetActive(false);
-        CustomMappableKey dest = obj.AddComponent<CustomMappableKey>();
-        dest.animationTriggers = animationTriggers;
-        dest.buttonType = MenuButtonType.Proceed;
-        dest.cancelAction = CancelAction.DoNothing;
-        dest.colors = colors;
-        dest.DontPlaySelectSound = true;
-        dest.KeymapImage = keymapImage;
-        dest.KeymapText = keymapText;
-        dest.leftCursor = leftCursor;
-        dest.menuCancelVibration = menuCancelVibration;
-        dest.menuSubmitVibration = menuSubmitVibration;
-        dest.playSubmitSound = true;
-        dest.prevSelectedObject = obj;
-        dest.rightCursor = rightCursor;
-        dest.transition = Transition.None;
-        dest.uiAudioPlayer = UIManager.instance.uiAudioPlayer;
-        obj.SetActive(wasActive);
+        CustomMappableKey dest;
+        using (obj.TempInactive())
+        {
+            dest = obj.AddComponent<CustomMappableKey>();
+            dest.animationTriggers = animationTriggers;
+            dest.buttonType = MenuButtonType.Proceed;
+            dest.cancelAction = CancelAction.DoNothing;
+            dest.colors = colors;
+            dest.DontPlaySelectSound = true;
+            dest.KeymapImage = keymapImage;
+            dest.KeymapText = keymapText;
+            dest.leftCursor = leftCursor;
+            dest.menuCancelVibration = menuCancelVibration;
+            dest.menuSubmitVibration = menuSubmitVibration;
+            dest.playSubmitSound = true;
+            dest.prevSelectedObject = obj;
+            dest.rightCursor = rightCursor;
+            dest.transition = Transition.None;
+            dest.uiAudioPlayer = UIManager.instance.uiAudioPlayer;
+        }
 
         return dest;
     }
