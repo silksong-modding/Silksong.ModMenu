@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using Silksong.ModMenu.Internal;
+using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Elements;
 
@@ -27,8 +28,11 @@ public static class LocalizedTextExtensions
                 {
                     if (!self.TryGetComponent<AutoLocalizeTextUI>(out var auto))
                     {
-                        auto = self.gameObject.AddComponent<AutoLocalizeTextUI>();
-                        auto.textField = self;
+                        using (self.gameObject.TempInactive())
+                        {
+                            auto = self.gameObject.AddComponent<AutoLocalizeTextUI>();
+                            auto.textField = self;
+                        }
                     }
 
                     auto.text = value.Localized;

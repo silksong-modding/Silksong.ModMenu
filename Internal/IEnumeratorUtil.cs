@@ -33,6 +33,9 @@ internal static class IEnumeratorUtil
         return Modified();
     }
 
+    internal static IEnumerator PropagateContext<T>(this IEnumerator self)
+        where T : class => ThreadLocalContext<T>.Get(out var ctx) ? self.WithContext<T>(ctx) : self;
+
     internal static IEnumerator Append(this IEnumerator self, Action action)
     {
         IEnumerator Modified()

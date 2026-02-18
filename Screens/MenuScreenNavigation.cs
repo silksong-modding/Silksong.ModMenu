@@ -210,7 +210,9 @@ public static class MenuScreenNavigation
         {
             var ui = UIManager.instance;
             ui.isFadingMenu = true;
-            yield return ui.StartCoroutine(ui.HideMenu(screen.MenuScreen));
+            yield return ui.StartCoroutine(
+                ui.HideMenu(screen.MenuScreen).PropagateContext<NavigationTypeContext>()
+            );
             ui.isFadingMenu = false;
         }
 

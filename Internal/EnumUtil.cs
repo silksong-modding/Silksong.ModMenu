@@ -50,7 +50,7 @@ internal static class EnumUtil
                     fieldName ??= StringUtil.UnCamelCase(field.Name);
             }
 
-            if (fieldName == null)
+            if (customName == null && fieldName == null)
                 continue;
 
             names[value] = customName ?? fieldName!;

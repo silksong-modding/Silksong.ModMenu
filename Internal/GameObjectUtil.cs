@@ -13,4 +13,22 @@ internal static class GameObjectUtil
             Object.Destroy(obj);
         }
     }
+
+    private class InactiveScope : System.IDisposable
+    {
+        private readonly bool prevActiveSelf;
+        private readonly GameObject gameObject;
+
+        internal InactiveScope(GameObject gameObject)
+        {
+            prevActiveSelf = gameObject.activeSelf;
+            this.gameObject = gameObject;
+            gameObject.SetActive(false);
+        }
+
+        public void Dispose() => gameObject.SetActive(prevActiveSelf);
+    }
+
+    internal static System.IDisposable TempInactive(this GameObject self) =>
+        new InactiveScope(self);
 }

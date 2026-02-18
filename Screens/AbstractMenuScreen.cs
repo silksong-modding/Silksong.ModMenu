@@ -187,7 +187,6 @@ public abstract class AbstractMenuScreen : MenuDisposable
 
     internal void InvokeOnHide(MenuScreenNavigation.NavigationType navigationType)
     {
-        ModMenuPlugin.LogError($"{Container.name}{nameof(InvokeOnHide)}: {navigationType}");
         OnHide?.Invoke(navigationType);
         visibility.VisibleSelf = false;
     }
