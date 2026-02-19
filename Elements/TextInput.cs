@@ -39,6 +39,7 @@ public class TextInput<T> : SelectableValueElement<T>
         InputField = inputField;
 
         OnTextValueChanged += value => InputField.text = value;
+        InputField.onValueChanged.AddListener(value => TextModel.SetTextValue(value));
 
         LabelText.LocalizedText = label;
         DescriptionText.LocalizedText = description;
