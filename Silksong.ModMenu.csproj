@@ -45,6 +45,9 @@
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
     <PackageReference Include="CSharpier.MsBuild" Version="1.2.6" PrivateAssets="all" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <MonoDetourHookGenStripUnusedHooks>true</MonoDetourHookGenStripUnusedHooks>
+  </PropertyGroup>
   <ItemGroup Condition="!$(UseLocalRefs) Or !Exists($(ManagedFolder))">
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
   </ItemGroup>
