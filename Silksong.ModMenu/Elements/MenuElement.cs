@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
+using UObject = UnityEngine.Object;
 
 namespace Silksong.ModMenu.Elements;
 
@@ -18,6 +19,8 @@ public abstract class MenuElement : MenuDisposable, IMenuEntity
     protected MenuElement(GameObject container)
     {
         Container = container;
+        OnDispose += () => UObject.Destroy(container);
+
         RectTransform = container.GetComponent<RectTransform>();
 
         visibility.OnVisibilityChanged += container.SetActive;
