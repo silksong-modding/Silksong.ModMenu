@@ -10,9 +10,21 @@ namespace Silksong.ModMenu.Elements;
 /// <summary>
 /// Common functionality shared by most entity groups.
 /// </summary>
-public abstract class AbstractGroup : INavigableMenuEntity
+public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
 {
     private readonly VisibilityManager visibility = new(false);
+
+    /// <summary>
+    /// Construct an AbstractGroup.
+    /// </summary>
+    protected AbstractGroup()
+    {
+        OnDispose += () =>
+        {
+            foreach (var disposable in AllEntities().OfType<MenuDisposable>())
+                disposable.Dispose();
+        };
+    }
 
     /// <inheritdoc/>
     public VisibilityManager Visibility => visibility;
@@ -20,15 +32,27 @@ public abstract class AbstractGroup : INavigableMenuEntity
     /// <summary>
     /// Enumerate all child entities within this group.
     /// </summary>
-    protected abstract IEnumerable<IMenuEntity> AllEntities();
+    public abstract IEnumerable<IMenuEntity> AllEntities();
 
     /// <inheritdoc/>
     public IEnumerable<MenuElement> AllElements() => AllEntities().SelectMany(e => e.AllElements());
 
     /// <summary>
+    /// Whether this entity is directly contained within thie group.
+    /// </summary>
+    public abstract bool Contains(IMenuEntity entity);
+
+    /// <summary>
     /// Register `entity` as a child of this group.
     /// </summary>
     protected void AddChild(IMenuEntity entity) => entity.SetParents(this, gameObjectParent);
+
+    /// <summary>
+    /// Clear all entities from this group.
+    ///
+    /// This does not destroy the corresponding game objects. The caller should call `Dispose()` on the entities after `Clear()` if they are no longer wanted.
+    /// </summary>
+    public abstract void Clear();
 
     /// <summary>
     /// Enumerate all navigables which should be directly connected in `direction`.

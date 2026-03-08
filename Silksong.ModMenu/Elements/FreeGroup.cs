@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -18,7 +17,21 @@ public class FreeGroup : AbstractGroup
     private readonly LinkedDictionary<IMenuEntity, Vector2> entities = [];
 
     /// <inheritdoc/>
-    protected override IEnumerable<IMenuEntity> AllEntities() => entities.Keys;
+    public override IEnumerable<IMenuEntity> AllEntities() => entities.Keys;
+
+    /// <summary>
+    /// The total number of entities in this group.
+    /// </summary>
+    public int Count => entities.Count;
+
+    /// <inheritdoc/>
+    public override bool Contains(IMenuEntity entity) => entities.ContainsKey(entity);
+
+    /// <summary>
+    /// Gets the positional offset of the given entity, if present.
+    /// </summary>
+    public bool TryGetOffset(IMenuEntity entity, out Vector2 offset) =>
+        entities.TryGetValue(entity, out offset);
 
     /// <summary>
     /// Add an entity to this free group at the specified position.
@@ -52,6 +65,15 @@ public class FreeGroup : AbstractGroup
         }
 
         return false;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+        foreach (var entity in entities.Keys)
+            entity.ClearParents();
+
+        entities.Clear();
     }
 
     // Sort low values first.
