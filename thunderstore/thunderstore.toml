@@ -21,7 +21,7 @@ silksong_modding-UnityHelper = "1.0.1"
 # by other build scripts
 [build]
 icon = "./icon.png"
-readme = "../README.md"
+readme = "../Silksong.ModMenu/README.md"
 outdir = "./dist"
 
 [[build.copy]]
