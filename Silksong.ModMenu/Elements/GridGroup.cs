@@ -42,6 +42,32 @@ public class GridGroup(int columns) : AbstractGroup
     /// </summary>
     public bool WrapHorizontal = false;
 
+    /// <inheritdoc/>
+    public override bool Contains(IMenuEntity entity) => index.ContainsKey(entity);
+
+    /// <summary>
+    /// Returns the row and column of the given entity.
+    /// </summary>
+    public bool TryGetCell(IMenuEntity entity, out int row, out int column)
+    {
+        if (index.TryGetValue(entity, out var c))
+        {
+            row = c.Row;
+            column = c.Column;
+            return true;
+        }
+
+        row = -1;
+        column = -1;
+        return false;
+    }
+
+    /// <summary>
+    /// Returns the entity at the given row and column, if present.
+    /// </summary>
+    public bool TryGetEntity(int row, int column, [MaybeNullWhen(false)] out IMenuEntity entity) =>
+        TryGetValue(new(row, column), out entity);
+
     /// <summary>
     /// Add this entity to the next available empty cell in the grid.
     /// </summary>
@@ -111,6 +137,17 @@ public class GridGroup(int columns) : AbstractGroup
     /// </summary>
     public bool RemoveAt(int row, int column) =>
         TryGetValue(new(row, column), out var entity) && Remove(entity);
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+        foreach (var entity in index.Keys)
+            entity.ClearParents();
+
+        rows.Clear();
+        index.Clear();
+        nextEmptyCell = new(0, 0);
+    }
 
     /// <inheritdoc/>
     public override bool GetSelectable(
@@ -236,7 +273,7 @@ public class GridGroup(int columns) : AbstractGroup
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<IMenuEntity> AllEntities() =>
+    public override IEnumerable<IMenuEntity> AllEntities() =>
         rows.SelectMany(row => row.WhereNonNull());
 
     private ListView<ListView<IMenuEntity?>> GetColumns() =>

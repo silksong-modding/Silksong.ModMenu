@@ -13,7 +13,7 @@ internal class LinkedDictionary<K, V> : IDictionary<K, V>
     public V this[K key]
     {
         get => data[key].Item2;
-        set => data[key] = (data[key].Item1, value);
+        set => Set(key, value);
     }
 
     public ICollection<K> Keys => new LinkedDictionaryKeys(this);
@@ -24,13 +24,20 @@ internal class LinkedDictionary<K, V> : IDictionary<K, V>
 
     public bool IsReadOnly => false;
 
-    public void Add(K key, V value) =>
+    public void Add(K key, V value)
+    {
+        if (data.ContainsKey(key))
+            throw new ArgumentException($"An element with the same key already exists: {key}");
+        data.Add(key, (keyOrder.AddLast(key), value));
+    }
+
+    public void Add(KeyValuePair<K, V> item) => Add(item.Key, item.Value);
+
+    public void Set(K key, V value) =>
         data[key] = (
             data.TryGetValue(key, out var pair) ? pair.Item1 : keyOrder.AddLast(key),
             value
         );
-
-    public void Add(KeyValuePair<K, V> item) => Add(item.Key, item.Value);
 
     public void Clear()
     {

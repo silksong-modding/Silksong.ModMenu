@@ -88,14 +88,14 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
         return rightText;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public override void SetFontSizes(FontSizes fontSizes)
     {
         base.SetFontSizes(fontSizes);
         RightText.fontSize = fontSizes.DescriptionSize();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public override void SetMainColor(Color color)
     {
         base.SetMainColor(color);

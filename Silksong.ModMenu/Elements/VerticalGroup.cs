@@ -26,7 +26,10 @@ public class VerticalGroup : AbstractGroup
     public bool HideInactiveElements = true;
 
     /// <inheritdoc/>
-    protected override IEnumerable<IMenuEntity> AllEntities() => entities;
+    public override IEnumerable<IMenuEntity> AllEntities() => entities;
+
+    /// <inheritdoc/>
+    public override bool Contains(IMenuEntity entity) => entities.Contains(entity);
 
     /// <summary>
     /// Add an entity to this vertical column group.
@@ -74,6 +77,15 @@ public class VerticalGroup : AbstractGroup
     {
         if (entities.TryRemoveAt(index, out var entity))
             entity.ClearParents();
+    }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+        foreach (var entity in entities)
+            entity.ClearParents();
+
+        entities.Clear();
     }
 
     /// <inheritdoc/>
