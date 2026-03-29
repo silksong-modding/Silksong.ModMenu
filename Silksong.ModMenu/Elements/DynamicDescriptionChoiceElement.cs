@@ -136,6 +136,7 @@ internal static class RightDescriptionChoiceElementHooks
     private static void HookOnDeselect(ILManipulationInfo info)
     {
         ILCursor cursor = new(info.Context);
+
         int locIndex = 1;
         while (
             cursor.TryGotoNext(
