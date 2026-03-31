@@ -11,7 +11,7 @@
         }
       ],
       "dest": "api",
-      "filter": filterconfig.yml"
+      "filter": "filterconfig.yml"
     }
   ],
   "build": {
