@@ -2,8 +2,9 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/Silksong.ModMenu)](https://www.nuget.org/packages/Silksong.ModMenu)
 
-ModMenu adds a "Mods" menu to the options menu screen, and provides an API for mods to customize
-their menu.
+The standard menu-modification mod for Silksong. It provides a small but powerful set of features for mods to use.
+
+This mod also adds a 'Mod Options' menu to the main Options menu by default.
 
 ## Usage
 
