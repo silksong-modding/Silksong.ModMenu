@@ -11,7 +11,7 @@ internal class StandardElementsTest : ModMenuTest
 {
     private static void Log(string message) => ModMenuTestingPlugin.InstanceLogger.LogInfo(message);
 
-    internal override string Name => "StandardElements";
+    internal override string Name => "Standard Elements";
 
     /// <summary>
     /// Yields common elements that log their value when changed.

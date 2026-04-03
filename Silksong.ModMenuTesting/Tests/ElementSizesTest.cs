@@ -7,7 +7,7 @@ namespace Silksong.ModMenuTesting.Tests;
 
 internal class ElementSizesTest : ModMenuTest
 {
-    internal override string Name => "ElementSizesTest";
+    internal override string Name => "Element Sizes Test";
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
