@@ -1,9 +1,7 @@
 ﻿using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Screens;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Silksong.ModMenuTesting.Tests;
 

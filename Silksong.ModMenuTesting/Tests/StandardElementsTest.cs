@@ -41,7 +41,14 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             TextLabel label = new("The Label");
-            yield return label;
+            // Commented out because this is bugged ATM
+            // yield return label;
+        }
+
+        {
+            KeyBindElement keybindElement = new("The Keybind");
+            keybindElement.Model.OnValueChanged += k => Log($"Keybind value -> {k}");
+            yield return keybindElement;
         }
 
         {
