@@ -72,7 +72,7 @@ public static class FontSizeConstants
     /// <summary>
     /// Large font size for a basic label string.
     /// </summary>
-    public const int LABEL_LARGE = 68;
+    public const int LABEL_LARGE = 60;
 
     /// <summary>
     /// Corresponding font size for a basic label string.
