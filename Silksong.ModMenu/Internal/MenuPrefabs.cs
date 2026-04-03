@@ -44,14 +44,14 @@ internal class MenuPrefabs
         menuTemplate = Object.Instantiate(optionsScreen);
         menuTemplate.SetActive(false);
         menuTemplate.name = "ModMenuScreen";
-        Object.Destroy(menuTemplate.GetComponent<MenuButtonList>());
-        Object.Destroy(menuTemplate.FindChild("Title")!.GetComponent<AutoLocalizeTextUI>());
+        menuTemplate.RemoveComponent<MenuButtonList>();
+        menuTemplate.FindChild("Title")!.RemoveComponent<AutoLocalizeTextUI>();
         Object.DontDestroyOnLoad(menuTemplate);
 
         emptyContentPane = menuTemplate.FindChild("Content")!;
         emptyContentPane.DestroyAllChildren();
-        Object.Destroy(emptyContentPane.GetComponent<VerticalLayoutGroup>());
-        Object.Destroy(emptyContentPane.GetComponent<MenuButtonList>());
+        emptyContentPane.RemoveComponent<VerticalLayoutGroup>();
+        emptyContentPane.RemoveComponent<MenuButtonList>();
         Object.DontDestroyOnLoad(emptyContentPane);
 
         // MappableKey.OnEnable() breaks when instantiated outside the UIButtonSkins hierarchy.
@@ -62,9 +62,9 @@ internal class MenuPrefabs
             );
         }
         keyBindTemplate.SetActive(false);
-        Object.Destroy(
-            keyBindTemplate.FindChild("Input Button Text")!.GetComponent<AutoLocalizeTextUI>()
-        );
+        keyBindTemplate
+            .FindChild("Input Button Text")!
+            .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         Object.DontDestroyOnLoad(keyBindTemplate);
 
         textButtonTemplate = Object.Instantiate(optionsScreen.FindChild("Content/GameOptions")!);
@@ -74,12 +74,16 @@ internal class MenuPrefabs
 
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
-        Object.Destroy(buttonChild.GetComponent<AutoLocalizeTextUI>());
+        // We have to remove this component as it's on a different GameObject to the Text,
+        // so it won't be removed by the LocalizedTextExtensions
+        buttonChild.RemoveComponent<AutoLocalizeTextUI>();
+        buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
 
         textLabelTemplate = Object.Instantiate(
             optionsScreen.FindChild("Content/GameOptions/GameOptionsButton/Menu Button Text")!
         );
         textLabelTemplate.SetActive(false);
+        textLabelTemplate.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         textLabelTemplate.name = "TextLabel";
         Object.DontDestroyOnLoad(textLabelTemplate);
 
@@ -92,15 +96,17 @@ internal class MenuPrefabs
 
         var choiceChild = textChoiceTemplate.FindChild("CamShakePopupOption")!;
         choiceChild.name = "ValueChoice";
-        Object.Destroy(choiceChild.GetComponent<MenuSetting>());
+        choiceChild.RemoveComponent<MenuSetting>();
         var moh = choiceChild.GetComponent<MenuOptionHorizontal>();
         moh.optionList = ["###INTERNAL###"];
         moh.menuSetting = null;
         moh.localizeText = false;
         moh.applyButton = null;
-        Object.Destroy(
-            choiceChild.FindChild("Menu Option Label")!.GetComponent<AutoLocalizeTextUI>()
-        );
+        choiceChild
+            .FindChild("Menu Option Label")!
+            .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+        choiceChild.FindChild("Menu Option Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+        choiceChild.FindChild("Description")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
 
         textInputTemplate = Object.Instantiate(textChoiceTemplate);
         textInputTemplate.SetActive(false);
@@ -109,10 +115,10 @@ internal class MenuPrefabs
 
         var textInputChild = textInputTemplate.FindChild("ValueChoice")!;
         textInputChild.name = "TextInput";
-        Object.Destroy(textInputChild.GetComponent<EventTrigger>());
-        Object.Destroy(textInputChild.GetComponent<FixVerticalAlign>());
+        textInputChild.RemoveComponent<EventTrigger>();
+        textInputChild.RemoveComponent<FixVerticalAlign>();
         Object.DestroyImmediate(textInputChild.GetComponent<MenuOptionHorizontal>()); // We must delete the Selectable immediately to add a new one.
-        Object.Destroy(textInputChild.GetComponent<MenuSetting>());
+        textInputChild.RemoveComponent<MenuSetting>();
         var textInputField = textInputChild.AddComponent<CustomInputField>();
         textInputField.textComponent = textInputChild
             .FindChild("Menu Option Text")!
@@ -132,11 +138,11 @@ internal class MenuPrefabs
         var sliderChild = sliderTemplate.FindChild("MasterSlider")!;
         sliderChild.name = "Slider";
         sliderChild.GetComponent<Slider>().onValueChanged = new();
-        Object.Destroy(sliderChild.GetComponent<MenuAudioSlider>());
+        sliderChild.RemoveComponent<MenuAudioSlider>();
         sliderChild.GetOrAddComponent<SliderRightStickInput>();
-        Object.Destroy(
-            sliderChild.FindChild("Menu Option Label")!.GetComponent<AutoLocalizeTextUI>()
-        );
+        sliderChild
+            .FindChild("Menu Option Label")!
+            .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         sliderChild.FindChild("MasterVolValue")!.name = "Value";
     }
 

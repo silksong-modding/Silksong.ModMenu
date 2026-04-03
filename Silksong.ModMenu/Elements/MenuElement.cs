@@ -116,5 +116,6 @@ public abstract class MenuElement : MenuDisposable, IMenuEntity
         Container.transform.SetParent(container.transform, false);
 
     /// <inheritdoc/>
-    public void ClearGameObjectParent() => Container.transform.SetParent(null);
+    public void ClearGameObjectParent() =>
+        Container.transform.SetParent(null, worldPositionStays: false);
 }

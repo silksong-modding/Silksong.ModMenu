@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Logging;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
@@ -12,9 +13,11 @@ namespace Silksong.ModMenuTesting;
 [BepInAutoPlugin(id: "org.silksong_modding.modmenutesting")]
 public partial class ModMenuTestingPlugin : BaseUnityPlugin, IModMenuCustomMenu
 {
+    internal static ManualLogSource InstanceLogger = null!;
+
     private void Awake()
     {
-        // Put your initialization logic here
+        InstanceLogger = this.Logger;
         Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
     }
 

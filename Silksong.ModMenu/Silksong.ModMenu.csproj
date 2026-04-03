@@ -41,7 +41,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Silksong.UnityHelper" Version="1.1.1" />
+    <PackageReference Include="Silksong.UnityHelper" Version="1.2.0" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
     <PackageReference Include="CSharpier.MsBuild" Version="1.2.6" PrivateAssets="all" />
   </ItemGroup>
