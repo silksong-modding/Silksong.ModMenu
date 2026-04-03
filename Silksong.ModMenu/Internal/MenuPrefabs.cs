@@ -62,7 +62,6 @@ internal class MenuPrefabs
             );
         }
         keyBindTemplate.SetActive(false);
-        keyBindTemplate.FindChild("Input Button Text")!.RemoveComponent<AutoLocalizeTextUI>();
         keyBindTemplate
             .FindChild("Input Button Text")!
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
@@ -75,6 +74,8 @@ internal class MenuPrefabs
 
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
+        // We have to remove this component as it's on a different GameObject to the Text,
+        // so it won't be removed by the LocalizedTextExtensions
         buttonChild.RemoveComponent<AutoLocalizeTextUI>();
         buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
 
@@ -101,7 +102,6 @@ internal class MenuPrefabs
         moh.menuSetting = null;
         moh.localizeText = false;
         moh.applyButton = null;
-        choiceChild.FindChild("Menu Option Label")!.RemoveComponent<AutoLocalizeTextUI>();
         choiceChild
             .FindChild("Menu Option Label")!
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
@@ -140,7 +140,6 @@ internal class MenuPrefabs
         sliderChild.GetComponent<Slider>().onValueChanged = new();
         sliderChild.RemoveComponent<MenuAudioSlider>();
         sliderChild.GetOrAddComponent<SliderRightStickInput>();
-        sliderChild.FindChild("Menu Option Label")!.RemoveComponent<AutoLocalizeTextUI>();
         sliderChild
             .FindChild("Menu Option Label")!
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
