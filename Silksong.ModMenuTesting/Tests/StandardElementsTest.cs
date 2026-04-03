@@ -34,7 +34,7 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             ListChoiceModel<string> listChoiceModel = new(["First", "Second", "Third"]);
-            ChoiceElement<string> choiceElement = new("The List Choice", listChoiceModel);
+            ChoiceElement<string> choiceElement = new("The List Choice", listChoiceModel, "Here is where to choose option(s)");
             listChoiceModel.OnValueChanged += v => Log($"List choice -> {v}");
             yield return choiceElement;
         }

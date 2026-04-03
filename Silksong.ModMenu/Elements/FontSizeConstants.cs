@@ -35,17 +35,17 @@ public static class FontSizeConstants
     /// <summary>
     /// Small font size for a choice description string.
     /// </summary>
-    public const int DESCRIPTION_SMALL = 4;
+    public const int DESCRIPTION_SMALL = 27;
 
     /// <summary>
     /// Standard font size for a choice description string.
     /// </summary>
-    public const int DESCRIPTION_MEDIUM = 6;
+    public const int DESCRIPTION_MEDIUM = 41;
 
     /// <summary>
     /// Large font size for a choice description string.
     /// </summary>
-    public const int DESCRIPTION_LARGE = 9;
+    public const int DESCRIPTION_LARGE = 55;
 
     /// <summary>
     /// Corresponding font size for a choice description string.
