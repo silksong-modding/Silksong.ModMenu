@@ -21,7 +21,7 @@ internal class IndexedList<T> : IList<T>
             if (index < 0 || index >= list.Count)
                 throw new IndexOutOfRangeException($"{index} (Count: {list.Count})");
 
-            if (lookup.TryGetValue(list[index], out var prev))
+            if (lookup.TryGetValue(value, out var prev))
             {
                 if (prev == index)
                     return;
@@ -95,6 +95,7 @@ internal class IndexedList<T> : IList<T>
 
         item = list[index];
         list.RemoveAt(index);
+        lookup.Remove(item);
         UpdateIndex(index);
         return true;
     }
