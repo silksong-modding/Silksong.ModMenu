@@ -14,7 +14,7 @@ public class BasicMenuScreen : AbstractMenuScreen
     /// <summary>
     /// Construct a basic menu screen with a single content entity.
     /// </summary>
-    public BasicMenuScreen(string title, INavigableMenuEntity content)
+    public BasicMenuScreen(LocalizedText title, INavigableMenuEntity content)
         : base(title) => Content = content;
 
     /// <summary>

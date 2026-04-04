@@ -8,9 +8,9 @@ namespace Silksong.ModMenu.Screens;
 /// <summary>
 /// A convience class for building a paginated menu screen from a stream of elements, grouping them into VerticalGroups.
 /// </summary>
-public class PaginatedMenuScreenBuilder(string title, int pageSize = 8)
+public class PaginatedMenuScreenBuilder(LocalizedText title, int pageSize = 8)
 {
-    private readonly string title = title;
+    private readonly LocalizedText title = title;
     private readonly int pageSize = pageSize;
     private readonly List<MenuElement> menuElements = [];
 

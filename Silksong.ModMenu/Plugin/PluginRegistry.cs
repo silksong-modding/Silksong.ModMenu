@@ -60,7 +60,7 @@ public static class PluginRegistry
 
     internal static bool GenerateMenuElement(
         BaseUnityPlugin plugin,
-        out string name,
+        out LocalizedText name,
         [MaybeNullWhen(false)] out SelectableElement menuElement
     )
     {

@@ -1,4 +1,6 @@
-﻿namespace Silksong.ModMenu.Plugin;
+﻿using Silksong.ModMenu.Elements;
+
+namespace Silksong.ModMenu.Plugin;
 
 /// <summary>
 /// Marker interface for all plugin interfaces intended to generate mod menus.
@@ -8,5 +10,5 @@ public interface IModMenuInterface
     /// <summary>
     /// A unique identifier for this mod menu, used as a case-insensitive sort key.
     /// </summary>
-    public string ModMenuName();
+    public LocalizedText ModMenuName();
 }

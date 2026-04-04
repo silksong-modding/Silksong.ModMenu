@@ -22,7 +22,7 @@ public abstract class AbstractMenuScreen : MenuDisposable
     /// <summary>
     /// Construct a menu screen with the given title.
     /// </summary>
-    protected AbstractMenuScreen(string title)
+    protected AbstractMenuScreen(LocalizedText title)
     {
         Container = MenuPrefabs.Get().NewCustomMenu(title);
         MenuScreen = Container.GetComponent<MenuScreen>();
@@ -40,7 +40,7 @@ public abstract class AbstractMenuScreen : MenuDisposable
         lateUpdate.OnLateUpdate += UpdateLayout;
         lateUpdate.OnLateUpdate += UpdateLastSelected;
 
-        TitleText.text = title;
+        TitleText.LocalizedText = title;
     }
     #endregion
 

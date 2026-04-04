@@ -33,7 +33,7 @@ public static class Registry
 
     internal static IEnumerable<SelectableElement> GenerateAllMenuElements()
     {
-        List<(string, SelectableElement)> allElements = [];
+        List<(LocalizedText, SelectableElement)> allElements = [];
         foreach (var (name, gen) in modMenuGenerators)
         {
             ExceptionUtil.Try(
@@ -62,6 +62,6 @@ public static class Registry
             );
         }
 
-        return [.. allElements.OrderBy(p => p.Item1.ToUpper()).Select(p => p.Item2)];
+        return [.. allElements.OrderBy(p => p.Item1.Text).Select(p => p.Item2)];
     }
 }

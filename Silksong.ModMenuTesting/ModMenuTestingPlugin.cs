@@ -68,5 +68,5 @@ public partial class ModMenuTestingPlugin : BaseUnityPlugin, IModMenuCustomMenu
         return builder.Build();
     }
 
-    public string ModMenuName() => "Mod Menu Testing";
+    public LocalizedText ModMenuName() => "Mod Menu Testing";
 }

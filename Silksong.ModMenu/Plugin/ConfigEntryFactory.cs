@@ -52,7 +52,7 @@ public class ConfigEntryFactory
     /// Generate a button for this plugin which opens a sub-menu for its ConfigFile.
     /// </summary>
     public virtual bool GenerateEntryButton(
-        string name,
+        LocalizedText name,
         BaseUnityPlugin plugin,
         [MaybeNullWhen(false)] out SelectableElement selectableElement
     )

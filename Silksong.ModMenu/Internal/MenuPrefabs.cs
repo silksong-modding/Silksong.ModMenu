@@ -1,6 +1,7 @@
 ﻿using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
+using Silksong.ModMenu.Elements;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -152,10 +153,10 @@ internal class MenuPrefabs
         sliderChild.FindChild("MasterVolValue")!.name = "Value";
     }
 
-    internal GameObject NewCustomMenu(string title)
+    internal GameObject NewCustomMenu(LocalizedText title)
     {
         var obj = Object.Instantiate(menuTemplate);
-        obj.name = $"ModMenuScreen-{title}";
+        obj.name = $"ModMenuScreen-{title.Text}";
         obj.transform.SetParent(canvas.transform, false);
         obj.transform.localPosition = new(0, 10, 0);
 

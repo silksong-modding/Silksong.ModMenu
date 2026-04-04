@@ -20,7 +20,7 @@ public class PaginatedMenuScreen : AbstractMenuScreen
     /// <summary>
     /// Construct a PaginatedMenuScreen with the given title.
     /// </summary>
-    public PaginatedMenuScreen(string title)
+    public PaginatedMenuScreen(LocalizedText title)
         : base(title)
     {
         pageNumberModel = new(0, 0, 0) { Circular = true, DisplayFn = i => $"{i + 1}" };
