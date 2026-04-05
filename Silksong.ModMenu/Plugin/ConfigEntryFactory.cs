@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using Silksong.ModMenu.Elements;
@@ -58,7 +59,7 @@ public class ConfigEntryFactory
     )
     {
         List<MenuElement> elements = [];
-        foreach (var entry in plugin.Config)
+        foreach (var entry in plugin.Config.OrderBy(e => e.Key.Key))
         {
             if (GenerateMenuElement(entry.Value, out var element))
                 elements.Add(element);
