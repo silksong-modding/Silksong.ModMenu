@@ -1,7 +1,7 @@
-﻿using Silksong.ModMenu.Elements;
-using Silksong.ModMenu.Screens;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Silksong.ModMenu.Elements;
+using Silksong.ModMenu.Screens;
 
 namespace Silksong.ModMenuTesting.Tests;
 

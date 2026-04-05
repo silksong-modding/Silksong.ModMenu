@@ -1,9 +1,9 @@
-﻿using Silksong.ModMenu.Elements;
-using Silksong.ModMenu.Models;
-using Silksong.ModMenu.Screens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Silksong.ModMenu.Elements;
+using Silksong.ModMenu.Models;
+using Silksong.ModMenu.Screens;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -34,7 +34,11 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             ListChoiceModel<string> listChoiceModel = new(["First", "Second", "Third"]);
-            ChoiceElement<string> choiceElement = new("The List Choice", listChoiceModel, "Here is where to choose option(s)");
+            ChoiceElement<string> choiceElement = new(
+                "The List Choice",
+                listChoiceModel,
+                "Here is where to choose option(s)"
+            );
             listChoiceModel.OnValueChanged += v => Log($"List choice -> {v}");
             yield return choiceElement;
         }
@@ -53,7 +57,11 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             ITextModel<string> textModel = TextModels.ForStrings();
-            TextInput<string> stringInput = new("The Text Input", textModel, "Here is where to input text");
+            TextInput<string> stringInput = new(
+                "The Text Input",
+                textModel,
+                "Here is where to input text"
+            );
             textModel.OnValueChanged += s => Log($"Text model -> {s}");
             yield return stringInput;
         }
