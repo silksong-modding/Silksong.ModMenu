@@ -26,6 +26,7 @@ public static class PluginRegistry
     [
         HandleType<IModMenuCustomElement>(GenerateCustomElement),
         HandleType<IModMenuCustomMenu>(GenerateCustomMenu),
+        GenerateNestedMenu,
         HandleType<IModMenuToggle>(GenerateToggle),
     ];
 
@@ -97,6 +98,29 @@ public static class PluginRegistry
         {
             OnSubmit = () => MenuScreenNavigation.Show(menu),
         };
+    }
+
+    private static bool GenerateNestedMenu(
+        IModMenuInterface plugin,
+        [MaybeNullWhen(false)] out SelectableElement menuElement
+    )
+    {
+        if (plugin is not IModMenuNestedMenu typed)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        ConfigEntryFactory factory = new()
+        {
+            GenerateSubgroups = true,
+            MinSubgroupSize = typed.MinSubgroupSize(),
+        };
+        return factory.GenerateEntryButton(
+            plugin.ModMenuName(),
+            (BaseUnityPlugin)plugin,
+            out menuElement
+        );
     }
 
     private static SelectableElement GenerateToggle(IModMenuToggle plugin)

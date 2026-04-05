@@ -50,6 +50,93 @@ public class ConfigEntryFactory
     public readonly List<MenuElementGenerator> Generators = [.. defaultGenerators];
 
     /// <summary>
+    /// If true, organize elements heirarchically by the period-delimeted names of their config definitions.
+    /// </summary>
+    public bool GenerateSubgroups = false;
+
+    /// <summary>
+    /// The minimum number of elements required to generate a subgroup. Has no effect if GenerateSubgroups is false.
+    /// </summary>
+    public int MinSubgroupSize = 2;
+
+    private static IEnumerable<LocalizedText> SubgroupsFromConfig(ConfigDefinition config) =>
+        config.Section.Split('.').Concat(config.Key.Split('.')).Select(LocalizedText.Raw);
+
+    /// <summary>
+    /// The hierarchical subgroup names to use for each config entry.
+    /// </summary>
+    protected virtual IEnumerable<LocalizedText> GetSubgroupNames(
+        ConfigEntryBase config,
+        MenuElement menuElement
+    )
+    {
+        var subgroups = config.Description.Tags.OfType<ConfigEntrySubgroup>().FirstOrDefault();
+        return subgroups?.Subgroups
+            ?? (GenerateSubgroups ? SubgroupsFromConfig(config.Definition) : []);
+    }
+
+    private static void GetFirstMultiChild(
+        Tree<LocalizedText, ElementTreeNode> root,
+        out List<LocalizedText> keys,
+        out Tree<LocalizedText, ElementTreeNode> tree
+    )
+    {
+        keys = [];
+        tree = root;
+
+        while (tree.Value.TotalElements <= 1 && tree.Subtrees.Count == 1)
+        {
+            var (key, subtree) = tree.Subtrees.First();
+            keys.Add(key);
+            tree = subtree;
+        }
+    }
+
+    private List<(string, MenuElement)> BuildSubtreeElements(
+        LocalizedText menuName,
+        List<LocalizedText> subpageNames,
+        Tree<LocalizedText, ElementTreeNode> tree
+    )
+    {
+        // Return elements directly if there is not enough of them.
+        if (tree.Value.TotalElements < MinSubgroupSize)
+        {
+            List<(string, MenuElement)> list = [];
+            tree.ForEachPostfix((keys, t) => list.AddRange(t.Value.Elements));
+            list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
+            return list;
+        }
+
+        // Otherwise, build a sub-page and return a button that navigates to it.
+        var name = string.Join(".", subpageNames.Select(n => n.Canonical));
+        var screen = BuildSubtreeScreen(menuName, subpageNames, tree);
+        TextButton button = new(subpageNames.Last())
+        {
+            OnSubmit = () => MenuScreenNavigation.Show(screen),
+        };
+        return [(name, button)];
+    }
+
+    private AbstractMenuScreen BuildSubtreeScreen(
+        LocalizedText menuName,
+        List<LocalizedText> subpageNames,
+        Tree<LocalizedText, ElementTreeNode> tree
+    )
+    {
+        List<(string, MenuElement)> elements = [.. tree.Value.Elements];
+        foreach (var entry in tree.Subtrees)
+        {
+            subpageNames.Add(entry.Key);
+            elements.AddRange(BuildSubtreeElements(menuName, subpageNames, entry.Value));
+            subpageNames.RemoveAt(subpageNames.Count - 1);
+        }
+
+        PaginatedMenuScreenBuilder builder = new(subpageNames.LastOrDefault() ?? menuName);
+        builder.AddRange(elements.OrderBy(e => e.Item1).Select(e => e.Item2));
+        return builder.Build();
+    }
+
+    /// <summary>
     /// Generate a button for this plugin which opens a sub-menu for its ConfigFile.
     /// </summary>
     public virtual bool GenerateEntryButton(
@@ -58,23 +145,37 @@ public class ConfigEntryFactory
         [MaybeNullWhen(false)] out SelectableElement selectableElement
     )
     {
-        List<MenuElement> elements = [];
+        Tree<LocalizedText, ElementTreeNode> elementsTree = new();
         foreach (var entry in plugin.Config.OrderBy(e => e.Key.Key))
         {
             if (GenerateMenuElement(entry.Value, out var element))
-                elements.Add(element);
+            {
+                var subgroupNames = GetSubgroupNames(entry.Value, element);
+                elementsTree[subgroupNames].Value.Elements.Add((entry.Key.Key, element));
+            }
         }
 
-        if (elements.Count == 0)
+        // Count the total number of elements in each subtree.
+        // The number of elements counted for each subtree is 1 if it gets its own menu button, N otherwise.
+        elementsTree.ForEachPostfix(
+            (_, tree) =>
+                tree.Value.TotalElements =
+                    tree.Value.Elements.Count
+                    + tree.Subtrees.Values.Select(t =>
+                            t.Value.TotalElements >= MinSubgroupSize ? 1 : t.Value.TotalElements
+                        )
+                        .Sum()
+        );
+        if (elementsTree.Value.TotalElements == 0)
         {
             selectableElement = default;
             return false;
         }
 
-        PaginatedMenuScreenBuilder builder = new(name);
-        builder.AddRange(elements);
-        var menu = builder.Build();
+        // Skip past any universal prefix.
+        GetFirstMultiChild(elementsTree, out var subpageNames, out var tree);
 
+        var menu = BuildSubtreeScreen(name, subpageNames, tree);
         selectableElement = new TextButton(name)
         {
             OnSubmit = () => MenuScreenNavigation.Show(menu),
@@ -315,6 +416,12 @@ public class ConfigEntryFactory
 
         menuElement = text;
         return true;
+    }
+
+    private record ElementTreeNode
+    {
+        public readonly List<(string, MenuElement)> Elements = [];
+        public int TotalElements;
     }
 }
 
