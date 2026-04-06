@@ -48,9 +48,6 @@ public class TextInput<T> : SelectableValueElement<T>
             InputField.contentType = InputField.ContentType.IntegerNumber;
         else if (floatTypes.Contains(typeof(T)))
             InputField.contentType = InputField.ContentType.DecimalNumber;
-
-        input.AddComponent<DescriptionAnimationHelper>().DescriptionAnimator =
-            DescriptionText.gameObject.GetComponent<Animator>();
     }
 
     /// <summary>

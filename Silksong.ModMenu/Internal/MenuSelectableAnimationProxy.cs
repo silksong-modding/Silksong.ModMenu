@@ -1,18 +1,19 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Internal;
 
-internal class DescriptionAnimationHelper
+internal class MenuSelectableAnimationProxy
     : MonoBehaviour,
         ISelectHandler,
         IDeselectHandler,
         ICancelHandler
 {
     private Selectable _selectable;
-    public Animator? DescriptionAnimator { get; set; }
+    public List<Animator> Animators = [];
 
     void Awake()
     {
@@ -27,7 +28,7 @@ internal class DescriptionAnimationHelper
     // My best attempt to imitate the code from MenuSelectable.ValidateDeselect
     private IEnumerator ValidateDeselect(BaseEventData eventData, bool force)
     {
-        if (DescriptionAnimator == null)
+        if (Animators.Count == 0)
         {
             yield break;
         }
@@ -51,8 +52,11 @@ internal class DescriptionAnimationHelper
 
         if (EventSystem.current.currentSelectedGameObject != null || force)
         {
-            DescriptionAnimator.ResetTrigger(MenuSelectable._showPropId);
-            DescriptionAnimator.SetTrigger(MenuSelectable._hidePropId);
+            foreach (Animator animator in Animators)
+            {
+                animator.ResetTrigger(MenuSelectable._showPropId);
+                animator.SetTrigger(MenuSelectable._hidePropId);
+            }
         }
         else if (prevSelectedObject != null && prevSelectedObject.activeInHierarchy)
         {
@@ -62,7 +66,7 @@ internal class DescriptionAnimationHelper
 
     public void OnSelect(BaseEventData eventData)
     {
-        if (DescriptionAnimator == null)
+        if (Animators.Count == 0)
         {
             return;
         }
@@ -72,8 +76,11 @@ internal class DescriptionAnimationHelper
             return;
         }
 
-        DescriptionAnimator.ResetTrigger(MenuSelectable._hidePropId);
-        DescriptionAnimator.SetTrigger(MenuSelectable._showPropId);
+        foreach (Animator animator in Animators)
+        {
+            animator.ResetTrigger(MenuSelectable._hidePropId);
+            animator.SetTrigger(MenuSelectable._showPropId);
+        }
     }
 
     public void OnCancel(BaseEventData eventData)
