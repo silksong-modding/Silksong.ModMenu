@@ -91,7 +91,7 @@ public static class MenuElementGenerators
     /// </summary>
     public static ConfigEntryFactory.MenuElementGenerator CreateIntSliderGenerator()
     {
-        bool gen(ConfigEntryBase entry, [MaybeNullWhen(false)] out MenuElement menuElement)
+        static bool gen(ConfigEntryBase entry, [MaybeNullWhen(false)] out MenuElement menuElement)
         {
             menuElement = default;
 

@@ -7,7 +7,7 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class LocalizedText
 {
-    private readonly TeamCherry.Localization.LocalisedString localisedString;
+    private readonly LocalisedString localisedString;
     private readonly string rawText;
 
     private LocalizedText(LocalisedString localisedString, string rawText)
@@ -23,6 +23,11 @@ public class LocalizedText
         localisedString.IsEmpty
             ? rawText
             : Language.Get(localisedString.Key, localisedString.Sheet);
+
+    /// <summary>
+    /// Get a canonical programmatic string for this LocalizedText that does not change when the language changes.
+    /// </summary>
+    public string Canonical => localisedString.IsEmpty ? rawText : localisedString.Key;
 
     /// <summary>
     /// Returns true if this object has localization support.
@@ -48,6 +53,22 @@ public class LocalizedText
     /// Represents text with no localization that always renders to the given value.
     /// </summary>
     public static LocalizedText Raw(string rawText) => new(new(), rawText);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() =>
+        IsLocalized ? localisedString.GetHashCode() : rawText.GetHashCode();
+
+    /// <summary>
+    /// Equals. Ignores raw text if it does not apply.
+    /// </summary>
+    public override bool Equals(object obj) =>
+        obj is LocalizedText other
+        && IsLocalized == other.IsLocalized
+        && (
+            IsLocalized
+                ? localisedString.Equals(other.localisedString)
+                : rawText.Equals(other.rawText)
+        );
 
     /// <summary>
     /// Implicit conversion for raw text to un-localized LocalizedText.
