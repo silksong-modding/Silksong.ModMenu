@@ -127,6 +127,12 @@ internal class MenuPrefabs
         textInputField.contentType = InputField.ContentType.Standard;
         textInputField.caretWidth = 8;
         textInputField.text = "";
+        textInputChild.AddComponent<MenuSelectableAnimationProxy>().Animators =
+        [
+            textInputChild.FindChild("Description")!.GetComponent<Animator>(),
+            textInputChild.FindChild("CursorLeft")!.GetComponent<Animator>(),
+            textInputChild.FindChild("CursorRight")!.GetComponent<Animator>(),
+        ];
 
         sliderTemplate = Object.Instantiate(
             canvas.FindChild("AudioMenuScreen/Content/MasterVolume")!

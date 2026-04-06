@@ -48,13 +48,6 @@ public class TextInput<T> : SelectableValueElement<T>
             InputField.contentType = InputField.ContentType.IntegerNumber;
         else if (floatTypes.Contains(typeof(T)))
             InputField.contentType = InputField.ContentType.DecimalNumber;
-
-        input.AddComponent<MenuSelectableAnimationProxy>().Animators =
-        [
-            input.FindChild("Description")!.GetComponent<Animator>(),
-            input.FindChild("CursorLeft")!.GetComponent<Animator>(),
-            input.FindChild("CursorRight")!.GetComponent<Animator>(),
-        ];
     }
 
     /// <summary>
