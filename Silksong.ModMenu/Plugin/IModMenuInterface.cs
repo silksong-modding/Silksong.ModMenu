@@ -1,4 +1,6 @@
-﻿using Silksong.ModMenu.Elements;
+﻿using System.Reflection;
+using BepInEx;
+using Silksong.ModMenu.Elements;
 
 namespace Silksong.ModMenu.Plugin;
 
@@ -10,5 +12,6 @@ public interface IModMenuInterface
     /// <summary>
     /// A unique identifier for this mod menu, used as a case-insensitive sort key.
     /// </summary>
-    public LocalizedText ModMenuName();
+    public LocalizedText ModMenuName() =>
+        GetType().GetCustomAttribute<BepInPlugin>()?.Name ?? "###UNKNOWN###";
 }

@@ -24,6 +24,10 @@ public partial class ModMenuNestedTestingPlugin : BaseUnityPlugin, IModMenuNeste
         Config.Bind(new("Main.Sub", "Int5"), 5, new("Sub Integer 5"));
         // This gets flattened into the 'Sub' menu because there are not enough 'Sub.Sub' elements.
         Config.Bind(new("Main.Sub.Sub", "Int6"), 6, new("Sub Sub Integer 6"));
+
+        // Test
+        Config.Bind(new("Main.B.C", "Int7"), 7, new("ABC Integer 7"));
+        Config.Bind(new("Main.B.C", "Int8"), 8, new("ABC Integer 8"));
     }
 
     public LocalizedText ModMenuName() => "Mod Menu Nested Testing";

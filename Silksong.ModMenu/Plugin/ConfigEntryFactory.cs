@@ -75,15 +75,11 @@ public class ConfigEntryFactory
             ?? (GenerateSubgroups ? SubgroupsFromConfig(config.Definition) : []);
     }
 
-    private static void GetFirstMultiChild(
-        TreeNode<LocalizedText, ElementTreeNode> root,
-        out List<LocalizedText> keys,
-        out TreeNode<LocalizedText, ElementTreeNode> tree
+    private static void FindFirstNonEmptyChild(
+        ref TreeNode<LocalizedText, ElementTreeNode> tree,
+        List<LocalizedText> keys
     )
     {
-        keys = [];
-        tree = root;
-
         while (tree.Value.TotalElements <= 1 && tree.Subtrees.Count == 1)
         {
             var (key, subtree) = tree.Subtrees.First();
@@ -123,16 +119,19 @@ public class ConfigEntryFactory
         TreeNode<LocalizedText, ElementTreeNode> tree
     )
     {
-        List<(string, MenuElement)> elements = [.. tree.Value.Elements];
+        List<(string path, MenuElement element)> elements = [.. tree.Value.Elements];
+
+        int origSize = subpageNames.Count;
         foreach (var entry in tree.Subtrees)
         {
-            subpageNames.Add(entry.Key);
-            elements.AddRange(BuildSubtreeElements(menuName, subpageNames, entry.Value));
-            subpageNames.RemoveAt(subpageNames.Count - 1);
+            var subtree = entry.Value;
+            FindFirstNonEmptyChild(ref subtree, subpageNames);
+            elements.AddRange(BuildSubtreeElements(menuName, subpageNames, subtree));
+            subpageNames.RemoveRange(origSize, subpageNames.Count - origSize);
         }
 
         PaginatedMenuScreenBuilder builder = new(subpageNames.LastOrDefault() ?? menuName);
-        builder.AddRange(elements.OrderBy(e => e.Item1).Select(e => e.Item2));
+        builder.AddRange(elements.OrderBy(e => e.path).Select(e => e.element));
         return builder.Build();
     }
 
@@ -173,9 +172,10 @@ public class ConfigEntryFactory
         }
 
         // Skip past any universal prefix.
-        GetFirstMultiChild(elementsTree, out var subpageNames, out var tree);
+        List<LocalizedText> subpageNames = [];
+        FindFirstNonEmptyChild(ref elementsTree, subpageNames);
 
-        var menu = BuildSubtreeScreen(name, subpageNames, tree);
+        var menu = BuildSubtreeScreen(name, subpageNames, elementsTree);
         selectableElement = new TextButton(name)
         {
             OnSubmit = () => MenuScreenNavigation.Show(menu),
@@ -420,7 +420,7 @@ public class ConfigEntryFactory
 
     private record ElementTreeNode
     {
-        public readonly List<(string, MenuElement)> Elements = [];
+        public readonly List<(string path, MenuElement element)> Elements = [];
         public int TotalElements;
     }
 }

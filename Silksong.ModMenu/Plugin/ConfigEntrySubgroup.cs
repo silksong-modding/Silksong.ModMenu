@@ -23,6 +23,9 @@ public record ConfigEntrySubgroup
 
     /// <summary>
     /// The subgroup names that designate this config element's place in the subpage hierarchy. An empty list designates the root page.
+    ///
+    /// This can describe the page this entry belogs to, or the full path to the element itself explicitly.
+    /// Both will work for grouping purposes, but the choice must be consistent throughout the plugin. The default implementation generates full paths to each individual element.
     /// </summary>
     public readonly IReadOnlyList<LocalizedText> Subgroups;
 }
