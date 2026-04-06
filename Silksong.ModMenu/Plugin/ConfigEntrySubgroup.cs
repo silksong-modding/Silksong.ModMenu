@@ -19,7 +19,7 @@ public record ConfigEntrySubgroup
     /// Construct subgroup names from explicit parameters.
     /// </summary>
     public ConfigEntrySubgroup(LocalizedText name1, params LocalizedText[] otherNames) =>
-        Subgroups = [.. otherNames.Prepend(name1)];
+        Subgroups = [name1, .. otherNames];
 
     /// <summary>
     /// The subgroup names that designate this config element's place in the subpage hierarchy. An empty list designates the root page.

@@ -6,20 +6,20 @@ namespace Silksong.ModMenu.Internal;
 /// <summary>
 /// A recursive tree structure which supports lazy node creation and postfix traversal.
 /// </summary>
-internal class Tree<K, V>
+internal class TreeNode<K, V>
     where V : new()
 {
-    private readonly Dictionary<K, Tree<K, V>> subtrees = [];
+    private readonly Dictionary<K, TreeNode<K, V>> subtrees = [];
 
     public V Value = new();
 
-    public IReadOnlyDictionary<K, Tree<K, V>> Subtrees => subtrees;
+    public IReadOnlyDictionary<K, TreeNode<K, V>> Subtrees => subtrees;
 
-    public Tree<K, V> this[IEnumerable<K> keys]
+    public TreeNode<K, V> this[IEnumerable<K> keys]
     {
         get
         {
-            Tree<K, V> tree = this;
+            TreeNode<K, V> tree = this;
             foreach (var key in keys)
             {
                 if (tree.subtrees.TryGetValue(key, out var subtree))
@@ -35,7 +35,10 @@ internal class Tree<K, V>
         }
     }
 
-    private void ForEachPostfixRecursive(List<K> keys, Action<IReadOnlyList<K>, Tree<K, V>> action)
+    private void ForEachPostfixRecursive(
+        List<K> keys,
+        Action<IReadOnlyList<K>, TreeNode<K, V>> action
+    )
     {
         foreach (var e in subtrees)
         {
@@ -46,6 +49,6 @@ internal class Tree<K, V>
         action(keys, this);
     }
 
-    public void ForEachPostfix(Action<IReadOnlyList<K>, Tree<K, V>> action) =>
+    public void ForEachPostfix(Action<IReadOnlyList<K>, TreeNode<K, V>> action) =>
         ForEachPostfixRecursive([], action);
 }

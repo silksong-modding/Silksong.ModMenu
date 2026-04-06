@@ -156,7 +156,7 @@ internal class MenuPrefabs
     internal GameObject NewCustomMenu(LocalizedText title)
     {
         var obj = Object.Instantiate(menuTemplate);
-        obj.name = $"ModMenuScreen-{title.Text}";
+        obj.name = $"ModMenuScreen-{title.Canonical}";
         obj.transform.SetParent(canvas.transform, false);
         obj.transform.localPosition = new(0, 10, 0);
 

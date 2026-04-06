@@ -76,9 +76,9 @@ public class ConfigEntryFactory
     }
 
     private static void GetFirstMultiChild(
-        Tree<LocalizedText, ElementTreeNode> root,
+        TreeNode<LocalizedText, ElementTreeNode> root,
         out List<LocalizedText> keys,
-        out Tree<LocalizedText, ElementTreeNode> tree
+        out TreeNode<LocalizedText, ElementTreeNode> tree
     )
     {
         keys = [];
@@ -95,7 +95,7 @@ public class ConfigEntryFactory
     private List<(string, MenuElement)> BuildSubtreeElements(
         LocalizedText menuName,
         List<LocalizedText> subpageNames,
-        Tree<LocalizedText, ElementTreeNode> tree
+        TreeNode<LocalizedText, ElementTreeNode> tree
     )
     {
         // Return elements directly if there is not enough of them.
@@ -120,7 +120,7 @@ public class ConfigEntryFactory
     private AbstractMenuScreen BuildSubtreeScreen(
         LocalizedText menuName,
         List<LocalizedText> subpageNames,
-        Tree<LocalizedText, ElementTreeNode> tree
+        TreeNode<LocalizedText, ElementTreeNode> tree
     )
     {
         List<(string, MenuElement)> elements = [.. tree.Value.Elements];
@@ -145,7 +145,7 @@ public class ConfigEntryFactory
         [MaybeNullWhen(false)] out SelectableElement selectableElement
     )
     {
-        Tree<LocalizedText, ElementTreeNode> elementsTree = new();
+        TreeNode<LocalizedText, ElementTreeNode> elementsTree = new();
         foreach (var entry in plugin.Config.OrderBy(e => e.Key.Key))
         {
             if (GenerateMenuElement(entry.Value, out var element))
