@@ -15,7 +15,7 @@ public class TextButton : SelectableElement
     /// <summary>
     /// Construct a text button with the given text.
     /// </summary>
-    public TextButton(LocalizedText text)
+    public TextButton(LocalizedText text, LocalizedText description)
         : base(MenuPrefabs.Get().NewTextButtonContainer(out var menuButton), menuButton)
     {
         Container.name = text.Text;
@@ -38,17 +38,12 @@ public class TextButton : SelectableElement
         ButtonText.LocalizedText = text;
 
         DescriptionText = MenuButton.gameObject.FindChild("Description")!.GetComponent<Text>();
-        DescriptionText.LocalizedText = string.Empty;
-    }
-
-    /// <summary>
-    /// Create a text button with a description below it.
-    /// </summary>
-    public TextButton(LocalizedText text, LocalizedText description)
-        : this(text)
-    {
         DescriptionText.LocalizedText = description;
     }
+
+    /// <inheritdoc cref="TextButton.TextButton(LocalizedText, LocalizedText)"/>
+    public TextButton(LocalizedText text)
+        : this(text, string.Empty) { }
 
     /// <summary>
     /// The action(s) to perform when this button is selected.
