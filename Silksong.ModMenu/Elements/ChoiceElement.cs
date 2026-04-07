@@ -26,7 +26,6 @@ public class ChoiceElement<T> : SelectableValueElement<T>
     {
         ChoiceModel = model;
 
-        MenuOptionComponent = menuOptionHorizontal;
         var option = menuOptionHorizontal.gameObject;
         var custom = option.AddComponent<CustomMenuOptionHorizontal>();
         custom.Model = model;
@@ -59,11 +58,6 @@ public class ChoiceElement<T> : SelectableValueElement<T>
     /// </summary>
     public ChoiceElement(LocalizedText label, List<T> items)
         : this(label, ChoiceModels.ForValues(items), "") { }
-
-    /// <summary>
-    /// The unity component for the menu option horizontal.
-    /// </summary>
-    protected readonly MenuOptionHorizontal MenuOptionComponent;
 
     /// <summary>
     /// The value holder and model underlying this choice element.

@@ -24,7 +24,7 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
     )
         : base(label, model, description)
     {
-        RightText = SetupRightDescription(DescriptionText, ChoiceText, MenuOptionComponent);
+        RightText = SetupRightDescription(DescriptionText, ChoiceText, SelectableComponent);
         RightText.LocalizedText = rightDescription;
     }
 
@@ -54,7 +54,7 @@ public class DynamicDescriptionChoiceElement<T> : ChoiceElement<T>
     private static Text SetupRightDescription(
         Text descriptionText,
         Text choiceText,
-        MenuSelectable selectable
+        Selectable selectable
     )
     {
         GameObject desc = descriptionText.gameObject;
