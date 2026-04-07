@@ -34,10 +34,11 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             ListChoiceModel<string> listChoiceModel = new(["First", "Second", "Third"]);
-            ChoiceElement<string> choiceElement = new(
+            ChoiceElement<string> choiceElement = new DynamicDescriptionChoiceElement<string>(
                 "The List Choice",
                 listChoiceModel,
-                "Here is where to choose option(s)"
+                "Here is where to choose option(s)",
+                s => $"This is the {s.ToLowerInvariant()} option"
             );
             listChoiceModel.OnValueChanged += v => Log($"List choice -> {v}");
             yield return choiceElement;
