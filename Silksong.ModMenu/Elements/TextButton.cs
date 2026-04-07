@@ -72,7 +72,11 @@ public class TextButton : SelectableElement
     public readonly Text DescriptionText;
 
     /// <inheritdoc/>
-    public override void SetMainColor(Color color) => ButtonText.color = color;
+    public override void SetMainColor(Color color)
+    {
+        ButtonText.color = color;
+        DescriptionText.color = color;
+    }
 
     /// <inheritdoc/>
     public override void SetFontSizes(FontSizes fontSizes)
