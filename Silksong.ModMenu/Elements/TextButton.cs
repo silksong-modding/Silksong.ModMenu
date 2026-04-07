@@ -36,6 +36,18 @@ public class TextButton : SelectableElement
 
         ButtonText = menuButton.gameObject.FindChild("Menu Button Text")!.GetComponent<Text>();
         ButtonText.LocalizedText = text;
+
+        DescriptionText = MenuButton.gameObject.FindChild("Description")!.GetComponent<Text>();
+        DescriptionText.LocalizedText = string.Empty;
+    }
+
+    /// <summary>
+    /// Create a text button with a description below it.
+    /// </summary>
+    public TextButton(LocalizedText text, LocalizedText description)
+        : this(text)
+    {
+        DescriptionText.LocalizedText = description;
     }
 
     /// <summary>
@@ -54,10 +66,18 @@ public class TextButton : SelectableElement
     /// </summary>
     public readonly Text ButtonText;
 
+    /// <summary>
+    /// The text element for the description text.
+    /// </summary>
+    public readonly Text DescriptionText;
+
     /// <inheritdoc/>
     public override void SetMainColor(Color color) => ButtonText.color = color;
 
     /// <inheritdoc/>
-    public override void SetFontSizes(FontSizes fontSizes) =>
+    public override void SetFontSizes(FontSizes fontSizes)
+    {
         ButtonText.fontSize = FontSizeConstants.LabelSize(fontSizes);
+        DescriptionText.fontSize = FontSizeConstants.DescriptionSize(fontSizes);
+    }
 }

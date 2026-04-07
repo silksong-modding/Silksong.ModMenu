@@ -19,7 +19,7 @@ internal class StandardElementsTest : ModMenuTest
     internal static IEnumerable<MenuElement> CreateUnboundElements()
     {
         {
-            TextButton button = new("The Text Button");
+            TextButton button = new("The Text Button", "Here is a text button");
             button.OnSubmit += () => Log($"Pressed text button");
             yield return button;
         }
