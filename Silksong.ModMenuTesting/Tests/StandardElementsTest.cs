@@ -46,8 +46,7 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             TextLabel label = new("The Label");
-            // Commented out because this is bugged ATM
-            // yield return label;
+            yield return label;
         }
 
         {

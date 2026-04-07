@@ -74,6 +74,7 @@ internal class MenuPrefabs
         textLabelTemplate.SetActive(false);
         textLabelTemplate.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         textLabelTemplate.name = "TextLabel";
+        textLabelTemplate.GetComponent<Text>().raycastTarget = false;
         Object.DontDestroyOnLoad(textLabelTemplate);
 
         textChoiceTemplate = Object.Instantiate(
