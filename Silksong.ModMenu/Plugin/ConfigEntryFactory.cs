@@ -125,6 +125,7 @@ public class ConfigEntryFactory
         foreach (var entry in tree.Subtrees)
         {
             var subtree = entry.Value;
+            subpageNames.Add(entry.Key);
             FindFirstNonEmptyChild(ref subtree, subpageNames);
             elements.AddRange(BuildSubtreeElements(menuName, subpageNames, subtree));
             subpageNames.RemoveRange(origSize, subpageNames.Count - origSize);
