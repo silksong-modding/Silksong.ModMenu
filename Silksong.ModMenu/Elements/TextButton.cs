@@ -15,7 +15,7 @@ public class TextButton : SelectableElement
     /// <summary>
     /// Construct a text button with the given text.
     /// </summary>
-    public TextButton(LocalizedText text)
+    public TextButton(LocalizedText text, LocalizedText description)
         : base(MenuPrefabs.Get().NewTextButtonContainer(out var menuButton), menuButton)
     {
         Container.name = text.Text;
@@ -36,7 +36,14 @@ public class TextButton : SelectableElement
 
         ButtonText = menuButton.gameObject.FindChild("Menu Button Text")!.GetComponent<Text>();
         ButtonText.LocalizedText = text;
+
+        DescriptionText = MenuButton.gameObject.FindChild("Description")!.GetComponent<Text>();
+        DescriptionText.LocalizedText = description;
     }
+
+    /// <inheritdoc cref="TextButton.TextButton(LocalizedText, LocalizedText)"/>
+    public TextButton(LocalizedText text)
+        : this(text, string.Empty) { }
 
     /// <summary>
     /// The action(s) to perform when this button is selected.
@@ -54,10 +61,22 @@ public class TextButton : SelectableElement
     /// </summary>
     public readonly Text ButtonText;
 
-    /// <inheritdoc/>
-    public override void SetMainColor(Color color) => ButtonText.color = color;
+    /// <summary>
+    /// The text element for the description text.
+    /// </summary>
+    public readonly Text DescriptionText;
 
     /// <inheritdoc/>
-    public override void SetFontSizes(FontSizes fontSizes) =>
+    public override void SetMainColor(Color color)
+    {
+        ButtonText.color = color;
+        DescriptionText.color = color;
+    }
+
+    /// <inheritdoc/>
+    public override void SetFontSizes(FontSizes fontSizes)
+    {
         ButtonText.fontSize = FontSizeConstants.LabelSize(fontSizes);
+        DescriptionText.fontSize = FontSizeConstants.DescriptionSize(fontSizes);
+    }
 }

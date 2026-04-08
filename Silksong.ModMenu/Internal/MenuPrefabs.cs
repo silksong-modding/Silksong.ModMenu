@@ -68,24 +68,13 @@ internal class MenuPrefabs
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         Object.DontDestroyOnLoad(keyBindTemplate);
 
-        textButtonTemplate = Object.Instantiate(optionsScreen.FindChild("Content/GameOptions")!);
-        textButtonTemplate.SetActive(false);
-        textButtonTemplate.name = "TextButtonContainer";
-        Object.DontDestroyOnLoad(textButtonTemplate);
-
-        var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
-        buttonChild.name = "TextButton";
-        // We have to remove this component as it's on a different GameObject to the Text,
-        // so it won't be removed by the LocalizedTextExtensions
-        buttonChild.RemoveComponent<AutoLocalizeTextUI>();
-        buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
-
         textLabelTemplate = Object.Instantiate(
             optionsScreen.FindChild("Content/GameOptions/GameOptionsButton/Menu Button Text")!
         );
         textLabelTemplate.SetActive(false);
         textLabelTemplate.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         textLabelTemplate.name = "TextLabel";
+        textLabelTemplate.GetComponent<Text>().raycastTarget = false;
         Object.DontDestroyOnLoad(textLabelTemplate);
 
         textChoiceTemplate = Object.Instantiate(
@@ -108,6 +97,31 @@ internal class MenuPrefabs
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         choiceChild.FindChild("Menu Option Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         choiceChild.FindChild("Description")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+
+        textButtonTemplate = Object.Instantiate(optionsScreen.FindChild("Content/GameOptions")!);
+        textButtonTemplate.SetActive(false);
+        textButtonTemplate.name = "TextButtonContainer";
+        Object.DontDestroyOnLoad(textButtonTemplate);
+
+        var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
+        buttonChild.name = "TextButton";
+        // We have to remove this component as it's on a different GameObject to the Text,
+        // so it won't be removed by the LocalizedTextExtensions
+        buttonChild.RemoveComponent<AutoLocalizeTextUI>();
+        buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+
+        // Add a (centered) description to the menu button
+        GameObject clonedDescription = Object.Instantiate(choiceChild.FindChild("Description")!);
+        RectTransform clonedDescTransform = clonedDescription.GetComponent<RectTransform>();
+        clonedDescTransform.SetParent(buttonChild.transform, worldPositionStays: false);
+        clonedDescTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        clonedDescTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        clonedDescTransform.pivot = new Vector2(0.5f, 0.5f);
+        clonedDescription.name = "Description";
+        Text clonedDescText = clonedDescription.GetComponent<Text>();
+        clonedDescText.alignment = TextAnchor.MiddleCenter;
+        buttonChild.GetComponent<MenuButton>().descriptionText =
+            clonedDescText.GetComponent<Animator>();
 
         textInputTemplate = Object.Instantiate(textChoiceTemplate);
         textInputTemplate.SetActive(false);

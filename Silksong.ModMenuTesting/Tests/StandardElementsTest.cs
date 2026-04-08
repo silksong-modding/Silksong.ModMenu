@@ -19,7 +19,7 @@ internal class StandardElementsTest : ModMenuTest
     internal static IEnumerable<MenuElement> CreateUnboundElements()
     {
         {
-            TextButton button = new("The Text Button");
+            TextButton button = new("The Text Button", "Here is a text button");
             button.OnSubmit += () => Log($"Pressed text button");
             yield return button;
         }
@@ -34,10 +34,11 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             ListChoiceModel<string> listChoiceModel = new(["First", "Second", "Third"]);
-            ChoiceElement<string> choiceElement = new(
+            ChoiceElement<string> choiceElement = new DynamicDescriptionChoiceElement<string>(
                 "The List Choice",
                 listChoiceModel,
-                "Here is where to choose option(s)"
+                "Here is where to choose option(s)",
+                s => $"This is the {s.ToLowerInvariant()} option"
             );
             listChoiceModel.OnValueChanged += v => Log($"List choice -> {v}");
             yield return choiceElement;
@@ -45,8 +46,7 @@ internal class StandardElementsTest : ModMenuTest
 
         {
             TextLabel label = new("The Label");
-            // Commented out because this is bugged ATM
-            // yield return label;
+            yield return label;
         }
 
         {
