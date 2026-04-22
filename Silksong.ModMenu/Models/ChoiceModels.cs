@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Silksong.ModMenu.Internal;
+using TeamCherry.Localization;
 
 namespace Silksong.ModMenu.Models;
 
@@ -20,6 +21,15 @@ public static class ChoiceModels
     /// A default boolean model with the names 'False' and 'True'.
     /// </summary>
     public static ListChoiceModel<bool> ForBool() => ForBool("False", "True");
+
+    /// <summary>
+    /// A simple boolean model with the current language's equivalents of 'Off' and 'On'.
+    /// </summary>
+    public static ListChoiceModel<bool> ForBoolLocalized() =>
+        new([false, true])
+        {
+            DisplayFn = (idx, val) => new LocalisedString("MainMenu", val ? "MOH_ON" : "MOH_OFF"),
+        };
 
     /// <summary>
     /// A model for all values of the given enum type. Can be reified to T=object.
