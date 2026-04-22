@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Silksong.ModMenu.Internal;
 
@@ -11,6 +12,16 @@ internal static class GameObjectUtil
             var obj = self.transform.GetChild(i).gameObject;
             obj.transform.SetParent(null);
             Object.Destroy(obj);
+        }
+    }
+
+    internal static IEnumerable<Transform> WalkHierarchy(this Transform t)
+    {
+        yield return t;
+        foreach (Transform child in t)
+        {
+            foreach (Transform t2 in child.WalkHierarchy())
+                yield return t2;
         }
     }
 
