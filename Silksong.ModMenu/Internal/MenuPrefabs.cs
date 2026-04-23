@@ -291,7 +291,7 @@ internal class MenuPrefabs
         scrollRect.scrollSensitivity = 80;
         scrollRect.viewport = scrollPaneRT;
         scrollRect.content = contentRT;
-        scrollPane.AddComponent<VerticalScrollSlider>().Slider = scrollSlider;
+        scrollPane.AddComponent<ScrollSliderController>().VerticalSlider = scrollSlider;
 
         return scrollPane;
     }
