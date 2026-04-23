@@ -168,51 +168,7 @@ internal class MenuPrefabs
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         sliderChild.FindChild("MasterVolValue")!.name = "Value";
 
-        #region Scroll Pane
-        // Can't directly clone the achievements menu, it throws a bunch of errors,
-        // but we can repurpose its scrollbar
-
-        Material clearMat = new(Shader.Find("UI/Default")) { color = Color.clear };
-
-        scrollPaneTemplate = Object.Instantiate(emptyContentPane);
-        scrollPaneTemplate.name = "ScrollPane";
-        scrollPaneTemplate.SetActive(false);
-        Object.DontDestroyOnLoad(scrollPaneTemplate);
-        scrollPaneTemplate.AddComponent<Image>().material = clearMat; // necessary for the RectMask2D
-        scrollPaneTemplate.AddComponent<RectMask2D>();
-        var scrollPaneRT = (RectTransform)scrollPaneTemplate.transform;
-        scrollPaneRT.sizeDelta = new Vector2(1570, 876f);
-
-        var scrollbar = Object.Instantiate(
-            uiManager.achievementsMenuScreen.gameObject.FindChild("Content/Scrollbar")!,
-            scrollPaneRT,
-            false
-        );
-        scrollbar.name = "Scrollbar";
-        ((RectTransform)scrollbar.transform.Find("Background")).FitToParentVertical();
-        var scrollbarRT = (RectTransform)scrollbar.transform;
-        scrollbarRT.sizeDelta = new Vector2(50, 0);
-        scrollbarRT.FitToParentVertical(anchorX: 1);
-
-        var scrollContent = new GameObject("Content") { layer = (int)PhysLayers.UI };
-        scrollContent.transform.SetParentReset(scrollPaneTemplate.transform);
-        scrollContent.AddComponent<Image>().material = clearMat; // ensures it has a RectTransform
-        var scrollContentRT = (RectTransform)scrollContent.transform;
-        scrollContentRT.anchorMax =
-            scrollContentRT.anchorMin =
-            scrollContentRT.pivot =
-                new Vector2(0.5f, 1);
-
-        var scrollRect = scrollPaneTemplate.AddComponent<ScrollRect>();
-        scrollRect.horizontal = false;
-        scrollRect.vertical = true;
-        scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
-        scrollRect.movementType = ScrollRect.MovementType.Clamped;
-        scrollRect.scrollSensitivity = 80;
-        scrollRect.viewport = scrollPaneRT;
-        scrollRect.content = scrollContentRT;
-        scrollRect.verticalScrollbar = scrollbar.GetComponent<Scrollbar>();
-        #endregion
+        scrollPaneTemplate = ConstructScrollPanePrefab(uiManager);
     }
 
     internal GameObject NewCustomMenu(LocalizedText title)
@@ -265,6 +221,80 @@ internal class MenuPrefabs
     }
 
     internal GameObject NewScrollPane() => Object.Instantiate(scrollPaneTemplate);
+
+    private static GameObject ConstructScrollPanePrefab(UIManager uiManager)
+    {
+        // Can't directly clone the achievements menu, it throws a bunch of errors,
+        // but we can repurpose parts of its scrollbar.
+
+        // Pulled this into its own function because it was getting quite long.
+
+        #region Content Panes
+
+        var scrollPane = new GameObject("ScrollPane") { layer = (int)PhysLayers.UI };
+        scrollPane.SetActive(false);
+        Object.DontDestroyOnLoad(scrollPane);
+        scrollPane.AddComponent<Image>().color = Color.clear; // necessary for the RectMask2D
+        scrollPane.AddComponent<RectMask2D>();
+        var scrollPaneRT = (RectTransform)scrollPane.transform;
+        scrollPaneRT.sizeDelta = new Vector2(1570, 876f);
+
+        var content = new GameObject("Content") { layer = (int)PhysLayers.UI };
+        content.transform.SetParentReset(scrollPane.transform);
+        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
+        var contentRT = (RectTransform)content.transform;
+        contentRT.anchorMax = contentRT.anchorMin = contentRT.pivot = new Vector2(0.5f, 1);
+
+        #endregion
+        #region "Scrollbar"
+
+        var scrollbar = Object.Instantiate(
+            uiManager.achievementsMenuScreen.gameObject.FindChild("Content/Scrollbar")!,
+            scrollPaneRT,
+            false
+        );
+        scrollbar.name = "Scrollbar";
+
+        ((RectTransform)scrollbar.transform.Find("Background")).FitToParentVertical();
+
+        var scrollbarRT = (RectTransform)scrollbar.transform;
+        var slideAreaRT = (RectTransform)scrollbarRT.Find("Sliding Area");
+        var handleRT = (RectTransform)slideAreaRT.Find("Handle/TopFleur");
+
+        slideAreaRT.FitToParent();
+        slideAreaRT.sizeDelta = new Vector2(0, -150);
+
+        Object.DestroyImmediate(handleRT.GetComponent<ScrollBarHandle>());
+        handleRT.SetParentReset(slideAreaRT);
+        handleRT.FitToParentHorizontal();
+        handleRT.sizeDelta = new Vector2(0, 140);
+        handleRT.pivot = Vector2.one * 0.5f;
+        Object.DestroyImmediate(slideAreaRT.Find("Handle").gameObject);
+        handleRT.gameObject.name = "Handle";
+
+        scrollbarRT.sizeDelta = new Vector2(50, 0);
+        scrollbarRT.FitToParentVertical(anchorX: 1);
+        Object.DestroyImmediate(scrollbar.GetComponent<Scrollbar>());
+        var scrollSlider = scrollbar.AddComponent<Slider>();
+        scrollSlider.handleRect = handleRT;
+        scrollSlider.direction = Slider.Direction.BottomToTop;
+        scrollSlider.maxValue = 1;
+        scrollSlider.minValue = 0;
+
+        #endregion
+
+        var scrollRect = scrollPane.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.scrollSensitivity = 80;
+        scrollRect.viewport = scrollPaneRT;
+        scrollRect.content = contentRT;
+        scrollPane.AddComponent<VerticalScrollSlider>().Slider = scrollSlider;
+
+        return scrollPane;
+    }
 
     private static readonly EventSuppressor mappableKeyInit = new();
 
