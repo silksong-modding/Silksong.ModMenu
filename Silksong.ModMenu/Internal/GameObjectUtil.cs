@@ -15,16 +15,6 @@ internal static class GameObjectUtil
         }
     }
 
-    internal static IEnumerable<Transform> WalkHierarchy(this Transform t)
-    {
-        yield return t;
-        foreach (Transform child in t)
-        {
-            foreach (Transform t2 in child.WalkHierarchy())
-                yield return t2;
-        }
-    }
-
     private class InactiveScope : System.IDisposable
     {
         private readonly bool prevActiveSelf;

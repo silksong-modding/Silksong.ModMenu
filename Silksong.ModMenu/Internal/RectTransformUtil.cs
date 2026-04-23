@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 
 namespace Silksong.ModMenu.Internal;
@@ -44,7 +45,7 @@ internal static class RectTransformUtil
             max = Vector2.one * float.MinValue;
         foreach (Transform item in transforms)
         {
-            foreach (Transform t in item.WalkHierarchy())
+            foreach (var (_, t) in item.EnumerateHierarchy())
             {
                 Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(self, t);
                 min = new(Mathf.Min(min.x, bounds.min.x), Mathf.Min(min.y, bounds.min.y));
