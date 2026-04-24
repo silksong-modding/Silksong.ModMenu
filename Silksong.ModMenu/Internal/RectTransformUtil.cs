@@ -31,6 +31,17 @@ internal static class RectTransformUtil
         self.sizeDelta = self.sizeDelta with { x = 0 };
     }
 
+    internal static void SetAnchoredPosition(this RectTransform self, Vector2 pos)
+    {
+        var size = self.rect.size;
+
+        self.anchoredPosition = pos;
+        self.anchorMin = self.anchorMax = new(0.5f, 0.5f);
+        self.offsetMin = pos - size / 2;
+        self.offsetMax = pos + size / 2;
+        self.sizeDelta = size;
+    }
+
     /// <summary>
     /// Gets the corners of a bounding box that encapsulates everything in
     /// <paramref name="transforms"/> and their descendants, relative to the
@@ -48,21 +59,59 @@ internal static class RectTransformUtil
             foreach (var (_, t) in item.EnumerateHierarchy())
             {
                 Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(self, t);
-                min = new(Mathf.Min(min.x, bounds.min.x), Mathf.Min(min.y, bounds.min.y));
-                max = new(Mathf.Max(max.x, bounds.max.x), Mathf.Max(max.y, bounds.max.y));
+                min = Vector2.Min(min, bounds.min);
+                max = Vector2.Max(max, bounds.max);
             }
         }
         return (min, max);
     }
 
-    internal static void SetAnchoredPosition(this RectTransform self, Vector2 pos)
+    /// <summary>
+    /// True if <paramref name="self"/> is overlapping <paramref name="other"/>
+    /// at all from the view of the <paramref name="camera"/> (or from the
+    /// default UIManager camera, if none is specified).
+    /// </summary>
+    internal static bool Overlaps(
+        this RectTransform self,
+        RectTransform other,
+        Camera? camera = null
+    )
     {
-        var size = self.rect.size;
+        if (!camera)
+            camera = UIManager.instance.UICanvas.worldCamera;
 
-        self.anchoredPosition = pos;
-        self.anchorMin = self.anchorMax = new(0.5f, 0.5f);
-        self.offsetMin = pos - size / 2;
-        self.offsetMax = pos + size / 2;
-        self.sizeDelta = size;
+        if (self.rect.size.x > other.rect.size.x && self.rect.size.y > other.rect.size.y)
+            (self, other) = (other, self);
+
+        var corners = new Vector3[4];
+        self.GetWorldCorners(corners);
+
+        Vector3 max = corners[0],
+            min = corners[0];
+
+        for (int i = 1; i < 4; i++)
+        {
+            max = Vector3.Max(max, corners[i]);
+            min = Vector3.Min(max, corners[i]);
+        }
+        Vector3 center = (max - min) / 2f + min,
+            centerTop = new(center.x, max.y, center.z),
+            centerBottom = new(center.x, min.y, center.z),
+            centerLeft = new(min.x, center.y, center.z),
+            centerRight = new(max.x, center.y, center.z);
+
+        Vector3[] points = [centerTop, centerBottom, center, centerLeft, centerRight, .. corners];
+
+        foreach (var point in points)
+        {
+            bool pointInView = RectTransformUtility.RectangleContainsScreenPoint(
+                other,
+                RectTransformUtility.WorldToScreenPoint(camera, point),
+                camera
+            );
+            if (pointInView)
+                return true;
+        }
+        return false;
     }
 }

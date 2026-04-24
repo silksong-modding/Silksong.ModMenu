@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -6,60 +8,108 @@ using UnityEngine.UI;
 namespace Silksong.ModMenu.Internal;
 
 /// <summary>
-/// Helper component for improving keyboard, controller, and scrollwheel navigation
-/// on <see cref="Screens.ScrollingMenuScreen"/>s.
+/// Component for improving the keyboard, controller, drag, and scrollwheel navigation
+/// of <see cref="Selectable"/>s within a <see cref="UnityEngine.UI.ScrollRect"/>.
 /// </summary>
 internal class ScrollNavigationHelper : EventTrigger
 {
     /// <summary>
-    /// The ScrollRect that this selectable is part of.
+    /// The ScrollRect that this selectable is inside of.
     /// </summary>
     public ScrollRect? ScrollRect { get; set; }
 
-    static Coroutine? scrollRoutine;
+    static readonly Dictionary<ScrollRect, Coroutine> scrollRoutines = [];
     const float SMOOTH_SCROLL_TIME = 0.2f;
+
+    static readonly PropertyInfo dummyEvent = typeof(EventSystem).GetProperty(
+        "baseEventDataCache",
+        BindingFlags.NonPublic | BindingFlags.Instance
+    );
 
     public void ScrollToInstant()
     {
         CancelSmoothScroll();
         if (ScrollRect)
-            ScrollRect.normalizedPosition = new Vector2(0, GetScrollPoint());
+        {
+            Vector2 pos = GetScrollPoint();
+            ScrollRect.normalizedPosition = new Vector2(
+                ScrollRect.horizontal ? pos.x : 0.5f,
+                ScrollRect.vertical ? pos.y : 0.5f
+            );
+        }
     }
 
     public void ScrollToSmooth()
     {
         CancelSmoothScroll();
         if (ScrollRect)
-            scrollRoutine = UIManager.instance.StartCoroutine(Coro());
+            scrollRoutines[ScrollRect] = ScrollRect.StartCoroutine(Coro());
 
         IEnumerator Coro()
         {
-            float y = GetScrollPoint();
-            var curve = AnimationCurve.EaseInOut(
-                0,
-                ScrollRect.normalizedPosition.y,
-                SMOOTH_SCROLL_TIME,
-                y
+            var scrollRect = ScrollRect;
+
+            Vector2 pos = GetScrollPoint();
+            pos = new Vector2(
+                scrollRect.horizontal ? pos.x : 0.5f,
+                scrollRect.vertical ? pos.y : 0.5f
             );
+
+            var curveX = AnimationCurve.EaseInOut(
+                0,
+                scrollRect.normalizedPosition.x,
+                SMOOTH_SCROLL_TIME,
+                pos.x
+            );
+            var curveY = AnimationCurve.EaseInOut(
+                0,
+                scrollRect.normalizedPosition.y,
+                SMOOTH_SCROLL_TIME,
+                pos.y
+            );
+
             for (float time = 0; time <= SMOOTH_SCROLL_TIME; time += Time.deltaTime)
             {
-                ScrollRect.normalizedPosition = new Vector2(0, curve.Evaluate(time));
+                scrollRect.normalizedPosition = new Vector2(
+                    curveX.Evaluate(time),
+                    curveY.Evaluate(time)
+                );
                 yield return null;
             }
-            ScrollRect.normalizedPosition = new Vector2(0, y);
+
+            scrollRect.normalizedPosition = pos;
+            scrollRoutines.Remove(scrollRect);
         }
     }
+
+    #region Unity Messages
+
+    /// <summary>
+    /// Automatically destroy this component if its object is re-parented, to
+    /// ensure elements moved out of scroll panes stop affecting their scrolling.
+    /// </summary>
+    void OnTransformParentChanged() => Destroy(this);
 
     /// <summary>
     /// When this selectable is selected through keyboard/controller navigation, the
     /// scroll pane will scroll so that it's centered in the viewport.
+    /// It will also be scrolled to if it's being force-selected and is fully outside of the viewport.
     /// </summary>
     public override void OnSelect(BaseEventData eventData)
     {
-        if (eventData is not AxisEventData)
-            return;
+        var rt = (RectTransform)transform;
 
-        if (ScrollRect && ScrollRect.content.sizeDelta.y > ScrollRect.viewport.sizeDelta.y)
+        // when force-selected
+        if (
+            ReferenceEquals(eventData, dummyEvent.GetValue(EventSystem.current))
+            && ScrollRect
+            && !rt.Overlaps(ScrollRect.viewport)
+        )
+        {
+            ScrollToInstant();
+        }
+        // when keyboard/controller navigated
+        else if (eventData is AxisEventData)
         {
             ScrollToSmooth();
         }
@@ -106,22 +156,23 @@ internal class ScrollNavigationHelper : EventTrigger
             ScrollRect!.OnInitializePotentialDrag(eventData);
     }
 
-    void OnDestroy() => CancelSmoothScroll();
+    #endregion
+    #region Utils
 
     /// <summary>
-    /// The y-coordinate to set the scroll rect's normalized position to
+    /// The coordinates to set the scroll rect's normalized position to
     /// in order to scroll this selectable into the middle of the viewport.
     /// </summary>
-    float GetScrollPoint()
+    Vector2 GetScrollPoint()
     {
         if (!ScrollRect)
-            return 1;
+            return new Vector2(0.5f, 1);
 
         Vector2 viewportSize = ScrollRect.viewport.rect.size,
             contentScale = ScrollRect.content.localScale,
             contentSize = ScrollRect.content.rect.size,
             contentSizeOffset = contentSize,
-            itemPos = ScrollRect.content.InverseTransformPoint(gameObject.transform.position);
+            itemPos = ScrollRect.content.InverseTransformPoint(transform.position);
 
         contentSizeOffset.Scale(ScrollRect.content.pivot);
         contentSize.Scale(contentScale);
@@ -129,22 +180,24 @@ internal class ScrollNavigationHelper : EventTrigger
         itemPos += contentSizeOffset;
         itemPos.Scale(contentScale);
 
-        return Mathf.Clamp01(
-            (itemPos.y - viewportSize.y * 0.5f) / (contentSize.y - viewportSize.y)
-        );
+        Vector2 scrollPoint = (itemPos - viewportSize * 0.5f) / (contentSize - viewportSize);
+
+        return new(Mathf.Clamp01(scrollPoint.x), Mathf.Clamp01(scrollPoint.y));
     }
 
     bool CanInstantScroll() =>
         ScrollRect
-        && scrollRoutine == null
+        && !scrollRoutines.ContainsKey(ScrollRect)
         && ScrollRect.content.sizeDelta.y > ScrollRect.viewport.sizeDelta.y;
 
-    static void CancelSmoothScroll()
+    void CancelSmoothScroll()
     {
-        if (scrollRoutine != null)
+        if (ScrollRect && scrollRoutines.TryGetValue(ScrollRect, out var coro))
         {
-            UIManager.instance.StopCoroutine(scrollRoutine);
-            scrollRoutine = null;
+            ScrollRect.StopCoroutine(coro);
+            scrollRoutines.Remove(ScrollRect);
         }
     }
+
+    #endregion
 }

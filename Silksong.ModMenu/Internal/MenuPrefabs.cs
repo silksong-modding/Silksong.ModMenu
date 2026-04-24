@@ -220,7 +220,13 @@ internal class MenuPrefabs
         return obj;
     }
 
-    internal GameObject NewScrollPane() => Object.Instantiate(scrollPaneTemplate);
+    internal GameObject NewScrollPane(out ScrollRect scrollRect, out GameObject contentPane)
+    {
+        var obj = Object.Instantiate(scrollPaneTemplate);
+        scrollRect = obj.GetComponent<ScrollRect>();
+        contentPane = obj.FindChild("Content")!;
+        return obj;
+    }
 
     private static GameObject ConstructScrollPanePrefab(UIManager uiManager)
     {
@@ -274,6 +280,7 @@ internal class MenuPrefabs
 
         scrollbarRT.sizeDelta = new Vector2(50, 0);
         scrollbarRT.FitToParentVertical(anchorX: 1);
+        scrollbarRT.anchoredPosition3D = scrollbarRT.anchoredPosition3D with { z = -1 };
         Object.DestroyImmediate(scrollbar.GetComponent<Scrollbar>());
         var scrollSlider = scrollbar.AddComponent<Slider>();
         scrollSlider.handleRect = handleRT;

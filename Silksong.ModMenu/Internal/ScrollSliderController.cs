@@ -101,11 +101,15 @@ internal class ScrollSliderController : UIBehaviour
         if (!scrollRect)
             return;
 
+        Vector2 pos = Vector2.one * 0.5f;
+
         if (scrollRect.vertical && VerticalSlider)
-            scrollRect.verticalNormalizedPosition = VerticalSlider.normalizedValue;
+            pos = pos with { y = VerticalSlider.normalizedValue };
 
         if (scrollRect.horizontal && HorizontalSlider)
-            scrollRect.horizontalNormalizedPosition = HorizontalSlider.normalizedValue;
+            pos = pos with { x = HorizontalSlider.normalizedValue };
+
+        scrollRect.normalizedPosition = pos;
     }
 
     void UpdateSliders(Vector2 _)
