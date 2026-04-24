@@ -280,7 +280,9 @@ public class GridGroup(int columns) : AbstractGroup
         new(column => new(row => rows[row][column], rows.Count), Columns);
 
     /// <inheritdoc/>
-    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction) =>
+    protected internal override IEnumerable<INavigable> GetNavigables(
+        NavigationDirection direction
+    ) =>
         direction switch
         {
             // All elements of first row with stuff in it.

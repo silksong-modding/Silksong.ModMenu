@@ -2,6 +2,7 @@
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -18,39 +19,43 @@ internal class ScrollingMenuTest : ModMenuTest
 		Large,
 	}
 
-	internal override string Name => "Scrolling Menu";
+	internal override string Name => "Scrolling Menu - Simple";
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
-		VerticalGroup group = new();
+		screen = new ScrollingMenuScreen("Simple Scrolling Menu") {
+			SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
+		};
 
 		ChoiceElement<Spacing> spacing = new("Spacing", ChoiceModels.ForEnum<Spacing>());
 		spacing.OnValueChanged += value =>
-			group.VerticalSpacing = value switch
+			screen.Content.VerticalSpacing = value switch
 			{
 				Spacing.Small => SpacingConstants.VSPACE_SMALL,
 				Spacing.Large => SpacingConstants.VSPACE_LARGE,
 				_ => SpacingConstants.VSPACE_MEDIUM,
 			};
-		group.Add(spacing);
+		screen.Add(spacing);
 		spacing.Model.SetValue(Spacing.Medium);
+
+		Stack<ChoiceElement<bool>> addedOptions = [];
 
 		var elementAdder = new SliderElement<int>("Extra Elements", SliderModels.ForInts(0, 20));
 		elementAdder.Model.OnValueChanged += value => {
-            for (int i = group.AllEntities().Count() - 1; i >= 2; i--) {
-				if (group.AllEntities().ElementAt(i) is IDisposable element)
-					element.Dispose();
-				group.RemoveAt(i);
-            }
-			group.AddRange(
-				Enumerable.Range(1, Mathf.Min(value, 20))
-					.Select(x => new ChoiceElement<bool>($"Extra {x}", ChoiceModels.ForBool(), "description"))
-			);
+			while (addedOptions.Count < value) {
+				var elt = new ChoiceElement<bool>($"Extra {addedOptions.Count + 1}", ChoiceModels.ForBool(), "description");
+				screen.Add(elt);
+				addedOptions.Push(elt);
+			}
+			while (addedOptions.Count > value) {
+				var elt = addedOptions.Pop();
+				screen.Content.Remove(elt);
+				elt.Dispose();
+			}
 		};
-        group.Add(elementAdder);
+		screen.Add(elementAdder);
         elementAdder.Model.SetValue(10);
 		
-        screen = new ScrollingMenuScreen("Scrolling Menu Test", group);
         return screen;
     }
 }

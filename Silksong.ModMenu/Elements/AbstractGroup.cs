@@ -45,7 +45,8 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
     /// <summary>
     /// Register `entity` as a child of this group.
     /// </summary>
-    protected void AddChild(IMenuEntity entity) => entity.SetParents(this, gameObjectParent);
+    protected internal virtual void AddChild(IMenuEntity entity) =>
+        entity.SetParents(this, gameObjectParent);
 
     /// <summary>
     /// Clear all entities from this group.
@@ -57,7 +58,9 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
     /// <summary>
     /// Enumerate all navigables which should be directly connected in `direction`.
     /// </summary>
-    protected abstract IEnumerable<INavigable> GetNavigables(NavigationDirection direction);
+    protected internal abstract IEnumerable<INavigable> GetNavigables(
+        NavigationDirection direction
+    );
 
     /// <inheritdoc/>
     public virtual void ClearNeighbor(NavigationDirection direction)
@@ -90,7 +93,10 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
         [MaybeNullWhen(false)] out Selectable selectable
     );
 
-    private GameObject? gameObjectParent;
+    /// <summary>
+    /// The GameObject which contains this group.
+    /// </summary>
+    protected GameObject? gameObjectParent;
 
     /// <inheritdoc/>
     public virtual void SetGameObjectParent(GameObject parent)
