@@ -23,7 +23,6 @@ internal class MenuPrefabs
     private readonly GameObject canvas;
 
     private readonly GameObject menuTemplate;
-    private readonly GameObject emptyContentPane;
     private readonly GameObject keyBindTemplate;
     private readonly GameObject textButtonTemplate;
     private readonly GameObject textLabelTemplate;
@@ -49,13 +48,8 @@ internal class MenuPrefabs
         menuTemplate.name = "ModMenuScreen";
         menuTemplate.RemoveComponent<MenuButtonList>();
         menuTemplate.FindChild("Title")!.RemoveComponent<AutoLocalizeTextUI>();
+        Object.Destroy(menuTemplate.FindChild("Content")!);
         Object.DontDestroyOnLoad(menuTemplate);
-
-        emptyContentPane = menuTemplate.FindChild("Content")!;
-        emptyContentPane.DestroyAllChildren();
-        emptyContentPane.RemoveComponent<VerticalLayoutGroup>();
-        emptyContentPane.RemoveComponent<MenuButtonList>();
-        Object.DontDestroyOnLoad(emptyContentPane);
 
         // MappableKey.OnEnable() breaks when instantiated outside the UIButtonSkins hierarchy.
         using (mappableKeyInit.Suppress())
@@ -180,8 +174,6 @@ internal class MenuPrefabs
 
         return obj;
     }
-
-    internal GameObject NewEmptyContentPane() => Object.Instantiate(emptyContentPane);
 
     internal GameObject NewKeyBindContainer(out CustomMappableKey customMappableKey)
     {
