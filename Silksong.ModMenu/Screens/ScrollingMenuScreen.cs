@@ -8,12 +8,15 @@ namespace Silksong.ModMenu.Screens;
 /// Sufficient for simple menus with an arbitrary number of elements.
 /// </summary>
 public class ScrollingMenuScreen(LocalizedText title)
-    : BasicMenuScreen(title, new ScrollingVerticalGroup())
+    : BasicMenuScreen(title, new ScrollingGroup<VerticalGroup>(new()))
 {
     /// <summary>
-    /// The content pane for this menu screen.
+    /// The scrolling viewport for this menu screen.
     /// </summary>
-    public new ScrollingVerticalGroup Content => (ScrollingVerticalGroup)base.Content;
+    public ScrollingGroup<VerticalGroup> ScrollView => (ScrollingGroup<VerticalGroup>)base.Content;
+
+    /// <inheritdoc cref="BasicMenuScreen.Content"/>
+    public new VerticalGroup Content => ScrollView.Layout;
 
     /// <summary>
     /// Add a menu element to this screen.

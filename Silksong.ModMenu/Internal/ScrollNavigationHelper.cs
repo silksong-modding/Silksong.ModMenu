@@ -21,11 +21,6 @@ internal class ScrollNavigationHelper : EventTrigger
     static readonly Dictionary<ScrollRect, Coroutine> scrollRoutines = [];
     const float SMOOTH_SCROLL_TIME = 0.2f;
 
-    static readonly PropertyInfo dummyEvent = typeof(EventSystem).GetProperty(
-        "baseEventDataCache",
-        BindingFlags.NonPublic | BindingFlags.Instance
-    );
-
     public void ScrollToInstant()
     {
         CancelSmoothScroll();
@@ -99,19 +94,21 @@ internal class ScrollNavigationHelper : EventTrigger
     {
         var rt = (RectTransform)transform;
 
-        // when force-selected
-        if (
-            ReferenceEquals(eventData, dummyEvent.GetValue(EventSystem.current))
+        // When keyboard/controller navigated to.
+        if (eventData is AxisEventData)
+        {
+            ScrollToSmooth();
+        }
+        // When force-selected. (e.x. when a menu is shown)
+        // Can't avoid the type check or use `is` because then this would catch PointerEventData,
+        // and instant-scrolling as a result of mouse movement is very jarring.
+        else if (
+            eventData.GetType() == typeof(BaseEventData)
             && ScrollRect
             && !rt.Overlaps(ScrollRect.viewport)
         )
         {
             ScrollToInstant();
-        }
-        // when keyboard/controller navigated
-        else if (eventData is AxisEventData)
-        {
-            ScrollToSmooth();
         }
     }
 

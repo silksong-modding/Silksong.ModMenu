@@ -83,17 +83,12 @@ internal static class RectTransformUtil
         if (self.rect.size.x > other.rect.size.x && self.rect.size.y > other.rect.size.y)
             (self, other) = (other, self);
 
-        var corners = new Vector3[4];
-        self.GetWorldCorners(corners);
+        var corners = self.GetCorners();
 
-        Vector3 max = corners[0],
-            min = corners[0];
+        // From extensions RectTransform.MinX, .MaxX, etc
+        Vector2 min = corners[0],
+            max = new(corners[2].x, corners[1].y);
 
-        for (int i = 1; i < 4; i++)
-        {
-            max = Vector3.Max(max, corners[i]);
-            min = Vector3.Min(max, corners[i]);
-        }
         Vector3 center = (max - min) / 2f + min,
             centerTop = new(center.x, max.y, center.z),
             centerBottom = new(center.x, min.y, center.z),
