@@ -1,10 +1,7 @@
 ﻿using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -19,11 +16,11 @@ internal class ScrollingMenuTest : ModMenuTest
         Large,
     }
 
-    internal override string Name => "Scrolling Menu - Simple";
+    internal override string Name => "Scrolling Menu - Vertical";
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
-        screen = new ScrollingMenuScreen("Simple Scrolling Menu") {
+        screen = new ScrollingMenuScreen("Scrolling Vertical Menu") {
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
 

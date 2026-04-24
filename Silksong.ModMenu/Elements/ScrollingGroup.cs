@@ -47,7 +47,9 @@ public class ScrollingGroup<TGroup> : AbstractGroup
                 nameof(TGroup)
             );
 
-        scrollPane = MenuPrefabs.Get().NewScrollPane(out scrollRect, out contentPane);
+        scrollPane = MenuPrefabs
+            .Get()
+            .NewScrollPane(out scrollRect, out focusController, out contentPane);
         ((RectTransform)scrollPane.transform).pivot = new Vector2(0.5f, 1);
 
         contentPane.AddComponent<OnChildTransformsChangeHelper>().OnChildrenChanged +=
@@ -56,6 +58,8 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         Layout = layout;
         Layout.SetParents(this, contentPane);
         OnDispose += () => Layout.Dispose();
+
+        ValidateElementsAndAddHelpers();
 
         Visibility.OnVisibilityChanged += visibleInHierarchy =>
             scrollPane.SetActive(visibleInHierarchy);
@@ -73,39 +77,42 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     }
 
     /// <summary>
-    /// If the given SelectableElement belongs to this group, scroll it into view.
+    /// The time, in seconds, that it takes to smooth-scroll between menu elements.
     /// </summary>
-    /// <param name="selectable">The element to scroll to.</param>
-    /// <param name="smooth">
-    ///     If false, the scroll pane position will change instantly.
-    ///     If true, the element will move into view smoothly over a short time.
-    /// </param>
-    public void ScrollTo(SelectableElement selectable, bool smooth = false)
+    public float SmoothScrollTime
     {
-        if (Contains(selectable) && selectable.VisibleInHierarchy)
-        {
-            var navHelper = selectable.SelectableComponent.GetComponent<ScrollNavigationHelper>();
-            if (smooth)
-                navHelper.ScrollToSmooth();
-            else
-                navHelper.ScrollToInstant();
-        }
+        get => focusController.smoothScrollTime;
+        set => focusController.smoothScrollTime = value;
     }
 
     /// <summary>
-    /// If the menu element at the given <paramref name="index"/> is a
-    /// <see cref="SelectableElement"/>, scrolls it into view.
+    /// Scrolls the viewport so it's centered on the given element,
+    /// provided the element is in this group.
+    /// </summary>
+    /// <param name="element">The element to scroll to.</param>
+    /// <param name="smooth">
+    ///     If false, the viewport position will change instantly.
+    ///     If true, the element will move into view smoothly over a short time.
+    /// </param>
+    public void ScrollTo(MenuElement element, bool smooth = false)
+    {
+        if (Contains(element) && element.VisibleInHierarchy)
+            focusController.ScrollTo(element.RectTransform, smooth);
+    }
+
+    /// <summary>
+    /// Scrolls the viewport so it's centered on the element at the given index.
     /// </summary>
     /// <param name="index">The index of the element to scroll to.</param>
     /// <param name="smooth">
-    ///     If false, the scroll pane position will change instantly.
+    ///     If false, the viewport position will change instantly.
     ///     If true, the element will move into view smoothly over a short time.
     /// </param>
     public void ScrollTo(int index, bool smooth = false)
     {
-        var elem = AllEntities().ElementAtOrDefault(index);
-        if (elem is SelectableElement selectable)
-            ScrollTo(selectable, smooth);
+        var element = (MenuElement?)AllEntities().ElementAtOrDefault(index);
+        if (element != null && element.VisibleInHierarchy)
+            focusController.ScrollTo(element.RectTransform, smooth);
     }
 
     /// <summary>
@@ -123,19 +130,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         if (Visibility.VisibleInHierarchy && !Layout.Visibility.VisibleInHierarchy)
             Layout.SetParents(this, contentPane);
 
-        foreach (var element in AllEntities())
-        {
-            if (element is not MenuElement)
-            {
-                throw new InvalidOperationException(
-                    $"Scrolling groups can only contain atomic menu elements; {element.GetType()} is not allowed."
-                );
-            }
-            if (element is SelectableElement selectable)
-                selectable
-                    .SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>()
-                    .ScrollRect = scrollRect;
-        }
+        ValidateElementsAndAddHelpers();
 
         if (resizeQueued)
         {
@@ -171,6 +166,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     #endregion
     #region Internals
 
+    private readonly ScrollFocusController focusController;
     private bool resizeQueued = false,
         resizing = false;
     private Vector2 contentAnchor,
@@ -204,6 +200,21 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         contentAnchor = contentRT.sizeDelta / 2f - max;
         anchorOffset = new Vector2(0, max.y);
         resizing = false;
+    }
+
+    private void ValidateElementsAndAddHelpers()
+    {
+        foreach (var element in AllEntities())
+        {
+            if (element is not MenuElement)
+            {
+                throw new InvalidOperationException(
+                    $"Scrolling groups may only contain atomic menu elements; {element.GetType()} cannot be nested inside this group."
+                );
+            }
+            if (element is SelectableElement selectable)
+                selectable.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
+        }
     }
 
     #endregion

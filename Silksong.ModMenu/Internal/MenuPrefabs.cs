@@ -212,10 +212,15 @@ internal class MenuPrefabs
         return obj;
     }
 
-    internal GameObject NewScrollPane(out ScrollRect scrollRect, out GameObject contentPane)
+    internal GameObject NewScrollPane(
+        out ScrollRect scrollRect,
+        out ScrollFocusController focusController,
+        out GameObject contentPane
+    )
     {
         var obj = Object.Instantiate(scrollPaneTemplate);
         scrollRect = obj.GetComponent<ScrollRect>();
+        focusController = obj.GetComponent<ScrollFocusController>();
         contentPane = obj.FindChild("Content")!;
         return obj;
     }
@@ -291,6 +296,7 @@ internal class MenuPrefabs
         scrollRect.viewport = scrollPaneRT;
         scrollRect.content = contentRT;
         scrollPane.AddComponent<ScrollSliderController>().VerticalSlider = scrollSlider;
+        scrollPane.AddComponent<ScrollFocusController>();
 
         return scrollPane;
     }
