@@ -16,16 +16,25 @@ namespace Silksong.ModMenu.Elements;
 /// A descendant of <see cref="AbstractGroup"/> which this group uses internally to control the
 /// layout of its elements. This type CANNOT be a descendant of <see cref="ScrollingGroup{TGroup}"/>.
 /// </typeparam>
-public class ScrollingGroup<TGroup> : AbstractGroup
-    where TGroup : AbstractGroup
+public class ScrollingGroup : MenuDisposable, INavigableMenuEntity
 {
+    private readonly VisibilityManager visibility = new(false);
+
     #region API
 
-    /// <summary>
-    /// The scrolling group's layout object.
-    /// Use to add to, remove from, or update this group's <see cref="MenuElement"/>s.
-    /// </summary>
-    public readonly TGroup Layout;
+    public INavigableMenuEntity? Content
+    {
+        get => field;
+        set
+        {
+            if (field == value)
+                return;
+
+            field?.ClearParents();
+            field = value;
+            field?.SetParents(this, scrollPane);
+        }
+    }
 
     /// <summary>
     /// The <see cref="ScrollRect"/> component that controls the
@@ -37,14 +46,14 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     /// Construct a new scrolling group that displays the contents of <paramref name="layout"/>.
     /// </summary>
     /// <param name="layout"><inheritdoc cref="Layout" path="//summary"/></param>
-    public ScrollingGroup(TGroup layout)
+    public ScrollingGroup(INavigableMenuEntity content)
         : base()
     {
         // Generic constraints don't have a not operator, so we enforce this at runtime.
-        if (typeof(TGroup).IsSubclassOfRawGeneric(typeof(ScrollingGroup<>)))
+        if (content?.GetType().IsSubclassOf(typeof(ScrollingGroup)) ?? false)
             throw new ArgumentException(
                 "A scrolling group cannot use another scrolling group for its layout.",
-                nameof(TGroup)
+                content.GetType().FullName
             );
 
         scrollPane = MenuPrefabs
@@ -55,16 +64,10 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         contentPane.AddComponent<OnChildTransformsChangeHelper>().OnChildrenChanged +=
             QueueContentResize;
 
-        Layout = layout;
-        Layout.SetParents(this, contentPane);
-        OnDispose += () => Layout.Dispose();
-
+        Content = content;
         ValidateElementsAndAddHelpers();
-
-        Visibility.OnVisibilityChanged += visibleInHierarchy =>
+        visibility.OnVisibilityChanged += visibleInHierarchy =>
             scrollPane.SetActive(visibleInHierarchy);
-
-        scrollPane.SetActive(true);
     }
 
     /// <summary>
@@ -85,6 +88,8 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         set => focusController.smoothScrollTime = value;
     }
 
+    public VisibilityManager Visibility => visibility;
+
     /// <summary>
     /// Scrolls the viewport so it's centered on the given element,
     /// provided the element is in this group.
@@ -96,7 +101,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     /// </param>
     public void ScrollTo(MenuElement element, bool smooth = false)
     {
-        if (Contains(element) && element.VisibleInHierarchy)
+        if (element.VisibleInHierarchy)
             focusController.ScrollTo(element.RectTransform, smooth);
     }
 
@@ -110,7 +115,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     /// </param>
     public void ScrollTo(int index, bool smooth = false)
     {
-        var element = (MenuElement?)AllEntities().ElementAtOrDefault(index);
+        var element = Content?.AllElements().ElementAtOrDefault(index);
         if (element != null && element.VisibleInHierarchy)
             focusController.ScrollTo(element.RectTransform, smooth);
     }
@@ -125,11 +130,8 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     public void QueueContentResize() => resizeQueued = !resizing;
 
     /// <inheritdoc/>
-    public override void UpdateLayout(Vector2 localAnchorPos)
+    public void UpdateLayout(Vector2 localAnchorPos)
     {
-        if (Visibility.VisibleInHierarchy && !Layout.Visibility.VisibleInHierarchy)
-            Layout.SetParents(this, contentPane);
-
         ValidateElementsAndAddHelpers();
 
         if (resizeQueued)
@@ -144,24 +146,16 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         scrollRT.anchoredPosition = localAnchorPos + anchorOffset;
         scrollRT.sizeDelta = size;
 
-        ClearNeighbors();
-        Layout.UpdateLayout(contentAnchor);
+        Content?.ClearNeighbors();
+        Content?.UpdateLayout(contentAnchor);
     }
 
     /// <inheritdoc/>
-    public override void SetGameObjectParent(GameObject parent)
-    {
-        ClearGameObjectParent();
-        gameObjectParent = parent;
-        scrollPane.transform.SetParentReset(gameObjectParent.transform);
-    }
+    public void SetGameObjectParent(GameObject parent) =>
+        scrollPane.transform.SetParentReset(parent.transform);
 
     /// <inheritdoc/>
-    public override void ClearGameObjectParent()
-    {
-        gameObjectParent = null;
-        scrollPane.transform.SetParent(null);
-    }
+    public void ClearGameObjectParent() => scrollPane.transform.SetParent(null);
 
     #endregion
     #region Internals
@@ -191,9 +185,9 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         var contentRT = (RectTransform)contentPane.transform;
 
         contentRT.sizeDelta = Vector2.zero;
-        Layout.UpdateLayout(Vector2.zero);
+        Content?.UpdateLayout(Vector2.zero);
         var (min, max) = contentRT.GetRelativeBoundsOf(
-            AllEntities().OfType<MenuElement>().Select(x => x.Container.transform)
+            Content?.AllElements().OfType<MenuElement>().Select(x => x.Container.transform) ?? []
         );
 
         contentRT.sizeDelta = max - min;
@@ -204,44 +198,33 @@ public class ScrollingGroup<TGroup> : AbstractGroup
 
     private void ValidateElementsAndAddHelpers()
     {
-        foreach (var element in AllEntities())
+        foreach (var element in Content?.AllElements().OfType<SelectableElement>() ?? [])
         {
-            if (element is not MenuElement)
-            {
-                throw new InvalidOperationException(
-                    $"Scrolling groups may only contain atomic menu elements; {element.GetType()} cannot be nested inside this group."
-                );
-            }
-            if (element is SelectableElement selectable)
-                selectable.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
+            element.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
         }
     }
 
     #endregion
     #region Overrides that just delegate to Layout
 
-    /// <inheritdoc/>
-    public override IEnumerable<IMenuEntity> AllEntities() => Layout.AllEntities();
+    public SelectableElement? GetDefaultSelectable() => Content?.GetDefaultSelectable();
 
-    /// <inheritdoc/>
-    public override void Clear() => Layout.Clear();
+    public IEnumerable<MenuElement> AllElements() => Content?.AllElements() ?? [];
 
-    /// <inheritdoc/>
-    public override bool Contains(IMenuEntity entity) => Layout.Contains(entity);
+    public void ClearNeighbors() => Content?.ClearNeighbors();
 
-    /// <inheritdoc/>
-    protected internal override void AddChild(IMenuEntity element) => Layout.AddChild(element);
+    public void SetNeighbor(NavigationDirection direction, Selectable selectable) =>
+        Content?.SetNeighbor(direction, selectable);
 
-    /// <inheritdoc/>
-    public override bool GetSelectable(
+    public void ClearNeighbor(NavigationDirection direction) => Content?.ClearNeighbor(direction);
+
+    public bool GetSelectable(
         NavigationDirection direction,
         [MaybeNullWhen(false)] out Selectable selectable
-    ) => Layout.GetSelectable(direction, out selectable);
-
-    /// <inheritdoc/>
-    protected internal override IEnumerable<INavigable> GetNavigables(
-        NavigationDirection direction
-    ) => Layout.GetNavigables(direction);
-
+    )
+    {
+        selectable = default;
+        return Content?.GetSelectable(direction, out selectable) ?? false;
+    }
     #endregion
 }

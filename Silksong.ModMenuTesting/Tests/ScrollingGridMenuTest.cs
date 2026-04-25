@@ -20,7 +20,7 @@ internal class ScrollingGridMenuTest : ModMenuTest
     internal override AbstractMenuScreen BuildMenuScreen()
     {
         GridGroup group = new(2);
-        ScrollingGroup<GridGroup> scrollGroup = new(group);
+        ScrollingGroup scrollGroup = new(group);
 
         ListChoiceModel<Spacing>
             hModel = ChoiceModels.ForEnum<Spacing>(), vModel = ChoiceModels.ForEnum<Spacing>();
