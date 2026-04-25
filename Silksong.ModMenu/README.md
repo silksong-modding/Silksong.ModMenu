@@ -64,6 +64,5 @@ Optional future work:
 *   Extending the 'new game' menu with new game modes.
 *   New content pane implementations:
 	*   Multi-row
-	*   Scroll pane
  *   New menu element implementations:
 	*   Icons/images

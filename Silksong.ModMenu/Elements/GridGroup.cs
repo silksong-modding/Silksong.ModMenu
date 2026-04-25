@@ -280,16 +280,13 @@ public class GridGroup(int columns) : AbstractGroup
         new(column => new(row => rows[row][column], rows.Count), Columns);
 
     /// <inheritdoc/>
-    protected internal override IEnumerable<INavigable> GetNavigables(
-        NavigationDirection direction
-    ) =>
+    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction) =>
         direction switch
         {
             // All elements of first row with stuff in it.
-            NavigationDirection.Up => rows.Where(row =>
+            NavigationDirection.Up => rows.FirstOrDefault(row =>
                     row.Any(e => e is INavigable && e.VisibleSelf)
                 )
-                .FirstOrDefault()
                 ?.OfType<INavigable>()
                 ?? [],
             // Leftmost element of every row.

@@ -100,7 +100,7 @@ public class FreeGroup : AbstractGroup
     }
 
     /// <inheritdoc/>
-    protected internal override IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
+    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
     {
         var validEntities = entities.Where(e => e.Key.VisibleSelf && e.Key is INavigable);
         if (!validEntities.Select(e => SortKey(direction, e.Value)).TryGetMin(out var key))

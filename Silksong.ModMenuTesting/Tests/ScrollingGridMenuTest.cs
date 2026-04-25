@@ -20,18 +20,18 @@ internal class ScrollingGridMenuTest : ModMenuTest
     internal override AbstractMenuScreen BuildMenuScreen()
     {
         GridGroup group = new(2);
-        ScrollingGroup<GridGroup> scrollGroup = new(group);
+        ScrollingPane scrollPane = new(group);
 
         ListChoiceModel<Spacing>
             hModel = ChoiceModels.ForEnum<Spacing>(), vModel = ChoiceModels.ForEnum<Spacing>();
         TextButton
-            hButton = new("H Space"), vButton = new("V Space"), addButton = new("Add"), removeButton = new("Remove"), addInvalidButton = new("Add Non-Atomic");
+            hButton = new("H Space"), vButton = new("V Space"), addButton = new("Add"), removeButton = new("Remove"), addGroupButton = new("Add Non-Atomic");
 
         group.Add(hButton);
         group.Add(vButton);
         group.Add(addButton);
         group.Add(removeButton);
-        group.Add(addInvalidButton);
+        group.Add(addGroupButton);
 
         hButton.OnSubmit = () => {
             hModel.MoveRight();
@@ -41,7 +41,7 @@ internal class ScrollingGridMenuTest : ModMenuTest
                 Spacing.Large => SpacingConstants.HSPACE_LARGE,
                 _ => SpacingConstants.HSPACE_MEDIUM,
             };
-            scrollGroup.ViewportSize = scrollGroup.ViewportSize with { x = group.HorizontalSpacing * group.Columns + 100 };
+            scrollPane.ViewportSize = scrollPane.ViewportSize with { x = group.HorizontalSpacing * group.Columns + 100 };
         };
 
         vButton.OnSubmit = () => {
@@ -76,11 +76,12 @@ internal class ScrollingGridMenuTest : ModMenuTest
             }
         };
 
-        addInvalidButton.OnSubmit += () => {
-            VerticalGroup invalid = new();
-            invalid.Add(new TextButton("Not allowed!"));
-            group.Add(invalid);
-            addedElements.Push(invalid);
+        addGroupButton.OnSubmit += () => {
+            VerticalGroup subGroup = new() { VerticalSpacing = SpacingConstants.VSPACE_SMALL };
+            subGroup.AddRange([new TextButton("This is part of"), new TextButton("a VerticalGroup")]);
+            group.Add(subGroup);
+            addedElements.Push(subGroup);
+            addButton.ButtonText.text = $"Add (Count: {addedElements.Count})";
         };
 
         hModel.Value = Spacing.Large;
@@ -90,7 +91,7 @@ internal class ScrollingGridMenuTest : ModMenuTest
         for (int i = 0; i < 13; i++)
             addButton.OnSubmit.Invoke();
 
-        return new BasicMenuScreen("Scrolling Grid Menu", scrollGroup) {
+        return new BasicMenuScreen("Scrolling Grid Menu", scrollPane) {
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
     }

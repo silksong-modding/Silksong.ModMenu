@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Silksong.UnityHelper.Extensions;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Silksong.ModMenu.Internal;
 

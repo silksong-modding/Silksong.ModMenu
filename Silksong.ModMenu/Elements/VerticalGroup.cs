@@ -139,7 +139,7 @@ public class VerticalGroup : AbstractGroup
         HideInactiveElements ? entities.Where(e => e.VisibleSelf) : entities;
 
     /// <inheritdoc/>
-    protected internal override IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
+    protected override IEnumerable<INavigable> GetNavigables(NavigationDirection direction)
     {
         return direction switch
         {

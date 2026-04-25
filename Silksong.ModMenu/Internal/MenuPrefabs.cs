@@ -241,6 +241,7 @@ internal class MenuPrefabs
         scrollPane.AddComponent<RectMask2D>();
         var scrollPaneRT = (RectTransform)scrollPane.transform;
         scrollPaneRT.sizeDelta = new Vector2(1570, 876f);
+        scrollPaneRT.pivot = new Vector2(0.5f, 1);
 
         var content = new GameObject("Content") { layer = (int)PhysLayers.UI };
         content.transform.SetParentReset(scrollPane.transform);
