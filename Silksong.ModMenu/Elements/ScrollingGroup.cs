@@ -52,14 +52,14 @@ public class ScrollingGroup<TGroup> : AbstractGroup
             .NewScrollPane(out scrollRect, out focusController, out contentPane);
         ((RectTransform)scrollPane.transform).pivot = new Vector2(0.5f, 1);
 
-        contentPane.AddComponent<OnChildTransformsChangeHelper>().OnChildrenChanged +=
-            QueueContentResize;
+        //contentPane.AddComponent<OnChildTransformsChangeHelper>().OnChildrenChanged +=
+        //QueueContentResize;
 
         Layout = layout;
         Layout.SetParents(this, contentPane);
         OnDispose += () => Layout.Dispose();
 
-        ValidateElementsAndAddHelpers();
+        AddScrollNavHelpers();
 
         Visibility.OnVisibilityChanged += visibleInHierarchy =>
             scrollPane.SetActive(visibleInHierarchy);
@@ -122,7 +122,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     /// This is an expensive operation and should only be used when menu elements are
     /// repositioned/resized in a way that the ScrollingGroup does not already detect.
     /// </remarks>
-    public void QueueContentResize() => resizeQueued = !resizing;
+    public void QueueContentResize() => resizeQueued = true;
 
     /// <inheritdoc/>
     public override void UpdateLayout(Vector2 localAnchorPos)
@@ -130,7 +130,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
         if (Visibility.VisibleInHierarchy && !Layout.Visibility.VisibleInHierarchy)
             Layout.SetParents(this, contentPane);
 
-        ValidateElementsAndAddHelpers();
+        AddScrollNavHelpers();
 
         if (resizeQueued)
         {
@@ -167,8 +167,7 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     #region Internals
 
     private readonly ScrollFocusController focusController;
-    private bool resizeQueued = false,
-        resizing = false;
+    private bool resizeQueued = true;
     private Vector2 contentAnchor,
         anchorOffset;
 
@@ -187,34 +186,24 @@ public class ScrollingGroup<TGroup> : AbstractGroup
     /// </summary>
     private void ResizeContentPane()
     {
-        resizing = true;
         var contentRT = (RectTransform)contentPane.transform;
 
         contentRT.sizeDelta = Vector2.zero;
         Layout.UpdateLayout(Vector2.zero);
-        var (min, max) = contentRT.GetRelativeBoundsOf(
-            AllEntities().OfType<MenuElement>().Select(x => x.Container.transform)
-        );
+        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(contentRT);
+        Vector2 min = bounds.min,
+            max = bounds.max;
 
         contentRT.sizeDelta = max - min;
         contentAnchor = contentRT.sizeDelta / 2f - max;
         anchorOffset = new Vector2(0, max.y);
-        resizing = false;
     }
 
-    private void ValidateElementsAndAddHelpers()
+    private void AddScrollNavHelpers()
     {
-        foreach (var element in AllEntities())
-        {
-            if (element is not MenuElement)
-            {
-                throw new InvalidOperationException(
-                    $"Scrolling groups may only contain atomic menu elements; {element.GetType()} cannot be nested inside this group."
-                );
-            }
-            if (element is SelectableElement selectable)
-                selectable.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
-        }
+        // This component removes itself when the object it's attached to is re-parented
+        foreach (var element in AllElements().OfType<SelectableElement>())
+            element.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
     }
 
     #endregion

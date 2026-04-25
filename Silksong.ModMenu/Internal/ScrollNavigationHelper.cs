@@ -16,17 +16,8 @@ internal class ScrollNavigationHelper : EventTrigger
 
     void Awake()
     {
-        // Searching up the hierarchy because ScrollRects may have their content panes nested several layers down
-        Transform ancestor = transform.parent;
-        while (ancestor)
-        {
-            if (ancestor.TryGetComponent(out scrollRect))
-            {
-                focusController = ancestor.GetComponent<ScrollFocusController>();
-                break;
-            }
-            ancestor = ancestor.parent;
-        }
+        scrollRect = GetComponentInParent<ScrollRect>(true);
+        focusController = GetComponentInParent<ScrollFocusController>(true);
 
         if (!scrollRect)
             throw new InvalidOperationException($"Failed to find containing {nameof(ScrollRect)}.");
