@@ -16,11 +16,11 @@ internal class ScrollingMenuTest : ModMenuTest
         Large,
     }
 
-    internal override string Name => "Scrolling Menu - Vertical";
+    internal override string Name => "Scrolling Menu Test";
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
-        screen = new ScrollingMenuScreen("Scrolling Vertical Menu") {
+        screen = new ScrollingMenuScreen("Scrolling Menu Test") {
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
 

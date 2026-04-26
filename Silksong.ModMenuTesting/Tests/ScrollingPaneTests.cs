@@ -6,30 +6,57 @@ using UnityEngine.UI;
 
 namespace Silksong.ModMenuTesting.Tests;
 
-internal class NestedScrollPanesTest : ModMenuTest
+internal class ScrollingPaneTests : ModMenuTest
 {
     // for finding the screen in UnityExplorer during testing
     static PaginatedMenuScreen? screen;
 
-    internal override string Name => "Scrolling Menu - Nested Panes";
+    internal override string Name => "Scrolling Pane Tests";
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
-        screen = new PaginatedMenuScreen("Nested Scroll Panes")
+        screen = new PaginatedMenuScreen("Scrolling Pane Tests")
         {
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
-        screen.AddPage(DoubleAxesAutoFocus());
-        screen.AddPage(OffCenterSelectables());
-        screen.AddPage(BasicScrollPaneNesting());
+        screen.AddPage(ScrollPaneSiblings());
+        screen.AddPage(ScrollPaneNesting());
         screen.AddPage(ScrollScrollPanePane());
+        screen.AddPage(OffCenterSelectables());
+        screen.AddPage(DoubleAxesAutoFocus());
         return screen;
     }
 
     /// <summary>
-    /// For testing how multiple scroll panes of varying scroll axes in one layout behave together
+    /// For testing how multiple scroll panes in one layout behave
     /// </summary>
-    static ScrollingPane BasicScrollPaneNesting() {
+    static GridGroup ScrollPaneSiblings()
+    {
+        VerticalGroup
+            innerContentOne = new(),
+            innerContentTwo = new();
+
+        for (int i = 1; i <= 15; i++)
+        {
+            innerContentOne.Add(new TextButton($"Hollow {i}"));
+            innerContentTwo.Add(new TextButton($"Knight {i}"));
+        }
+
+        ScrollingPane
+            innerScrollOne = new(innerContentOne) { ViewportSize = new Vector2(500, 875), SmoothScrollTime = 0.5f },
+            innerScrollTwo = new(innerContentTwo) { ViewportSize = new Vector2(500, 875), SmoothScrollTime = 0.5f };
+
+        GridGroup outerContent = new(2) { HorizontalSpacing = 600 };
+        outerContent.Add(innerScrollOne);
+        outerContent.Add(innerScrollTwo);
+
+        return outerContent;
+    }
+
+    /// <summary>
+    /// For testing how multiple nested & sibling scroll panes of varying scroll axes in one layout behave
+    /// </summary>
+    static ScrollingPane ScrollPaneNesting() {
         VerticalGroup
             outerContent = new() { VerticalSpacing = 460 };
 
@@ -45,7 +72,7 @@ internal class NestedScrollPanesTest : ModMenuTest
             {
                 ViewportSize = new Vector2(1360, 350f),
                 Axes = ScrollingPane.ScrollAxes.Horizontal,
-                SmoothScrollTime = 1
+                SmoothScrollTime = 0.5f
             },
             innerScrollThree = new(innerContentThree) { ViewportSize = new Vector2(1300, 350f), SmoothScrollTime = 0.5f };
 
@@ -77,7 +104,13 @@ internal class NestedScrollPanesTest : ModMenuTest
             ]);
         }
 
-        return new ScrollingPane(group) { ViewportSize = new Vector2(1300, 875), Axes = ScrollingPane.ScrollAxes.Horizontal };
+        ScrollingPane scroll = new(group) { ViewportSize = new Vector2(1300, 875), Axes = ScrollingPane.ScrollAxes.Horizontal };
+
+        scroll.scrollRect.content.GetComponent<Image>().color = new(0, 0, 1, 0.3f);
+        scroll.scrollRect.viewport.GetComponent<Image>().color = new(1, 0, 0, 0.3f);
+        scroll.scrollRect.viewport.GetComponent<RectMask2D>().enabled = false;
+
+        return scroll;
     }
     
     /// <summary>
@@ -87,7 +120,7 @@ internal class NestedScrollPanesTest : ModMenuTest
         FreeGroup group = new();
 
         TextButton tl = new("Top Left"),
-			br = new("Bottom Right");
+            br = new("Bottom Right");
 
         group.Add(tl, new Vector2(-300, 0));
         group.Add(br, new Vector2(300, -600));
@@ -101,6 +134,7 @@ internal class NestedScrollPanesTest : ModMenuTest
             Axes = ScrollingPane.ScrollAxes.Both
         };
 
+        scroll.scrollRect.content.GetComponent<Image>().color = new(0, 0, 1, 0.3f);
         scroll.scrollRect.viewport.GetComponent<Image>().color = new(1, 0, 0, 0.3f);
         scroll.scrollRect.viewport.GetComponent<RectMask2D>().enabled = false;
 

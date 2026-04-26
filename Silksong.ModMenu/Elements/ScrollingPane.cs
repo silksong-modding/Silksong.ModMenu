@@ -10,7 +10,7 @@ using UObject = UnityEngine.Object;
 namespace Silksong.ModMenu.Elements;
 
 /// <summary>
-/// A vertically scrolling panel that can contain an arbitrary amount of content.
+/// A scrolling panel that can contain an arbitrary amount of content.
 /// </summary>
 public class ScrollingPane : MenuDisposable, INavigableMenuEntity
 {
@@ -138,7 +138,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     public void ScrollTo(MenuElement element, bool smooth = false)
     {
         if (element.VisibleInHierarchy)
-            focusController.ScrollTo(element.RectTransform, smooth);
+            focusController.ScrollTo(element.Container.transform, smooth);
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     {
         var element = Content?.AllElements().ElementAtOrDefault(index);
         if (element != null && element.VisibleInHierarchy)
-            focusController.ScrollTo(element.RectTransform, smooth);
+            focusController.ScrollTo(element.Container.transform, smooth);
     }
 
     /// <summary>

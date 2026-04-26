@@ -19,7 +19,7 @@ internal class ScrollFocusController : UIBehaviour
 
     ScrollRect scrollRect;
     Coroutine? smoothScrollRoutine;
-    bool scrollPaneAppearing = true;
+    bool menuAppearing = true;
 
     protected override void Awake()
     {
@@ -30,7 +30,7 @@ internal class ScrollFocusController : UIBehaviour
     protected override void OnEnable()
     {
         base.OnEnable();
-        scrollPaneAppearing = true;
+        menuAppearing = true;
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ internal class ScrollFocusController : UIBehaviour
     /// </remarks>
     internal void ScrollToIfOnMenuShow(Transform target)
     {
-        if (scrollPaneAppearing)
+        if (menuAppearing)
         {
             ScrollTo(target, smooth: false);
 
@@ -60,10 +60,10 @@ internal class ScrollFocusController : UIBehaviour
                     child.SetMenuAppeared();
             }
         }
-        scrollPaneAppearing = false;
+        menuAppearing = false;
     }
 
-    internal void SetMenuAppeared() => scrollPaneAppearing = false;
+    internal void SetMenuAppeared() => menuAppearing = false;
 
     /// <summary>
     /// Scrolls this viewport and all scrolling viewports this one is nested within so that the
@@ -80,9 +80,9 @@ internal class ScrollFocusController : UIBehaviour
             controller.ScrollToInternal(target, smooth);
     }
 
-    internal void ScrollToInternal(Transform target, bool smooth)
+    private void ScrollToInternal(Transform target, bool smooth)
     {
-        scrollPaneAppearing = false;
+        menuAppearing = false;
         if (smoothScrollRoutine != null)
         {
             StopCoroutine(smoothScrollRoutine);

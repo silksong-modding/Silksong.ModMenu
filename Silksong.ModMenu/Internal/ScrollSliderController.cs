@@ -25,10 +25,10 @@ internal class ScrollSliderController : UIBehaviour
         set
         {
             if (m_verticalSlider)
-                m_verticalSlider.onValueChanged.RemoveListener(UpdateScrollRect);
+                m_verticalSlider.onValueChanged.RemoveListener(UpdateScrollRectVertical);
             m_verticalSlider = value;
             if (m_verticalSlider)
-                m_verticalSlider.onValueChanged.AddListener(UpdateScrollRect);
+                m_verticalSlider.onValueChanged.AddListener(UpdateScrollRectVertical);
         }
     }
 
@@ -41,10 +41,10 @@ internal class ScrollSliderController : UIBehaviour
         set
         {
             if (m_horizontalSlider)
-                m_horizontalSlider.onValueChanged.RemoveListener(UpdateScrollRect);
+                m_horizontalSlider.onValueChanged.RemoveListener(UpdateScrollRectHorizontal);
             m_horizontalSlider = value;
             if (m_horizontalSlider)
-                m_horizontalSlider.onValueChanged.AddListener(UpdateScrollRect);
+                m_horizontalSlider.onValueChanged.AddListener(UpdateScrollRectHorizontal);
         }
     }
 
@@ -56,27 +56,30 @@ internal class ScrollSliderController : UIBehaviour
 
     ScrollRect scrollRect;
 
+    #region Unity Messages
+
     protected override void Awake() => scrollRect = GetComponent<ScrollRect>();
 
     protected override void OnEnable()
     {
-        scrollRect.onValueChanged.AddListener(UpdateSliders);
+        if (VerticalSlider)
+            VerticalSlider.onValueChanged.AddListener(UpdateScrollRectVertical);
+        if (HorizontalSlider)
+            HorizontalSlider.onValueChanged.AddListener(UpdateScrollRectHorizontal);
 
-        if (scrollRect.vertical && VerticalSlider)
-            VerticalSlider.onValueChanged.AddListener(UpdateScrollRect);
-        if (scrollRect.horizontal && HorizontalSlider)
-            HorizontalSlider.onValueChanged.AddListener(UpdateScrollRect);
-
-        UpdateSliders(default);
+        scrollRect.onValueChanged.AddListener(UpdateVerticalSlider);
+        scrollRect.onValueChanged.AddListener(UpdateHorizontalSlider);
     }
 
     protected override void OnDisable()
     {
-        scrollRect.onValueChanged.RemoveListener(UpdateSliders);
+        scrollRect.onValueChanged.RemoveListener(UpdateVerticalSlider);
+        scrollRect.onValueChanged.RemoveListener(UpdateHorizontalSlider);
+
         if (VerticalSlider)
-            VerticalSlider.onValueChanged.RemoveListener(UpdateScrollRect);
+            VerticalSlider.onValueChanged.RemoveListener(UpdateScrollRectVertical);
         if (HorizontalSlider)
-            HorizontalSlider.onValueChanged.RemoveListener(UpdateScrollRect);
+            HorizontalSlider.onValueChanged.RemoveListener(UpdateScrollRectHorizontal);
     }
 
     protected void LateUpdate()
@@ -92,7 +95,7 @@ internal class ScrollSliderController : UIBehaviour
                 scrollRect.vertical
                     && (
                         scrollRect.verticalScrollbarVisibility == Visibility.Permanent
-                        || contentRect.height > viewRect.height
+                        || contentRect.height > viewRect.height + 0.01f
                     )
             );
 
@@ -101,36 +104,50 @@ internal class ScrollSliderController : UIBehaviour
                 scrollRect.horizontal
                     && (
                         scrollRect.horizontalScrollbarVisibility == Visibility.Permanent
-                        || contentRect.width > viewRect.width
+                        || contentRect.width > viewRect.width + 0.01f
                     )
             );
     }
 
-    void UpdateScrollRect(float _)
+    #endregion
+    #region Event Handlers
+
+    void UpdateVerticalSlider(Vector2 v)
     {
-        if (!scrollRect)
-            return;
-
-        Vector2 pos = Vector2.one * 0.5f;
-
-        if (scrollRect.vertical && VerticalSlider)
-            pos = pos with { y = VerticalSlider.normalizedValue };
-
-        if (scrollRect.horizontal && HorizontalSlider)
-            pos = pos with { x = HorizontalSlider.normalizedValue };
-
-        scrollRect.normalizedPosition = pos;
+        if (VerticalUpdateNeeded())
+            VerticalSlider.normalizedValue = scrollRect.normalizedPosition.y;
     }
 
-    void UpdateSliders(Vector2 _)
+    void UpdateHorizontalSlider(Vector2 v)
     {
-        if (!scrollRect)
-            return;
-
-        if (scrollRect.vertical && VerticalSlider)
-            VerticalSlider.normalizedValue = scrollRect.verticalNormalizedPosition;
-
-        if (scrollRect.horizontal && HorizontalSlider)
-            HorizontalSlider.normalizedValue = scrollRect.horizontalNormalizedPosition;
+        if (HorizontalUpdateNeeded())
+            HorizontalSlider.normalizedValue = scrollRect.normalizedPosition.x;
     }
+
+    void UpdateScrollRectVertical(float v)
+    {
+        if (VerticalUpdateNeeded())
+            scrollRect.verticalNormalizedPosition = VerticalSlider.normalizedValue;
+    }
+
+    void UpdateScrollRectHorizontal(float v)
+    {
+        if (HorizontalUpdateNeeded())
+            scrollRect.horizontalNormalizedPosition = HorizontalSlider.normalizedValue;
+    }
+
+    #endregion
+    #region Utils
+
+    bool VerticalUpdateNeeded() =>
+        scrollRect.vertical
+        && VerticalSlider
+        && !Mathf.Approximately(scrollRect.normalizedPosition.y, VerticalSlider.normalizedValue);
+
+    bool HorizontalUpdateNeeded() =>
+        scrollRect.horizontal
+        && HorizontalSlider
+        && !Mathf.Approximately(scrollRect.normalizedPosition.x, HorizontalSlider.normalizedValue);
+
+    #endregion
 }
