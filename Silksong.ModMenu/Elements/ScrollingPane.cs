@@ -71,8 +71,50 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     /// </summary>
     public Vector2 ViewportSize
     {
-        get => scrollRect.viewport.sizeDelta;
-        set => scrollRect.viewport.sizeDelta = value;
+        get => ((RectTransform)scrollPane.transform).sizeDelta;
+        set => ((RectTransform)scrollPane.transform).sizeDelta = value;
+    }
+
+    /// <summary>
+    /// Whether this pane scrolls only vertically, only horizontally, or in both axes.
+    /// </summary>
+    public ScrollAxes Axes
+    {
+        get
+        {
+            if (scrollRect.vertical && scrollRect.horizontal)
+                return ScrollAxes.Both;
+            else if (scrollRect.vertical)
+                return ScrollAxes.Vertical;
+            else
+                return ScrollAxes.Horizontal;
+        }
+        set
+        {
+            scrollRect.vertical = value == ScrollAxes.Vertical || value == ScrollAxes.Both;
+            scrollRect.horizontal = value == ScrollAxes.Horizontal || value == ScrollAxes.Both;
+        }
+    }
+
+    /// <summary>
+    /// Semantic states for which axes a <see cref="ScrollingPane"/> can scroll in.
+    /// </summary>
+    public enum ScrollAxes
+    {
+        /// <summary>
+        /// Exclusively vertical scrolling.
+        /// </summary>
+        Vertical,
+
+        /// <summary>
+        /// Exclusively horizontal scrolling.
+        /// </summary>
+        Horizontal,
+
+        /// <summary>
+        /// Scrolling in both the vertical and horizontal axes.
+        /// </summary>
+        Both,
     }
 
     /// <summary>
@@ -191,13 +233,13 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
         Matrix4x4 worldToLocal = contentPane.transform.worldToLocalMatrix;
 
         foreach (
-            Transform child in EnumerateDescendantsConditional(
+            Transform descendant in EnumerateDescendantsConditional(
                 contentPane.transform,
-                shouldSkip: x => x.parent.GetComponent<ScrollRect>()
+                shouldSkip: ChildrenOfScrollPanesExceptScrollbars
             )
         )
         {
-            if (child is not RectTransform rt)
+            if (descendant is not RectTransform rt || !descendant.gameObject.activeInHierarchy)
                 continue;
             foreach (Vector3 corner in rt.GetCorners())
             {
@@ -208,6 +250,11 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
         }
 
         return (min, max);
+
+        static bool ChildrenOfScrollPanesExceptScrollbars(Transform x) =>
+            x.parent.TryGetComponent<ScrollSliderController>(out var sliderCtrl)
+            && (!sliderCtrl.VerticalSlider || x != sliderCtrl.VerticalSlider.transform)
+            && (!sliderCtrl.HorizontalSlider || x != sliderCtrl.HorizontalSlider.transform);
     }
 
     /// <summary>

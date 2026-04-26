@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Visibility = UnityEngine.UI.ScrollRect.ScrollbarVisibility;
 
 namespace Silksong.ModMenu.Internal;
 
@@ -83,16 +84,25 @@ internal class ScrollSliderController : UIBehaviour
         if (!scrollRect || !scrollRect.content || !scrollRect.viewport)
             return;
 
-        if (scrollRect.vertical && VerticalSlider)
+        Rect viewRect = scrollRect.viewport.rect,
+            contentRect = scrollRect.content.rect;
+
+        if (VerticalSlider)
             VerticalSlider.gameObject.SetActive(
-                scrollRect.verticalScrollbarVisibility == ScrollRect.ScrollbarVisibility.Permanent
-                    || scrollRect.content.sizeDelta.y > scrollRect.viewport.sizeDelta.y
+                scrollRect.vertical
+                    && (
+                        scrollRect.verticalScrollbarVisibility == Visibility.Permanent
+                        || contentRect.height > viewRect.height
+                    )
             );
 
-        if (scrollRect.horizontal && HorizontalSlider)
+        if (HorizontalSlider)
             HorizontalSlider.gameObject.SetActive(
-                scrollRect.horizontalScrollbarVisibility == ScrollRect.ScrollbarVisibility.Permanent
-                    || scrollRect.content.sizeDelta.x > scrollRect.viewport.sizeDelta.x
+                scrollRect.horizontal
+                    && (
+                        scrollRect.horizontalScrollbarVisibility == Visibility.Permanent
+                        || contentRect.width > viewRect.width
+                    )
             );
     }
 

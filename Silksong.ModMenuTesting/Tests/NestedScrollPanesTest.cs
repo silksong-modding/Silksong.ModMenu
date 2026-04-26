@@ -1,6 +1,5 @@
 ﻿using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Screens;
-using System.Linq;
 using UnityEngine;
 
 namespace Silksong.ModMenuTesting.Tests;
@@ -15,20 +14,24 @@ internal class NestedScrollPanesTest : ModMenuTest
     internal override AbstractMenuScreen BuildMenuScreen()
     {
         VerticalGroup
-            outerContent = new() { VerticalSpacing = 460 },
-            innerContentOne = new() { VerticalSpacing = SpacingConstants.VSPACE_SMALL },
-            innerContentTwo = new() { VerticalSpacing = SpacingConstants.VSPACE_SMALL };
+            outerContent = new() { VerticalSpacing = 460 };
 
         GridGroup
-            innerContentThree = new(4);
+            innerContentOne = new(2) { HorizontalSpacing = 480 },
+            innerContentTwo = new(4) { HorizontalSpacing = 480 },
+            innerContentThree = new(2) { HorizontalSpacing = 480 };
 
         ScrollingPane
-            outerScroll = new(outerContent) { ViewportSize = new Vector2(1690, 876) },
-            innerScrollOne = new(innerContentOne) { ViewportSize = new Vector2(1540, 400f) },
-            innerScrollTwo = new(innerContentTwo) { ViewportSize = new Vector2(1540, 400f) },
-            innerScrollThree = new(innerContentThree) { ViewportSize = new Vector2(1540, 400f) };
+            outerScroll = new(outerContent) { ViewportSize = new Vector2(1480, 860) },
+            innerScrollOne = new(innerContentOne) { ViewportSize = new Vector2(1360, 350f) },
+            innerScrollTwo = new(innerContentTwo)
+            {
+                ViewportSize = new Vector2(1360, 350f),
+                Axes = ScrollingPane.ScrollAxes.Horizontal
+            },
+            innerScrollThree = new(innerContentThree) { ViewportSize = new Vector2(1360, 350f) };
 
-        foreach(int i in Enumerable.Range(1, 8))
+        for (int i = 1; i <= 12; i++)
         {
             innerContentOne.Add(new TextButton($"Hollow {i}"));
             innerContentTwo.Add(new TextButton($"Knight {i}"));
@@ -37,7 +40,8 @@ internal class NestedScrollPanesTest : ModMenuTest
 
         outerContent.AddRange([innerScrollOne, innerScrollTwo, innerScrollThree]);
         
-        screen = new BasicMenuScreen("Nested Scroll Panes", outerScroll) {
+        screen = new BasicMenuScreen("Nested Scroll Panes", outerScroll)
+        {
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
         return screen;
