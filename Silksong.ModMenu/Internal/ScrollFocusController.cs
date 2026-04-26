@@ -19,7 +19,7 @@ internal class ScrollFocusController : UIBehaviour
 
     ScrollRect scrollRect;
     Coroutine? smoothScrollRoutine;
-    bool firstAppearance = true;
+    bool scrollPaneAppearing = true;
 
     protected override void Awake()
     {
@@ -27,59 +27,10 @@ internal class ScrollFocusController : UIBehaviour
         scrollRect = GetComponent<ScrollRect>();
     }
 
-    protected override void OnDisable()
+    protected override void OnEnable()
     {
-        base.OnDisable();
-        firstAppearance = true;
-    }
-
-    /// <summary>
-    /// Scrolls the viewport so it's centered on given <paramref name="target"/>.
-    /// </summary>
-    /// <param name="target">The transform to scroll to.</param>
-    /// <param name="smooth">
-    ///     If false, the viewport position will change instantly.
-    ///     If true, the target will move into view smoothly over a short time.
-    /// </param>
-    public void ScrollTo(Transform target, bool smooth = false)
-    {
-        firstAppearance = false;
-        if (smoothScrollRoutine != null)
-        {
-            StopCoroutine(smoothScrollRoutine);
-            smoothScrollRoutine = null;
-        }
-
-        Vector2 newPos = GetScrollPoint(target.position);
-        newPos = newPos with
-        {
-            x = scrollRect.horizontal ? newPos.x : 0.5f,
-            y = scrollRect.vertical ? newPos.y : 0.5f,
-        };
-
-        if (!smooth)
-        {
-            scrollRect.normalizedPosition = newPos;
-            return;
-        }
-
-        smoothScrollRoutine = StartCoroutine(Coro());
-        IEnumerator Coro()
-        {
-            Vector2 oldPos = scrollRect.normalizedPosition;
-            var curveX = AnimationCurve.EaseInOut(0, oldPos.x, smoothScrollTime, newPos.x);
-            var curveY = AnimationCurve.EaseInOut(0, oldPos.y, smoothScrollTime, newPos.y);
-
-            for (float time = 0; time <= smoothScrollTime; time += Time.deltaTime)
-            {
-                scrollRect.normalizedPosition = new Vector2(
-                    curveX.Evaluate(time),
-                    curveY.Evaluate(time)
-                );
-                yield return null;
-            }
-            scrollRect.normalizedPosition = newPos;
-        }
+        base.OnEnable();
+        scrollPaneAppearing = true;
     }
 
     /// <summary>
@@ -95,9 +46,79 @@ internal class ScrollFocusController : UIBehaviour
     /// </remarks>
     internal void ScrollToIfOnMenuShow(Transform target)
     {
-        if (firstAppearance)
+        if (scrollPaneAppearing)
+        {
             ScrollTo(target, smooth: false);
-        firstAppearance = false;
+
+            // Prevent unintended instant-focuses when a screen has multiple scroll panes
+            var menu = GetComponentInParent<MenuScreen>();
+            if (menu)
+            {
+                foreach (
+                    var child in menu.transform.GetComponentsInChildren<ScrollFocusController>(true)
+                )
+                    child.SetMenuAppeared();
+            }
+        }
+        scrollPaneAppearing = false;
+    }
+
+    internal void SetMenuAppeared() => scrollPaneAppearing = false;
+
+    /// <summary>
+    /// Scrolls this viewport and all scrolling viewports this one is nested within so that the
+    /// entire hierarchy of viewports is centered on given <paramref name="target"/>.
+    /// </summary>
+    /// <param name="target">The transform to scroll to.</param>
+    /// <param name="smooth">
+    ///     If false, the viewport position will change instantly.
+    ///     If true, the target will move into view smoothly over a short time.
+    /// </param>
+    public void ScrollTo(Transform target, bool smooth = false)
+    {
+        foreach (var controller in GetComponentsInParent<ScrollFocusController>())
+            controller.ScrollToInternal(target, smooth);
+    }
+
+    internal void ScrollToInternal(Transform target, bool smooth)
+    {
+        scrollPaneAppearing = false;
+        if (smoothScrollRoutine != null)
+        {
+            StopCoroutine(smoothScrollRoutine);
+            smoothScrollRoutine = null;
+        }
+
+        if (smooth)
+            smoothScrollRoutine = StartCoroutine(Coro());
+        else
+            scrollRect.normalizedPosition = GetScrollPoint(target.position);
+
+        IEnumerator Coro()
+        {
+            Vector2 oldPos = scrollRect.normalizedPosition,
+                newPos = GetScrollPoint(target.position);
+
+            var curveX = AnimationCurve.EaseInOut(0, oldPos.x, smoothScrollTime, newPos.x);
+            var curveY = AnimationCurve.EaseInOut(0, oldPos.y, smoothScrollTime, newPos.y);
+
+            for (float time = 0; time <= smoothScrollTime; time += Time.deltaTime)
+            {
+                // Scroll point is re-evaluated each frame so that nested ScrollRects all
+                // end at the appropriate scroll position for the target's final world position
+                newPos = GetScrollPoint(target.position);
+
+                curveX.SetKeys([curveX.keys[0], curveX.keys[^1] with { value = newPos.x }]);
+                curveY.SetKeys([curveY.keys[0], curveY.keys[^1] with { value = newPos.y }]);
+
+                scrollRect.normalizedPosition = new Vector2(
+                    curveX.Evaluate(time),
+                    curveY.Evaluate(time)
+                );
+                yield return null;
+            }
+            scrollRect.normalizedPosition = GetScrollPoint(target.position);
+        }
     }
 
     /// <summary>
@@ -106,9 +127,6 @@ internal class ScrollFocusController : UIBehaviour
     /// </summary>
     Vector2 GetScrollPoint(Vector2 targetWorldPos)
     {
-        if (!scrollRect)
-            return new Vector2(0.5f, 1);
-
         RectTransform viewport = scrollRect.viewport,
             content = scrollRect.content;
 
@@ -123,8 +141,16 @@ internal class ScrollFocusController : UIBehaviour
         targetPos += contentSizeOffset;
         targetPos.Scale(content.localScale);
 
-        Vector2 scrollPoint = (targetPos - viewportSize * 0.5f) / (contentSize - viewportSize);
+        Vector2 scrollPoint = Vector2.Clamp01(
+            (targetPos - viewportSize * 0.5f) / (contentSize - viewportSize)
+        );
 
-        return new(Mathf.Clamp01(scrollPoint.x), Mathf.Clamp01(scrollPoint.y));
+        scrollPoint = scrollPoint with
+        {
+            x = scrollRect.horizontal ? scrollPoint.x : 0.5f,
+            y = scrollRect.vertical ? scrollPoint.y : 0.5f,
+        };
+
+        return scrollPoint;
     }
 }

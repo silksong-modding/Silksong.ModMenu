@@ -64,7 +64,7 @@ internal class ScrollingMenuTest : ModMenuTest
 
         var textinput = new TextInput<string>("Input", TextModels.ForStrings());
         textinput.Model.Value = "placeholder";
-		screen.Add(textinput);
+        screen.Add(textinput);
 
         elementAdder.Model.SetValue(5);
         
