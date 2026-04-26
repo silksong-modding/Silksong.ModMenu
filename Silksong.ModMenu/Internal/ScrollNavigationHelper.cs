@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -12,16 +11,16 @@ namespace Silksong.ModMenu.Internal;
 internal class ScrollNavigationHelper : EventTrigger
 {
     ScrollRect scrollRect;
-    ScrollFocusController focusController;
+    ScrollFocusController[] focusControllers = [];
 
     void Awake()
     {
         scrollRect = GetComponentInParent<ScrollRect>(true);
-        focusController = GetComponentInParent<ScrollFocusController>(true);
+        focusControllers = GetComponentsInParent<ScrollFocusController>(true);
 
         if (!scrollRect)
             throw new InvalidOperationException($"Failed to find containing {nameof(ScrollRect)}.");
-        if (!focusController)
+        if (focusControllers.Length == 0)
             throw new InvalidOperationException(
                 $"Failed to find containing {nameof(ScrollFocusController)}."
             );
@@ -44,12 +43,18 @@ internal class ScrollNavigationHelper : EventTrigger
     {
         // When keyboard/controller navigated to.
         if (eventData is AxisEventData)
-            focusController.ScrollTo(transform, smooth: true);
+        {
+            foreach (var focusController in focusControllers)
+                focusController.ScrollTo(transform, smooth: true);
+        }
         // When force-selected. (e.x. when a menu is shown)
         // Can't avoid the type check or use `is` because then this would catch PointerEventData,
         // and instant-scrolling as a result of mouse movement is very jarring.
         else if (eventData.GetType() == typeof(BaseEventData))
-            focusController.ScrollToIfOnMenuShow(transform);
+        {
+            foreach (var focusController in focusControllers)
+                focusController.ScrollToIfOnMenuShow(transform);
+        }
     }
 
     /// <summary>
