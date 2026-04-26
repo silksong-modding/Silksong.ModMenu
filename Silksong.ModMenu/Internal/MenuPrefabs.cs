@@ -72,6 +72,7 @@ internal class MenuPrefabs
         textLabelTemplate.name = "TextLabel";
         textLabelTemplate.GetComponent<Text>().raycastTarget = false;
         Object.DontDestroyOnLoad(textLabelTemplate);
+        ((RectTransform)textLabelTemplate.transform).sizeDelta = new Vector2(0, 105);
 
         textChoiceTemplate = Object.Instantiate(
             canvas.FindChild("GameOptionsMenuScreen/Content/CamShakeSetting")!
@@ -98,6 +99,7 @@ internal class MenuPrefabs
         textButtonTemplate.SetActive(false);
         textButtonTemplate.name = "TextButtonContainer";
         Object.DontDestroyOnLoad(textButtonTemplate);
+        ((RectTransform)textButtonTemplate.transform).sizeDelta = Vector2.zero;
 
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
@@ -105,6 +107,8 @@ internal class MenuPrefabs
         // so it won't be removed by the LocalizedTextExtensions
         buttonChild.RemoveComponent<AutoLocalizeTextUI>();
         buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+        var buttonChildRT = (RectTransform)buttonChild.transform;
+        buttonChildRT.sizeDelta = buttonChildRT.sizeDelta with { x = 0 };
 
         // Add a (centered) description to the menu button
         GameObject clonedDescription = Object.Instantiate(choiceChild.FindChild("Description")!);
@@ -151,6 +155,7 @@ internal class MenuPrefabs
         sliderTemplate.SetActive(false);
         sliderTemplate.name = "SliderContainer";
         Object.DontDestroyOnLoad(sliderTemplate);
+        ((RectTransform)sliderTemplate.transform).sizeDelta = Vector2.zero;
 
         var sliderChild = sliderTemplate.FindChild("MasterSlider")!;
         sliderChild.name = "Slider";
@@ -240,7 +245,7 @@ internal class MenuPrefabs
         scrollPane.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
         var scrollPaneRT = (RectTransform)scrollPane.transform;
         scrollPaneRT.sizeDelta = new Vector2(
-            1480,
+            1510,
             Mathf.Ceil(SpacingConstants.VSPACE_MEDIUM * 8.334f)
         );
         scrollPaneRT.pivot = new Vector2(0.5f, 1);
@@ -317,6 +322,7 @@ internal class MenuPrefabs
         scrollRect.horizontal = false;
         scrollRect.vertical = true;
         scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+        scrollRect.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
         scrollRect.scrollSensitivity = 80;
         scrollRect.viewport = viewportRT;

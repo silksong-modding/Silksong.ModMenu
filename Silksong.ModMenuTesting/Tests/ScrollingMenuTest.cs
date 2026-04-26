@@ -24,6 +24,10 @@ internal class ScrollingMenuTest : ModMenuTest
             SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
         };
 
+        // Despite this setting, we should not see the horizontal scrollbar,
+        // because no element should be wider than the default width of a scroll pane.
+        screen.ScrollPane.Axes = ScrollingPane.ScrollAxes.Both;
+
         ChoiceElement<Spacing> spacing = new("Spacing", ChoiceModels.ForEnum<Spacing>());
         spacing.OnValueChanged += value =>
             screen.Content.VerticalSpacing = value switch
@@ -51,7 +55,18 @@ internal class ScrollingMenuTest : ModMenuTest
             }
         };
         screen.Add(elementAdder);
-        elementAdder.Model.SetValue(10);
+
+        // Adding one of everything to make sure the horizontal scrollbar doesn't appear
+        screen.Add(new TextLabel("Label"));
+        screen.Add(new TextButton("Button"));
+        screen.Add(new KeyBindElement("KeyBind"));
+        screen.Add(new DynamicDescriptionChoiceElement<bool>("DynamicChoice", ChoiceModels.ForBool(), "desc left", "desc right"));
+
+        var textinput = new TextInput<string>("Input", TextModels.ForStrings());
+        textinput.Model.Value = "placeholder";
+		screen.Add(textinput);
+
+        elementAdder.Model.SetValue(5);
         
         return screen;
     }
