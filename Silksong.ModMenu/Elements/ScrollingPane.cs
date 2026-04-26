@@ -218,8 +218,12 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     private void AddScrollNavHelpers()
     {
         foreach (var element in Content?.AllElements().OfType<SelectableElement>() ?? [])
+        {
             // This component removes itself when the object it's attached to is re-parented
-            element.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
+            element
+                .SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>()
+                .container = element.Container.transform;
+        }
     }
 
     /// <summary>

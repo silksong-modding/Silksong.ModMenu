@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -12,6 +13,8 @@ internal class ScrollNavigationHelper : EventTrigger
 {
     ScrollRect scrollRect;
     ScrollFocusController focusController;
+
+    public Transform? container;
 
     void Awake()
     {
@@ -41,14 +44,16 @@ internal class ScrollNavigationHelper : EventTrigger
     /// </summary>
     public override void OnSelect(BaseEventData eventData)
     {
+        Transform target = container ? container : transform;
+
         // When keyboard/controller navigated to.
         if (eventData is AxisEventData)
-            focusController.ScrollTo(transform, smooth: true);
+            focusController.ScrollTo(target, smooth: true);
         // When force-selected. (e.x. when a menu is shown)
         // Can't avoid the type check or use `is` because then this would catch PointerEventData,
         // and instant-scrolling as a result of mouse movement is very jarring.
         else if (eventData.GetType() == typeof(BaseEventData))
-            focusController.ScrollToIfOnMenuShow(transform);
+            focusController.ScrollToIfOnMenuShow(target);
     }
 
     /// <summary>
