@@ -27,7 +27,6 @@ public abstract class AbstractMenuScreen : MenuDisposable
         Container = MenuPrefabs.Get().NewCustomMenu(title);
         MenuScreen = Container.GetComponent<MenuScreen>();
         TitleText = Container.FindChild("Title")!.GetComponent<Text>();
-        ContentPane = Container!.FindChild("Content")!;
         ControlsPane = Container!.FindChild("Controls")!;
         BackButton = ControlsPane!.FindChild("ApplyButton")!.GetComponent<MenuButton>();
 
@@ -59,11 +58,6 @@ public abstract class AbstractMenuScreen : MenuDisposable
     /// The text element for the title of this menu screen.
     /// </summary>
     public readonly Text TitleText;
-
-    /// <summary>
-    /// The GameObject containing all menu elements except the back button, which is always at the bottom.
-    /// </summary>
-    public readonly GameObject ContentPane;
 
     /// <summary>
     /// The GameObject containing the back button, and any additional navigational elements specific to the layout.
