@@ -28,6 +28,10 @@
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.26.0" PrivateAssets="all" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
     <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
+    <ProjectReference
+      Include="..\Silksong.ModMenuAnalyzers\Silksong.ModMenuAnalyzers.csproj"
+      OutputItemType="Analyzer"
+    />
     <ProjectReference Include="..\Silksong.ModMenu\Silksong.ModMenu.csproj" />
   </ItemGroup>
 
