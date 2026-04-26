@@ -69,7 +69,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
         Visibility.OnVisibilityChanged += visibleInHierarchy =>
             scrollPane.SetActive(visibleInHierarchy);
 
-        scrollPane.SetActive(true);
+        scrollPane.SetActive(false);
     }
 
     /// <summary>
