@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Internal;
+using TeamCherry.Localization;
 
 namespace Silksong.ModMenu.Models;
 
@@ -17,9 +20,13 @@ public static class ChoiceModels
         ForNamedValues([(false, falseName), (true, trueName)]);
 
     /// <summary>
-    /// A default boolean model with the names 'False' and 'True'.
+    /// A default boolean model with the current language's equivalents of 'Off' and 'On'.
     /// </summary>
-    public static ListChoiceModel<bool> ForBool() => ForBool("False", "True");
+    public static ListChoiceModel<bool> ForBool() =>
+        ForLocalizedValues([
+            (false, new LocalisedString("MainMenu", "MOH_OFF")),
+            (true, new LocalisedString("MainMenu", "MOH_ON")),
+        ]);
 
     /// <summary>
     /// A model for all values of the given enum type. Can be reified to T=object.
@@ -74,16 +81,21 @@ public static class ChoiceModels
     /// <summary>
     /// A model for an arbitrary list of values, with explicitly provided display names.
     /// </summary>
-    public static ListChoiceModel<T> ForNamedValues<T>(IEnumerable<(T, string)> values)
+    public static ListChoiceModel<T> ForNamedValues<T>(IEnumerable<(T, string)> values) =>
+        ForLocalizedValues(values.Select(x => (x.Item1, (LocalizedText)x.Item2)));
+
+    /// <summary>
+    /// A model for an arbitrary list of values, with explicitly provided localized display names.
+    /// </summary>
+    public static ListChoiceModel<T> ForLocalizedValues<T>(IEnumerable<(T, LocalizedText)> values)
     {
         List<T> items = [];
-        List<string> names = [];
+        List<LocalizedText> names = [];
         foreach (var (item, name) in values)
         {
             items.Add(item);
             names.Add(name);
         }
-
         return new(items) { DisplayFn = (idx, _) => names[idx] };
     }
 

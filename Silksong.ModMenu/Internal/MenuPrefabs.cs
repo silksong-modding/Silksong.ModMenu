@@ -1,4 +1,5 @@
-﻿using MonoDetour;
+﻿using GlobalEnums;
+using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
 using Silksong.ModMenu.Elements;
@@ -22,13 +23,13 @@ internal class MenuPrefabs
     private readonly GameObject canvas;
 
     private readonly GameObject menuTemplate;
-    private readonly GameObject emptyContentPane;
     private readonly GameObject keyBindTemplate;
     private readonly GameObject textButtonTemplate;
     private readonly GameObject textLabelTemplate;
     private readonly GameObject textChoiceTemplate;
     private readonly GameObject textInputTemplate;
     private readonly GameObject sliderTemplate;
+    private readonly GameObject scrollPaneTemplate;
 
     private MenuPrefabs(UIManager uiManager)
     {
@@ -47,13 +48,8 @@ internal class MenuPrefabs
         menuTemplate.name = "ModMenuScreen";
         menuTemplate.RemoveComponent<MenuButtonList>();
         menuTemplate.FindChild("Title")!.RemoveComponent<AutoLocalizeTextUI>();
+        Object.Destroy(menuTemplate.FindChild("Content")!);
         Object.DontDestroyOnLoad(menuTemplate);
-
-        emptyContentPane = menuTemplate.FindChild("Content")!;
-        emptyContentPane.DestroyAllChildren();
-        emptyContentPane.RemoveComponent<VerticalLayoutGroup>();
-        emptyContentPane.RemoveComponent<MenuButtonList>();
-        Object.DontDestroyOnLoad(emptyContentPane);
 
         // MappableKey.OnEnable() breaks when instantiated outside the UIButtonSkins hierarchy.
         using (mappableKeyInit.Suppress())
@@ -165,6 +161,8 @@ internal class MenuPrefabs
             .FindChild("Menu Option Label")!
             .RemoveComponent<ChangeTextFontScaleOnHandHeld>();
         sliderChild.FindChild("MasterVolValue")!.name = "Value";
+
+        scrollPaneTemplate = ConstructScrollPanePrefab(uiManager);
     }
 
     internal GameObject NewCustomMenu(LocalizedText title)
@@ -176,8 +174,6 @@ internal class MenuPrefabs
 
         return obj;
     }
-
-    internal GameObject NewEmptyContentPane() => Object.Instantiate(emptyContentPane);
 
     internal GameObject NewKeyBindContainer(out CustomMappableKey customMappableKey)
     {
@@ -214,6 +210,96 @@ internal class MenuPrefabs
         var obj = Object.Instantiate(sliderTemplate);
         slider = obj.FindChild("Slider")!.GetComponent<Slider>();
         return obj;
+    }
+
+    internal GameObject NewScrollPane(
+        out ScrollRect scrollRect,
+        out ScrollFocusController focusController,
+        out GameObject contentPane
+    )
+    {
+        var obj = Object.Instantiate(scrollPaneTemplate);
+        scrollRect = obj.GetComponent<ScrollRect>();
+        focusController = obj.GetComponent<ScrollFocusController>();
+        contentPane = obj.FindChild("Content")!;
+        return obj;
+    }
+
+    private static GameObject ConstructScrollPanePrefab(UIManager uiManager)
+    {
+        // Can't directly clone the achievements menu, it throws a bunch of errors,
+        // but we can repurpose parts of its scrollbar.
+
+        // Pulled this into its own function because it was getting quite long.
+
+        #region Content Panes
+
+        var scrollPane = new GameObject("ScrollPane") { layer = (int)PhysLayers.UI };
+        scrollPane.SetActive(false);
+        Object.DontDestroyOnLoad(scrollPane);
+        scrollPane.AddComponent<Image>().color = Color.clear; // necessary for the RectMask2D
+        scrollPane.AddComponent<RectMask2D>();
+        var scrollPaneRT = (RectTransform)scrollPane.transform;
+        scrollPaneRT.sizeDelta = new Vector2(1570, 876f);
+        scrollPaneRT.pivot = new Vector2(0.5f, 1);
+
+        var content = new GameObject("Content") { layer = (int)PhysLayers.UI };
+        content.transform.SetParentReset(scrollPane.transform);
+        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
+        var contentRT = (RectTransform)content.transform;
+        contentRT.anchorMax = contentRT.anchorMin = contentRT.pivot = new Vector2(0.5f, 1);
+
+        #endregion
+        #region "Scrollbar"
+
+        var scrollbar = Object.Instantiate(
+            uiManager.achievementsMenuScreen.gameObject.FindChild("Content/Scrollbar")!,
+            scrollPaneRT,
+            false
+        );
+        scrollbar.name = "Scrollbar";
+
+        ((RectTransform)scrollbar.transform.Find("Background")).FitToParentVertical();
+
+        var scrollbarRT = (RectTransform)scrollbar.transform;
+        var slideAreaRT = (RectTransform)scrollbarRT.Find("Sliding Area");
+        var handleRT = (RectTransform)slideAreaRT.Find("Handle/TopFleur");
+
+        slideAreaRT.FitToParent();
+        slideAreaRT.sizeDelta = new Vector2(0, -150);
+
+        Object.DestroyImmediate(handleRT.GetComponent<ScrollBarHandle>());
+        handleRT.SetParentReset(slideAreaRT);
+        handleRT.FitToParentHorizontal();
+        handleRT.sizeDelta = new Vector2(0, 140);
+        handleRT.pivot = Vector2.one * 0.5f;
+        Object.DestroyImmediate(slideAreaRT.Find("Handle").gameObject);
+        handleRT.gameObject.name = "Handle";
+
+        scrollbarRT.sizeDelta = new Vector2(50, 0);
+        scrollbarRT.FitToParentVertical(anchorX: 1);
+        scrollbarRT.anchoredPosition3D = scrollbarRT.anchoredPosition3D with { z = -1 };
+        Object.DestroyImmediate(scrollbar.GetComponent<Scrollbar>());
+        var scrollSlider = scrollbar.AddComponent<Slider>();
+        scrollSlider.handleRect = handleRT;
+        scrollSlider.direction = Slider.Direction.BottomToTop;
+        scrollSlider.maxValue = 1;
+        scrollSlider.minValue = 0;
+
+        #endregion
+
+        var scrollRect = scrollPane.AddComponent<ScrollRect>();
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.scrollSensitivity = 80;
+        scrollRect.viewport = scrollPaneRT;
+        scrollRect.content = contentRT;
+        scrollPane.AddComponent<ScrollSliderController>().VerticalSlider = scrollSlider;
+        scrollPane.AddComponent<ScrollFocusController>();
+
+        return scrollPane;
     }
 
     private static readonly EventSuppressor mappableKeyInit = new();
