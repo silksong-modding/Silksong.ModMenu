@@ -30,6 +30,7 @@ internal class MenuPrefabs
     private readonly GameObject textInputTemplate;
     private readonly GameObject sliderTemplate;
     private readonly GameObject scrollPaneTemplate;
+    private readonly GameObject colorSwatchTemplate;
 
     private MenuPrefabs(UIManager uiManager)
     {
@@ -163,6 +164,55 @@ internal class MenuPrefabs
         sliderChild.FindChild("MasterVolValue")!.name = "Value";
 
         scrollPaneTemplate = ConstructScrollPanePrefab(uiManager);
+
+        {
+            colorSwatchTemplate = new GameObject("Color Swatch") { layer = (int)PhysLayers.UI };
+            colorSwatchTemplate.SetActive(false);
+            Object.DontDestroyOnLoad(colorSwatchTemplate);
+            var swatchRT = colorSwatchTemplate.AddComponent<RectTransform>();
+            swatchRT.sizeDelta = Vector2.one * 70;
+            swatchRT.anchorMax = swatchRT.anchorMin = new Vector2(0, 0.5f);
+            swatchRT.pivot = new Vector2(1, 0.5f);
+            swatchRT.anchoredPosition = new Vector2(-35, 0);
+
+            Transform journalIcon = GameCameras.instance.hudCamera.transform.Find(
+                "In-game/Inventory/Journal/Enemy List Parent/Enemy List/Template Journal Entry"
+            );
+
+            var fill = new GameObject("Fill") { layer = (int)PhysLayers.UI };
+            fill.transform.SetParentReset(swatchRT);
+            var imgF = fill.AddComponent<Image>();
+            imgF.sprite = journalIcon.Find("Mask").GetComponent<SpriteMask>().sprite;
+            imgF.preserveAspect = true;
+            fill.RectTransform.FitToParent();
+
+            var line = new GameObject("Outline") { layer = (int)PhysLayers.UI };
+            line.transform.SetParentReset(swatchRT);
+            var imgL = line.AddComponent<Image>();
+            imgL.sprite = journalIcon.Find("Standard Frame").GetComponent<SpriteRenderer>().sprite;
+            imgL.preserveAspect = true;
+            line.AddComponent<Outline>().effectColor = Color.white with { a = 0.5f };
+            line.RectTransform.FitToParent();
+
+            var indicator = new GameObject("Invalid Indicator") { layer = (int)PhysLayers.UI };
+            indicator.transform.SetParentReset(swatchRT);
+            var text = indicator.AddComponent<Text>();
+            text.enabled = false;
+            text.text = "?";
+            text.font = textLabelTemplate.GetComponent<Text>().font;
+            text.alignByGeometry = true;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMaxSize = 100;
+            text.resizeTextMinSize = 10;
+            text.fontSize = 0;
+            var indicatorRT = indicator.RectTransform;
+            indicatorRT.sizeDelta = Vector2.zero;
+            indicatorRT.anchorMax = new Vector2(0.52f, 0.8f);
+            indicatorRT.anchorMin = new Vector2(0.52f, 0.2f);
+        }
     }
 
     internal GameObject NewCustomMenu(LocalizedText title)
@@ -204,6 +254,8 @@ internal class MenuPrefabs
         customInputField = obj.FindChild("TextInput")!.GetComponent<CustomInputField>();
         return obj;
     }
+
+    internal GameObject NewColorSwatch() => Object.Instantiate(colorSwatchTemplate);
 
     internal GameObject NewSliderContainer(out Slider slider)
     {
