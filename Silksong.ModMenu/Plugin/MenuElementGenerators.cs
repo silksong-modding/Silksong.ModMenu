@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Silksong.ModMenu.Plugin;
 public static class MenuElementGenerators
 {
     /// <summary>
-    /// Returns a Generator that creates a choice element with a description below the option value.
+    /// Returns a generator that creates a choice element with a description below the option value.
     ///
     /// The description will be taken from the <see cref="DescriptionAttribute"/> attributes on the enum members.
     /// </summary>
@@ -43,9 +44,9 @@ public static class MenuElementGenerators
                 return false;
             }
 
-            Dictionary<object, string> descriptionLookup = model.Values.ToDictionary(
+            Dictionary<object, LocalizedText> descriptionLookup = model.Values.ToDictionary(
                 t => t,
-                t => string.Empty
+                t => LocalizedText.Raw(string.Empty)
             );
             bool anyDesc = false;
             foreach (object member in model.Values)
@@ -54,10 +55,10 @@ public static class MenuElementGenerators
                     member.ToString(),
                     BindingFlags.Static | BindingFlags.Public
                 );
-                DescriptionAttribute? desc = enumField.GetCustomAttribute<DescriptionAttribute>();
-                if (desc is not null)
+
+                if (TryGetDescription(enumField, out LocalizedText? descText))
                 {
-                    descriptionLookup[member] = desc.Description;
+                    descriptionLookup[member] = descText;
                     anyDesc = true;
                 }
             }
@@ -83,6 +84,29 @@ public static class MenuElementGenerators
         }
 
         return gen;
+    }
+
+    private static bool TryGetDescription(
+        FieldInfo enumField,
+        [NotNullWhen(true)] out LocalizedText? descText
+    )
+    {
+        LocalizedDescriptionAttribute lDesc =
+            enumField.GetCustomAttribute<LocalizedDescriptionAttribute>();
+        if (lDesc is not null)
+        {
+            descText = LocalizedText.Key(new(lDesc.SheetTitle, lDesc.Key));
+            return true;
+        }
+
+        DescriptionAttribute? desc = enumField.GetCustomAttribute<DescriptionAttribute>();
+        if (desc is not null)
+        {
+            descText = desc.Description;
+            return true;
+        }
+        descText = default;
+        return false;
     }
 
     /// <summary>
