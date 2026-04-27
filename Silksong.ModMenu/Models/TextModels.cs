@@ -18,6 +18,68 @@ public static class TextModels
         new(DefaultUnparse<string>, DefaultUnparse<string>);
 
     /// <summary>
+    /// An ITextModel which parses its input into a signed byte.
+    /// </summary>
+    public static ParserTextModel<sbyte> ForSignedBytes() =>
+        new(sbyte.TryParse, DefaultUnparse<sbyte>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into a signed byte clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<sbyte> ForSignedBytes(sbyte min, sbyte max)
+    {
+        var model = ForSignedBytes();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into a byte.
+    /// </summary>
+    public static ParserTextModel<byte> ForBytes() => new(byte.TryParse, DefaultUnparse<byte>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into a byte clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<byte> ForBytes(byte min, byte max)
+    {
+        var model = ForBytes();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into a short.
+    /// </summary>
+    public static ParserTextModel<short> ForShorts() => new(short.TryParse, DefaultUnparse<short>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into a short clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<short> ForShorts(short min, short max)
+    {
+        var model = ForShorts();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into an unsigned short.
+    /// </summary>
+    public static ParserTextModel<ushort> ForUnsignedShorts() =>
+        new(ushort.TryParse, DefaultUnparse<ushort>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into an unsigned short clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<ushort> ForUnsignedShorts(ushort min, ushort max)
+    {
+        var model = ForUnsignedShorts();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
     /// An ITextModel which parses its input into an integer.
     /// </summary>
     public static ParserTextModel<int> ForIntegers() => new(int.TryParse, DefaultUnparse<int>);
@@ -33,6 +95,53 @@ public static class TextModels
     }
 
     /// <summary>
+    /// An ITextModel which parses its input into an unsigned integer.
+    /// </summary>
+    public static ParserTextModel<uint> ForUnsignedIntegers() =>
+        new(uint.TryParse, DefaultUnparse<uint>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into an unsigned integer clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<uint> ForUnsignedIntegers(uint min, uint max)
+    {
+        var model = ForUnsignedIntegers();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into a long.
+    /// </summary>
+    public static ParserTextModel<long> ForLongs() => new(long.TryParse, DefaultUnparse<long>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into a long clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<long> ForLongs(long min, long max)
+    {
+        var model = ForLongs();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into an unsigned long.
+    /// </summary>
+    public static ParserTextModel<ulong> ForUnsignedLongs() =>
+        new(ulong.TryParse, DefaultUnparse<ulong>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into an unsigned long clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<ulong> ForUnsignedLongs(ulong min, ulong max)
+    {
+        var model = ForUnsignedLongs();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
     /// An ITextModel which parses its input into a float.
     /// </summary>
     public static ParserTextModel<float> ForFloats() => new(float.TryParse, DefaultUnparse<float>);
@@ -43,6 +152,22 @@ public static class TextModels
     public static ParserTextModel<float> ForFloats(float min, float max)
     {
         var model = ForFloats();
+        model.ConstraintFn = RangeConstraint(min, max);
+        return model;
+    }
+
+    /// <summary>
+    /// An ITextModel which parses its input into a double.
+    /// </summary>
+    public static ParserTextModel<double> ForDoubles() =>
+        new(double.TryParse, DefaultUnparse<double>);
+
+    /// <summary>
+    /// An ITextModel which parses its input into a double clamped between a min and max.
+    /// </summary>
+    public static ParserTextModel<double> ForDoubles(double min, double max)
+    {
+        var model = ForDoubles();
         model.ConstraintFn = RangeConstraint(min, max);
         return model;
     }

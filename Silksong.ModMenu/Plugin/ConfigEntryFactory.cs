@@ -33,8 +33,16 @@ public class ConfigEntryFactory
         GenerateEnumChoiceElement,
         GenerateAcceptableValuesChoiceElement,
         GenerateBoolElement,
+        GenerateSByteElement,
+        GenerateByteElement,
+        GenerateShortElement,
+        GenerateUShortElement,
         GenerateIntElement,
+        GenerateUIntElement,
+        GenerateLongElement,
+        GenerateULongElement,
         GenerateFloatElement,
+        GenerateDoubleElement,
         GenerateStringElement,
         GenerateColorElement,
     ];
@@ -354,6 +362,114 @@ public class ConfigEntryFactory
     }
 
     /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged sbyte value.
+    /// </summary>
+    public static bool GenerateSByteElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<sbyte> sByteEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<sbyte> range)
+                ? TextModels.ForSignedBytes(range.MinValue, range.MaxValue)
+                : TextModels.ForSignedBytes();
+
+        TextInput<sbyte> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(sByteEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged byte value.
+    /// </summary>
+    public static bool GenerateByteElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<byte> byteEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<byte> range)
+                ? TextModels.ForBytes(range.MinValue, range.MaxValue)
+                : TextModels.ForBytes();
+
+        TextInput<byte> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(byteEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged short value.
+    /// </summary>
+    public static bool GenerateShortElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<short> shortEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<short> range)
+                ? TextModels.ForShorts(range.MinValue, range.MaxValue)
+                : TextModels.ForShorts();
+
+        TextInput<short> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(shortEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged unsigned short value.
+    /// </summary>
+    public static bool GenerateUShortElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<ushort> uShortEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<ushort> range)
+                ? TextModels.ForUnsignedShorts(range.MinValue, range.MaxValue)
+                : TextModels.ForUnsignedShorts();
+
+        TextInput<ushort> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(uShortEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
     /// Generates a menu element for a config setting with a free or ranged int value.
     /// </summary>
     public static bool GenerateIntElement(
@@ -381,6 +497,87 @@ public class ConfigEntryFactory
     }
 
     /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged unsigned int value.
+    /// </summary>
+    public static bool GenerateUIntElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<uint> uIntEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<uint> range)
+                ? TextModels.ForUnsignedIntegers(range.MinValue, range.MaxValue)
+                : TextModels.ForUnsignedIntegers();
+
+        TextInput<uint> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(uIntEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged long value.
+    /// </summary>
+    public static bool GenerateLongElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<long> longEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<long> range)
+                ? TextModels.ForLongs(range.MinValue, range.MaxValue)
+                : TextModels.ForLongs();
+
+        TextInput<long> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(longEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged unsigned long value.
+    /// </summary>
+    public static bool GenerateULongElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<ulong> uLongEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<ulong> range)
+                ? TextModels.ForUnsignedLongs(range.MinValue, range.MaxValue)
+                : TextModels.ForUnsignedLongs();
+
+        TextInput<ulong> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(uLongEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
     /// Generates a menu element for a config setting with a free or ranged float value.
     /// </summary>
     public static bool GenerateFloatElement(
@@ -402,6 +599,33 @@ public class ConfigEntryFactory
 
         TextInput<float> text = new(entry.LabelName(), model, entry.DescriptionLine());
         text.SynchronizeWith(floatEntry);
+
+        menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generates a menu element for a config setting with a free or ranged double value.
+    /// </summary>
+    public static bool GenerateDoubleElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<double> doubleEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        var acceptableValues = entry.Description.AcceptableValues;
+        var model =
+            (acceptableValues is AcceptableValueRange<double> range)
+                ? TextModels.ForDoubles(range.MinValue, range.MaxValue)
+                : TextModels.ForDoubles();
+
+        TextInput<double> text = new(entry.LabelName(), model, entry.DescriptionLine());
+        text.SynchronizeWith(doubleEntry);
 
         menuElement = text;
         return true;
