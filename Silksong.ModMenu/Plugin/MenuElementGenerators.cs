@@ -16,9 +16,10 @@ namespace Silksong.ModMenu.Plugin;
 public static class MenuElementGenerators
 {
     /// <summary>
-    /// Returns a generator that creates a choice element with a description below the option value.
+    /// Returns a generator that creates a choice element with a description below the option value for an enum option.
     ///
-    /// The description will be taken from the <see cref="DescriptionAttribute"/> attributes on the enum members.
+    /// The description will be taken from the <see cref="LocalizedDescriptionAttribute"/> or
+    /// <see cref="DescriptionAttribute"/> attributes on the enum members.
     /// </summary>
     /// <param name="includeSettingDescription">If true, will also include the default description below the setting name.</param>
     public static ConfigEntryFactory.MenuElementGenerator CreateRightDescGenerator(
