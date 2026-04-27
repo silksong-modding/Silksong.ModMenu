@@ -36,6 +36,7 @@ public class ConfigEntryFactory
         GenerateIntElement,
         GenerateFloatElement,
         GenerateStringElement,
+        GenerateColorElement,
     ];
 
     /// <summary>
@@ -416,6 +417,27 @@ public class ConfigEntryFactory
         text.SynchronizeWith(stringEntry);
 
         menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generate a text element for a color.
+    /// </summary>
+    public static bool GenerateColorElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<Color> colorEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        ColorInput color = new(entry.LabelName(), entry.DescriptionLine());
+        color.SynchronizeWith(colorEntry);
+
+        menuElement = color;
         return true;
     }
 
