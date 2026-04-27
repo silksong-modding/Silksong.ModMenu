@@ -131,8 +131,29 @@ public class ConfigEntryFactory
             subpageNames.RemoveRange(origSize, subpageNames.Count - origSize);
         }
 
-        PaginatedMenuScreenBuilder builder = new(subpageNames.LastOrDefault() ?? menuName);
-        builder.AddRange(elements.OrderBy(e => e.path).Select(e => e.element));
+        return ArrangeScreen(
+            elements.OrderBy(e => e.path).ToList(),
+            subpageNames.LastOrDefault() ?? menuName
+        );
+    }
+
+    /// <summary>
+    /// Given a list of menu elements, create a menu screen for those elements.
+    ///
+    /// This function is used by the default implementation of
+    /// <see cref="GenerateEntryButton(LocalizedText, BaseUnityPlugin, out SelectableElement)"/>
+    /// to build each subpage.
+    /// </summary>
+    /// <param name="elements">Pairs (path to element, element) to arrange.</param>
+    /// <param name="menuName">The title of the menu.</param>
+    /// <returns>A menu screen containing those elements.</returns>
+    protected virtual AbstractMenuScreen ArrangeScreen(
+        List<(string path, MenuElement element)> elements,
+        LocalizedText menuName
+    )
+    {
+        PaginatedMenuScreenBuilder builder = new(menuName);
+        builder.AddRange(elements.Select(e => e.element));
         return builder.Build();
     }
 
