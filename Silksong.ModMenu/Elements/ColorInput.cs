@@ -1,8 +1,5 @@
-﻿using System.Globalization;
-using System.Linq;
-using Silksong.ModMenu.Internal;
+﻿using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Models;
-using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,12 +29,12 @@ public class ColorInput : TextInput<Color>
         ApplyDefaultColors = true;
         Format = InputFormat.RGBA;
 
-        Swatch = MenuPrefabs.Get().NewColorSwatch();
-        Swatch.transform.SetParent(InputField.textComponent.transform, false);
-        Swatch.SetActive(true);
-        SwatchFill = Swatch.FindChild("Fill")!.GetComponent<Image>();
-        SwatchOutline = Swatch.FindChild("Outline")!.GetComponent<Image>();
-        InvalidValueIndicator = Swatch.FindChild("Invalid Indicator")!.GetComponent<Text>();
+        Swatch = MenuPrefabs.Get().NewColorSwatch().RectTransform;
+        Swatch.SetParent(InputField.textComponent.transform, false);
+        Swatch.gameObject.SetActive(true);
+        SwatchFill = Swatch.Find("Fill").GetComponent<Image>();
+        SwatchOutline = Swatch.Find("Outline").GetComponent<Image>();
+        InvalidValueIndicator = Swatch.Find("Invalid Indicator").GetComponent<Text>();
 
         OnTextValueChanged += _ =>
         {
@@ -84,9 +81,9 @@ public class ColorInput : TextInput<Color>
     }
 
     /// <summary>
-    /// The GameObject that controls the size and position of the preview swatch.
+    /// The unity component that controls the size and position of the preview swatch.
     /// </summary>
-    public readonly GameObject Swatch;
+    public readonly RectTransform Swatch;
 
     /// <summary>
     /// The unity component for the filled area of the preview swatch.
