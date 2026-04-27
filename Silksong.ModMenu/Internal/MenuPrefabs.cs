@@ -3,6 +3,7 @@ using MonoDetour;
 using MonoDetour.DetourTypes;
 using MonoDetour.HookGen;
 using Silksong.ModMenu.Elements;
+using Silksong.ModMenu.Util;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
