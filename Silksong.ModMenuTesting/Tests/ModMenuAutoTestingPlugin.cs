@@ -32,6 +32,6 @@ internal class ModMenuAutoTestingPlugin() : BaseProxyPluginTest("org.silksong_mo
         config.Bind("Value Types", "ULong Option", 0UL); // not done
         config.Bind("Value Types", "Float Option", 0.0f);
         config.Bind("Value Types", "Double Option", 0.0d); // not done
-        config.Bind("Value Types", "Decimal Option", 0.0m); // not done    }
+        config.Bind("Value Types", "Decimal Option", 0.0m); // not done
     }
 }
