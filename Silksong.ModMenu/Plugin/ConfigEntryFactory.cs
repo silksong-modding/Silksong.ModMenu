@@ -144,10 +144,20 @@ public class ConfigEntryFactory
         LocalizedText name,
         BaseUnityPlugin plugin,
         [MaybeNullWhen(false)] out SelectableElement selectableElement
+    ) => GenerateEntryButton(name, plugin.Config, out _, out selectableElement);
+
+    /// <summary>
+    /// Generate a button which opens a sub-menu for this ConfigFile.
+    /// </summary>
+    public virtual bool GenerateEntryButton(
+        LocalizedText name,
+        ConfigFile config,
+        [MaybeNullWhen(false)] out AbstractMenuScreen menuScreen,
+        [MaybeNullWhen(false)] out SelectableElement selectableElement
     )
     {
         TreeNode<LocalizedText, ElementTreeNode> elementsTree = new();
-        foreach (var entry in plugin.Config.OrderBy(e => e.Key.Key))
+        foreach (var entry in config.OrderBy(e => e.Key.Key))
         {
             if (GenerateMenuElement(entry.Value, out var element))
             {
@@ -169,6 +179,7 @@ public class ConfigEntryFactory
         );
         if (elementsTree.Value.TotalElements == 0)
         {
+            menuScreen = default;
             selectableElement = default;
             return false;
         }
@@ -177,7 +188,8 @@ public class ConfigEntryFactory
         List<LocalizedText> subpageNames = [];
         FindFirstNonEmptyChild(ref elementsTree, subpageNames);
 
-        var menu = BuildSubtreeScreen(name, subpageNames, elementsTree);
+        AbstractMenuScreen menu = BuildSubtreeScreen(name, subpageNames, elementsTree);
+        menuScreen = menu;
         selectableElement = new TextButton(name)
         {
             OnSubmit = () => MenuScreenNavigation.Show(menu),
