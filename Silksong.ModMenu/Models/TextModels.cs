@@ -44,16 +44,15 @@ public static class TextModels
         if (!numericTryParses.TryGetValue(typeof(T), out var tryParse))
             throw new ArgumentException($"{typeof(T)} is not a numeric value type.");
 
-        ParserTextModel<T>.Parse modelParser = (text, out value) =>
-        {
-            object[] args = [text, default(T)];
-            bool result = (bool)tryParse.Value.Invoke(null, args);
-            value = (T)args[1];
-            return result;
-        };
+        if (!numericModelParsers.TryGetValue(typeof(T), out var parser))
+            numericModelParsers[typeof(T)] = parser = tryParse.Value.CreateDelegate(
+                typeof(ParserTextModel<T>.Parse)
+            );
 
-        return new(modelParser, DefaultUnparse);
+        return new((ParserTextModel<T>.Parse)parser, DefaultUnparse);
     }
+
+    private static readonly Dictionary<Type, Delegate> numericModelParsers = [];
 
     private static readonly Dictionary<Type, Lazy<MethodInfo>> numericTryParses = new Type[]
     {
