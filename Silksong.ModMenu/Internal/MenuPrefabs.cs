@@ -294,8 +294,7 @@ internal class MenuPrefabs
         var scrollPane = new GameObject("ScrollPane") { layer = (int)PhysLayers.UI };
         scrollPane.SetActive(false);
         Object.DontDestroyOnLoad(scrollPane);
-        scrollPane.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
-        var scrollPaneRT = (RectTransform)scrollPane.transform;
+        var scrollPaneRT = scrollPane.AddComponent<RectTransform>();
         scrollPaneRT.sizeDelta = new Vector2(
             1510,
             Mathf.Ceil(SpacingConstants.VSPACE_MEDIUM * 8.334f)
@@ -306,13 +305,13 @@ internal class MenuPrefabs
         viewport.transform.SetParentReset(scrollPane.transform);
         viewport.AddComponent<Image>().color = Color.clear; // necessary for the RectMask2D
         viewport.AddComponent<RectMask2D>();
-        var viewportRT = (RectTransform)viewport.transform;
+        var viewportRT = viewport.RectTransform;
         viewportRT.FitToParent();
 
         var content = new GameObject("Content") { layer = (int)PhysLayers.UI };
         content.transform.SetParentReset(viewport.transform);
-        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
-        var contentRT = (RectTransform)content.transform;
+        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform, used for visualization in some tests
+        var contentRT = content.RectTransform;
         contentRT.anchorMax = contentRT.anchorMin = contentRT.pivot = new Vector2(0.5f, 1);
 
         #endregion
@@ -325,11 +324,11 @@ internal class MenuPrefabs
         );
         vScrollbar.name = "Scrollbar V";
 
-        ((RectTransform)vScrollbar.transform.Find("Background")).FitToParentVertical();
+        vScrollbar.FindChild("Background")!.RectTransform.FitToParentVertical();
 
-        var vScrollbarRT = (RectTransform)vScrollbar.transform;
-        var slideAreaRT = (RectTransform)vScrollbarRT.Find("Sliding Area");
-        var handleRT = (RectTransform)slideAreaRT.Find("Handle/TopFleur");
+        var vScrollbarRT = vScrollbar.RectTransform;
+        var slideAreaRT = vScrollbar.FindChild("Sliding Area")!.RectTransform;
+        var handleRT = vScrollbar.FindChild("Sliding Area/Handle/TopFleur")!.RectTransform;
 
         slideAreaRT.FitToParent();
         slideAreaRT.sizeDelta = new Vector2(0, -150);
@@ -359,7 +358,7 @@ internal class MenuPrefabs
 
         var hScrollbar = Object.Instantiate(vScrollbar, scrollPane.transform, false);
         hScrollbar.name = "Scrollbar H";
-        var hScrollbarRT = (RectTransform)hScrollbar.transform;
+        var hScrollbarRT = hScrollbar.RectTransform;
         hScrollbarRT.anchorMin = hScrollbarRT.anchorMax = new Vector2(0.5f, 0);
         hScrollbarRT.pivot = new Vector2(1, 0.5f);
         hScrollbar.AddComponent<RotatedParentSizeFitter>().fitToWidth = true;

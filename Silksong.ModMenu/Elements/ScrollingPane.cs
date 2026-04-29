@@ -71,8 +71,8 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     /// </summary>
     public Vector2 ViewportSize
     {
-        get => ((RectTransform)scrollPane.transform).sizeDelta;
-        set => ((RectTransform)scrollPane.transform).sizeDelta = value;
+        get => scrollPane.RectTransform.sizeDelta;
+        set => scrollPane.RectTransform.sizeDelta = value;
     }
 
     /// <summary>
@@ -80,41 +80,36 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     /// </summary>
     public ScrollAxes Axes
     {
-        get
-        {
-            if (scrollRect.vertical && scrollRect.horizontal)
-                return ScrollAxes.Both;
-            else if (scrollRect.vertical)
-                return ScrollAxes.Vertical;
-            else
-                return ScrollAxes.Horizontal;
-        }
+        get =>
+            (scrollRect.vertical ? ScrollAxes.Vertical : 0)
+            | (scrollRect.horizontal ? ScrollAxes.Horizontal : 0);
         set
         {
-            scrollRect.vertical = value == ScrollAxes.Vertical || value == ScrollAxes.Both;
-            scrollRect.horizontal = value == ScrollAxes.Horizontal || value == ScrollAxes.Both;
+            scrollRect.vertical = value.HasFlag(ScrollAxes.Vertical);
+            scrollRect.horizontal = value.HasFlag(ScrollAxes.Horizontal);
         }
     }
 
     /// <summary>
     /// Semantic states for which axes a <see cref="ScrollingPane"/> can scroll in.
     /// </summary>
+    [Flags]
     public enum ScrollAxes
     {
         /// <summary>
         /// Exclusively vertical scrolling.
         /// </summary>
-        Vertical,
+        Vertical = 0x01,
 
         /// <summary>
         /// Exclusively horizontal scrolling.
         /// </summary>
-        Horizontal,
+        Horizontal = 0x10,
 
         /// <summary>
         /// Scrolling in both the vertical and horizontal axes.
         /// </summary>
-        Both,
+        Both = Vertical | Horizontal,
     }
 
     /// <summary>
@@ -267,7 +262,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     /// </summary>
     private static IEnumerable<Transform> EnumerateDescendantsConditional(
         Transform transform,
-        Predicate<Transform> shouldSkip
+        Func<Transform, bool> shouldSkip
     )
     {
         foreach (Transform item in transform)
