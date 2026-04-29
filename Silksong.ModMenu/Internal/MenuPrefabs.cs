@@ -73,7 +73,7 @@ internal class MenuPrefabs
         textLabelTemplate.name = "TextLabel";
         textLabelTemplate.GetComponent<Text>().raycastTarget = false;
         Object.DontDestroyOnLoad(textLabelTemplate);
-        ((RectTransform)textLabelTemplate.transform).sizeDelta = new Vector2(0, 105);
+        textLabelTemplate.RectTransform.sizeDelta = new Vector2(0, 105);
 
         textChoiceTemplate = Object.Instantiate(
             canvas.FindChild("GameOptionsMenuScreen/Content/CamShakeSetting")!
@@ -100,7 +100,7 @@ internal class MenuPrefabs
         textButtonTemplate.SetActive(false);
         textButtonTemplate.name = "TextButtonContainer";
         Object.DontDestroyOnLoad(textButtonTemplate);
-        ((RectTransform)textButtonTemplate.transform).sizeDelta = Vector2.zero;
+        textButtonTemplate.RectTransform.sizeDelta = Vector2.zero;
 
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
@@ -108,7 +108,7 @@ internal class MenuPrefabs
         // so it won't be removed by the LocalizedTextExtensions
         buttonChild.RemoveComponent<AutoLocalizeTextUI>();
         buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
-        var buttonChildRT = (RectTransform)buttonChild.transform;
+        var buttonChildRT = buttonChild.RectTransform;
         buttonChildRT.sizeDelta = buttonChildRT.sizeDelta with { x = 0 };
 
         // Add a (centered) description to the menu button
@@ -156,7 +156,7 @@ internal class MenuPrefabs
         sliderTemplate.SetActive(false);
         sliderTemplate.name = "SliderContainer";
         Object.DontDestroyOnLoad(sliderTemplate);
-        ((RectTransform)sliderTemplate.transform).sizeDelta = Vector2.zero;
+        sliderTemplate.RectTransform.sizeDelta = Vector2.zero;
 
         var sliderChild = sliderTemplate.FindChild("MasterSlider")!;
         sliderChild.name = "Slider";
