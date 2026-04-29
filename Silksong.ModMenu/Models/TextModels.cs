@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
 
@@ -18,34 +19,62 @@ public static class TextModels
         new(DefaultUnparse<string>, DefaultUnparse<string>);
 
     /// <summary>
-    /// An ITextModel which parses its input into an integer.
+    /// An ITextModel which parses its input into into <typeparamref name="T"/> values clamped between a min and max.
     /// </summary>
-    public static ParserTextModel<int> ForIntegers() => new(int.TryParse, DefaultUnparse<int>);
-
-    /// <summary>
-    /// An ITextModel which parses its input into an integer clamped between a min and max.
-    /// </summary>
-    public static ParserTextModel<int> ForIntegers(int min, int max)
+    /// <remarks>
+    /// Only works with numeric value types such as <see langword="int"/>, <see langword="float"/>, etc.
+    /// </remarks>
+    public static ParserTextModel<T> ForNumbers<T>(T min, T max)
+        where T : struct, IComparable<T>
     {
-        var model = ForIntegers();
+        var model = ForNumbers<T>();
         model.ConstraintFn = RangeConstraint(min, max);
         return model;
     }
 
     /// <summary>
-    /// An ITextModel which parses its input into a float.
+    /// An ITextModel which parses its input into <typeparamref name="T"/> values.
     /// </summary>
-    public static ParserTextModel<float> ForFloats() => new(float.TryParse, DefaultUnparse<float>);
-
-    /// <summary>
-    /// An ITextModel which parses its input into a float clamped between a min and max.
-    /// </summary>
-    public static ParserTextModel<float> ForFloats(float min, float max)
+    /// <remarks>
+    /// Only works with numeric value types such as <see langword="int"/>, <see langword="float"/>, etc.
+    /// </remarks>
+    public static ParserTextModel<T> ForNumbers<T>()
+        where T : struct, IComparable<T>
     {
-        var model = ForFloats();
-        model.ConstraintFn = RangeConstraint(min, max);
-        return model;
+        if (!numericParsers.TryGetValue(typeof(T), out var parser))
+            throw new ArgumentException($"{typeof(T)} is not a numeric value type.");
+
+        return new((ParserTextModel<T>.Parse)parser.Value, DefaultUnparse);
     }
+
+    private static readonly Dictionary<Type, Lazy<Delegate>> numericParsers = new Type[]
+    {
+        typeof(byte),
+        typeof(sbyte),
+        typeof(short),
+        typeof(ushort),
+        typeof(int),
+        typeof(uint),
+        typeof(long),
+        typeof(ulong),
+        typeof(float),
+        typeof(double),
+        typeof(decimal),
+    }.ToDictionary(
+        k => k,
+        v => new Lazy<Delegate>(() =>
+            v.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .First(m =>
+                {
+                    var args = m.GetParameters();
+                    return m.Name == "TryParse"
+                        && args.Length == 2
+                        && args[0].ParameterType == typeof(string)
+                        && args[1].IsOut;
+                })
+                .CreateDelegate(typeof(ParserTextModel<>.Parse).MakeGenericType(v))
+        )
+    );
 
     private static bool DefaultUnparse<T>(T value, out string text)
     {

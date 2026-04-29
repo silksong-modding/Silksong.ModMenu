@@ -33,8 +33,7 @@ public class ConfigEntryFactory
         GenerateEnumChoiceElement,
         GenerateAcceptableValuesChoiceElement,
         GenerateBoolElement,
-        GenerateIntElement,
-        GenerateFloatElement,
+        GenerateNumberElement,
         GenerateStringElement,
         GenerateColorElement,
     ];
@@ -354,57 +353,151 @@ public class ConfigEntryFactory
     }
 
     /// <summary>
-    /// Generates a menu element for a config setting with a free or ranged int value.
+    /// Generates a menu element for a config setting with a free or ranged numeric value.
     /// </summary>
-    public static bool GenerateIntElement(
+    public static bool GenerateNumberElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
     )
     {
-        if (entry is not ConfigEntry<int> intEntry)
+        switch (entry)
         {
-            menuElement = default;
-            return false;
+            case ConfigEntry<byte> byteEntry:
+                TextInput<byte> byteText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<byte> byteRange)
+                        ? TextModels.ForNumbers(byteRange.MinValue, byteRange.MaxValue)
+                        : TextModels.ForNumbers<byte>(),
+                    entry.DescriptionLine()
+                );
+                byteText.SynchronizeWith(byteEntry);
+                menuElement = byteText;
+                return true;
+
+            case ConfigEntry<sbyte> sbyteEntry:
+                TextInput<sbyte> sbyteText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<sbyte> sbyteRange)
+                        ? TextModels.ForNumbers(sbyteRange.MinValue, sbyteRange.MaxValue)
+                        : TextModels.ForNumbers<sbyte>(),
+                    entry.DescriptionLine()
+                );
+                sbyteText.SynchronizeWith(sbyteEntry);
+                menuElement = sbyteText;
+                return true;
+
+            case ConfigEntry<short> shortEntry:
+                TextInput<short> shortText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<short> shortRange)
+                        ? TextModels.ForNumbers(shortRange.MinValue, shortRange.MaxValue)
+                        : TextModels.ForNumbers<short>(),
+                    entry.DescriptionLine()
+                );
+                shortText.SynchronizeWith(shortEntry);
+                menuElement = shortText;
+                return true;
+
+            case ConfigEntry<ushort> ushortEntry:
+                TextInput<ushort> ushortText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<ushort> ushortRange)
+                        ? TextModels.ForNumbers(ushortRange.MinValue, ushortRange.MaxValue)
+                        : TextModels.ForNumbers<ushort>(),
+                    entry.DescriptionLine()
+                );
+                ushortText.SynchronizeWith(ushortEntry);
+                menuElement = ushortText;
+                return true;
+
+            case ConfigEntry<int> intEntry:
+                TextInput<int> intText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<int> intRange)
+                        ? TextModels.ForNumbers(intRange.MinValue, intRange.MaxValue)
+                        : TextModels.ForNumbers<int>(),
+                    entry.DescriptionLine()
+                );
+                intText.SynchronizeWith(intEntry);
+                menuElement = intText;
+                return true;
+
+            case ConfigEntry<uint> uintEntry:
+                TextInput<uint> uintText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<uint> uintRange)
+                        ? TextModels.ForNumbers(uintRange.MinValue, uintRange.MaxValue)
+                        : TextModels.ForNumbers<uint>(),
+                    entry.DescriptionLine()
+                );
+                uintText.SynchronizeWith(uintEntry);
+                menuElement = uintText;
+                return true;
+
+            case ConfigEntry<long> longEntry:
+                TextInput<long> longText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<long> longRange)
+                        ? TextModels.ForNumbers(longRange.MinValue, longRange.MaxValue)
+                        : TextModels.ForNumbers<long>(),
+                    entry.DescriptionLine()
+                );
+                longText.SynchronizeWith(longEntry);
+                menuElement = longText;
+                return true;
+
+            case ConfigEntry<ulong> ulongEntry:
+                TextInput<ulong> ulongText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<ulong> ulongRange)
+                        ? TextModels.ForNumbers(ulongRange.MinValue, ulongRange.MaxValue)
+                        : TextModels.ForNumbers<ulong>(),
+                    entry.DescriptionLine()
+                );
+                ulongText.SynchronizeWith(ulongEntry);
+                menuElement = ulongText;
+                return true;
+
+            case ConfigEntry<float> floatEntry:
+                TextInput<float> floatText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<float> floatRange)
+                        ? TextModels.ForNumbers(floatRange.MinValue, floatRange.MaxValue)
+                        : TextModels.ForNumbers<float>(),
+                    entry.DescriptionLine()
+                );
+                floatText.SynchronizeWith(floatEntry);
+                menuElement = floatText;
+                return true;
+
+            case ConfigEntry<double> doubleEntry:
+                TextInput<double> doubleText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<double> doubleRange)
+                        ? TextModels.ForNumbers(doubleRange.MinValue, doubleRange.MaxValue)
+                        : TextModels.ForNumbers<double>(),
+                    entry.DescriptionLine()
+                );
+                doubleText.SynchronizeWith(doubleEntry);
+                menuElement = doubleText;
+                return true;
+
+            case ConfigEntry<decimal> decimalEntry:
+                TextInput<decimal> decimalText = new(
+                    entry.LabelName(),
+                    (entry.Description.AcceptableValues is AcceptableValueRange<decimal> decRange)
+                        ? TextModels.ForNumbers(decRange.MinValue, decRange.MaxValue)
+                        : TextModels.ForNumbers<decimal>(),
+                    entry.DescriptionLine()
+                );
+                decimalText.SynchronizeWith(decimalEntry);
+                menuElement = decimalText;
+                return true;
+
+            default:
+                menuElement = default;
+                return false;
         }
-
-        var acceptableValues = entry.Description.AcceptableValues;
-        var model =
-            (acceptableValues is AcceptableValueRange<int> range)
-                ? TextModels.ForIntegers(range.MinValue, range.MaxValue)
-                : TextModels.ForIntegers();
-
-        TextInput<int> text = new(entry.LabelName(), model, entry.DescriptionLine());
-        text.SynchronizeWith(intEntry);
-
-        menuElement = text;
-        return true;
-    }
-
-    /// <summary>
-    /// Generates a menu element for a config setting with a free or ranged float value.
-    /// </summary>
-    public static bool GenerateFloatElement(
-        ConfigEntryBase entry,
-        [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<float> floatEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        var acceptableValues = entry.Description.AcceptableValues;
-        var model =
-            (acceptableValues is AcceptableValueRange<float> range)
-                ? TextModels.ForFloats(range.MinValue, range.MaxValue)
-                : TextModels.ForFloats();
-
-        TextInput<float> text = new(entry.LabelName(), model, entry.DescriptionLine());
-        text.SynchronizeWith(floatEntry);
-
-        menuElement = text;
-        return true;
     }
 
     /// <summary>
