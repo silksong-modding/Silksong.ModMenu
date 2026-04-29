@@ -18,33 +18,99 @@ public static class TextModels
         new(DefaultUnparse<string>, DefaultUnparse<string>);
 
     /// <summary>
-    /// An ITextModel which parses its input into an integer.
+    /// An ITextModel which parses its input into into <typeparamref name="T"/> values clamped between a min and max.
     /// </summary>
-    public static ParserTextModel<int> ForIntegers() => new(int.TryParse, DefaultUnparse<int>);
-
-    /// <summary>
-    /// An ITextModel which parses its input into an integer clamped between a min and max.
-    /// </summary>
-    public static ParserTextModel<int> ForIntegers(int min, int max)
+    /// <remarks>
+    /// Only works with numeric value types such as <see langword="int"/>, <see langword="float"/>, etc.
+    /// </remarks>
+    public static ParserTextModel<T> ForNumbers<T>(T min, T max)
+        where T : struct, IComparable<T>
     {
-        var model = ForIntegers();
+        var model = ForNumbers<T>();
         model.ConstraintFn = RangeConstraint(min, max);
         return model;
     }
 
     /// <summary>
-    /// An ITextModel which parses its input into a float.
+    /// An ITextModel which parses its input into <typeparamref name="T"/> values.
     /// </summary>
-    public static ParserTextModel<float> ForFloats() => new(float.TryParse, DefaultUnparse<float>);
-
-    /// <summary>
-    /// An ITextModel which parses its input into a float clamped between a min and max.
-    /// </summary>
-    public static ParserTextModel<float> ForFloats(float min, float max)
+    /// <remarks>
+    /// Only works with numeric value types such as <see langword="int"/>, <see langword="float"/>, etc.
+    /// </remarks>
+    public static ParserTextModel<T> ForNumbers<T>()
+        where T : struct, IComparable<T>
     {
-        var model = ForFloats();
-        model.ConstraintFn = RangeConstraint(min, max);
-        return model;
+        ParserTextModel<T>.Parse parser = default(T) switch
+        {
+            byte => static (text, out value) =>
+            {
+                bool res = byte.TryParse(text, out byte parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            sbyte => static (text, out value) =>
+            {
+                bool res = sbyte.TryParse(text, out sbyte parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            short => static (text, out value) =>
+            {
+                bool res = short.TryParse(text, out short parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            ushort => static (text, out value) =>
+            {
+                bool res = ushort.TryParse(text, out ushort parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            int => static (text, out value) =>
+            {
+                bool res = int.TryParse(text, out int parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            uint => static (text, out value) =>
+            {
+                bool res = uint.TryParse(text, out uint parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            long => static (text, out value) =>
+            {
+                bool res = long.TryParse(text, out long parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            ulong => static (text, out value) =>
+            {
+                bool res = ulong.TryParse(text, out ulong parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            float => static (text, out value) =>
+            {
+                bool res = float.TryParse(text, out float parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            double => static (text, out value) =>
+            {
+                bool res = double.TryParse(text, out double parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            decimal => static (text, out value) =>
+            {
+                bool res = decimal.TryParse(text, out decimal parsed);
+                value = (T)(object)parsed;
+                return res;
+            },
+            _ => throw new ArgumentException($"{typeof(T)} is not a numeric value type."),
+        };
+        return new(parser, DefaultUnparse);
     }
 
     private static bool DefaultUnparse<T>(T value, out string text)
