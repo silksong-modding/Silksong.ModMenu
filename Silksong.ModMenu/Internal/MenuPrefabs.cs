@@ -369,7 +369,7 @@ internal class MenuPrefabs
 
         #endregion
 
-        var scrollRect = scrollPane.AddComponent<ScrollRect>();
+        var scrollRect = scrollPane.AddComponent<CustomScrollRect>();
         scrollRect.horizontal = false;
         scrollRect.vertical = true;
         scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
