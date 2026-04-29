@@ -41,20 +41,13 @@ public static class TextModels
     public static ParserTextModel<T> ForNumbers<T>()
         where T : struct, IComparable<T>
     {
-        if (!numericTryParses.TryGetValue(typeof(T), out var tryParse))
+        if (!numericParsers.TryGetValue(typeof(T), out var parser))
             throw new ArgumentException($"{typeof(T)} is not a numeric value type.");
 
-        if (!numericModelParsers.TryGetValue(typeof(T), out var parser))
-            numericModelParsers[typeof(T)] = parser = tryParse.Value.CreateDelegate(
-                typeof(ParserTextModel<T>.Parse)
-            );
-
-        return new((ParserTextModel<T>.Parse)parser, DefaultUnparse);
+        return new((ParserTextModel<T>.Parse)parser.Value, DefaultUnparse);
     }
 
-    private static readonly Dictionary<Type, Delegate> numericModelParsers = [];
-
-    private static readonly Dictionary<Type, Lazy<MethodInfo>> numericTryParses = new Type[]
+    private static readonly Dictionary<Type, Lazy<Delegate>> numericParsers = new Type[]
     {
         typeof(byte),
         typeof(sbyte),
@@ -69,7 +62,7 @@ public static class TextModels
         typeof(decimal),
     }.ToDictionary(
         k => k,
-        v => new Lazy<MethodInfo>(() =>
+        v => new Lazy<Delegate>(() =>
             v.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .First(m =>
                 {
@@ -79,6 +72,7 @@ public static class TextModels
                         && args[0].ParameterType == typeof(string)
                         && args[1].IsOut;
                 })
+                .CreateDelegate(typeof(ParserTextModel<>.Parse).MakeGenericType(v))
         )
     );
 
