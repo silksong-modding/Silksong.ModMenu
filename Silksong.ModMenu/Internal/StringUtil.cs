@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Silksong.ModMenu.Internal;
 
@@ -50,4 +51,7 @@ internal static class StringUtil
 
         return sb.ToString();
     }
+
+    internal static bool TryParseHex(this string self, out byte n) =>
+        byte.TryParse(self, NumberStyles.HexNumber, null, out n);
 }
