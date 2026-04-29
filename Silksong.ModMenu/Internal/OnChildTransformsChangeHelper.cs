@@ -34,7 +34,7 @@ internal class OnChildTransformsChangeHelper : UIBehaviour
             var childRT = (RectTransform)child;
             if (
                 childPositions.TryGetValue(child, out var oldPos)
-                && !ApproximatelyEqual(oldPos, childRT.anchoredPosition)
+                && !Vector2.Approximately(oldPos, childRT.anchoredPosition)
             )
             {
                 doInvoke = true;
@@ -43,8 +43,5 @@ internal class OnChildTransformsChangeHelper : UIBehaviour
         }
         if (doInvoke)
             OnChildrenChanged?.Invoke();
-
-        static bool ApproximatelyEqual(Vector2 one, Vector2 two) =>
-            Mathf.Approximately(one.x, two.x) && Mathf.Approximately(one.y, two.y);
     }
 }

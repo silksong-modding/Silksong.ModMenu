@@ -73,6 +73,7 @@ internal class MenuPrefabs
         textLabelTemplate.name = "TextLabel";
         textLabelTemplate.GetComponent<Text>().raycastTarget = false;
         Object.DontDestroyOnLoad(textLabelTemplate);
+        textLabelTemplate.RectTransform.sizeDelta = new Vector2(0, 105);
 
         textChoiceTemplate = Object.Instantiate(
             canvas.FindChild("GameOptionsMenuScreen/Content/CamShakeSetting")!
@@ -99,6 +100,7 @@ internal class MenuPrefabs
         textButtonTemplate.SetActive(false);
         textButtonTemplate.name = "TextButtonContainer";
         Object.DontDestroyOnLoad(textButtonTemplate);
+        textButtonTemplate.RectTransform.sizeDelta = Vector2.zero;
 
         var buttonChild = textButtonTemplate.FindChild("GameOptionsButton")!;
         buttonChild.name = "TextButton";
@@ -106,6 +108,8 @@ internal class MenuPrefabs
         // so it won't be removed by the LocalizedTextExtensions
         buttonChild.RemoveComponent<AutoLocalizeTextUI>();
         buttonChild.FindChild("Menu Button Text")!.RemoveComponent<ChangeTextFontScaleOnHandHeld>();
+        var buttonChildRT = buttonChild.RectTransform;
+        buttonChildRT.sizeDelta = buttonChildRT.sizeDelta with { x = 0 };
 
         // Add a (centered) description to the menu button
         GameObject clonedDescription = Object.Instantiate(choiceChild.FindChild("Description")!);
@@ -152,6 +156,7 @@ internal class MenuPrefabs
         sliderTemplate.SetActive(false);
         sliderTemplate.name = "SliderContainer";
         Object.DontDestroyOnLoad(sliderTemplate);
+        sliderTemplate.RectTransform.sizeDelta = Vector2.zero;
 
         var sliderChild = sliderTemplate.FindChild("MasterSlider")!;
         sliderChild.name = "Slider";
@@ -273,7 +278,7 @@ internal class MenuPrefabs
         var obj = Object.Instantiate(scrollPaneTemplate);
         scrollRect = obj.GetComponent<ScrollRect>();
         focusController = obj.GetComponent<ScrollFocusController>();
-        contentPane = obj.FindChild("Content")!;
+        contentPane = obj.FindChild("Viewport/Content")!;
         return obj;
     }
 
@@ -289,33 +294,41 @@ internal class MenuPrefabs
         var scrollPane = new GameObject("ScrollPane") { layer = (int)PhysLayers.UI };
         scrollPane.SetActive(false);
         Object.DontDestroyOnLoad(scrollPane);
-        scrollPane.AddComponent<Image>().color = Color.clear; // necessary for the RectMask2D
-        scrollPane.AddComponent<RectMask2D>();
-        var scrollPaneRT = (RectTransform)scrollPane.transform;
-        scrollPaneRT.sizeDelta = new Vector2(1570, 876f);
+        var scrollPaneRT = scrollPane.AddComponent<RectTransform>();
+        scrollPaneRT.sizeDelta = new Vector2(
+            1510,
+            Mathf.Ceil(SpacingConstants.VSPACE_MEDIUM * 8.334f)
+        );
         scrollPaneRT.pivot = new Vector2(0.5f, 1);
 
+        var viewport = new GameObject("Viewport") { layer = (int)PhysLayers.UI };
+        viewport.transform.SetParentReset(scrollPane.transform);
+        viewport.AddComponent<Image>().color = Color.clear; // necessary for the RectMask2D
+        viewport.AddComponent<RectMask2D>();
+        var viewportRT = viewport.RectTransform;
+        viewportRT.FitToParent();
+
         var content = new GameObject("Content") { layer = (int)PhysLayers.UI };
-        content.transform.SetParentReset(scrollPane.transform);
-        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform
-        var contentRT = (RectTransform)content.transform;
+        content.transform.SetParentReset(viewport.transform);
+        content.AddComponent<Image>().color = Color.clear; // ensures it has a RectTransform, used for visualization in some tests
+        var contentRT = content.RectTransform;
         contentRT.anchorMax = contentRT.anchorMin = contentRT.pivot = new Vector2(0.5f, 1);
 
         #endregion
-        #region "Scrollbar"
+        #region Vertical "Scrollbar"
 
-        var scrollbar = Object.Instantiate(
+        var vScrollbar = Object.Instantiate(
             uiManager.achievementsMenuScreen.gameObject.FindChild("Content/Scrollbar")!,
             scrollPaneRT,
             false
         );
-        scrollbar.name = "Scrollbar";
+        vScrollbar.name = "Scrollbar V";
 
-        ((RectTransform)scrollbar.transform.Find("Background")).FitToParentVertical();
+        vScrollbar.FindChild("Background")!.RectTransform.FitToParentVertical();
 
-        var scrollbarRT = (RectTransform)scrollbar.transform;
-        var slideAreaRT = (RectTransform)scrollbarRT.Find("Sliding Area");
-        var handleRT = (RectTransform)slideAreaRT.Find("Handle/TopFleur");
+        var vScrollbarRT = vScrollbar.RectTransform;
+        var slideAreaRT = vScrollbar.FindChild("Sliding Area")!.RectTransform;
+        var handleRT = vScrollbar.FindChild("Sliding Area/Handle/TopFleur")!.RectTransform;
 
         slideAreaRT.FitToParent();
         slideAreaRT.sizeDelta = new Vector2(0, -150);
@@ -328,27 +341,49 @@ internal class MenuPrefabs
         Object.DestroyImmediate(slideAreaRT.Find("Handle").gameObject);
         handleRT.gameObject.name = "Handle";
 
-        scrollbarRT.sizeDelta = new Vector2(50, 0);
-        scrollbarRT.FitToParentVertical(anchorX: 1);
-        scrollbarRT.anchoredPosition3D = scrollbarRT.anchoredPosition3D with { z = -1 };
-        Object.DestroyImmediate(scrollbar.GetComponent<Scrollbar>());
-        var scrollSlider = scrollbar.AddComponent<Slider>();
-        scrollSlider.handleRect = handleRT;
-        scrollSlider.direction = Slider.Direction.BottomToTop;
-        scrollSlider.maxValue = 1;
-        scrollSlider.minValue = 0;
+        vScrollbarRT.sizeDelta = new Vector2(50, 0);
+        vScrollbarRT.FitToParentVertical(anchorX: 1);
+        vScrollbarRT.anchoredPosition3D = vScrollbarRT.anchoredPosition3D with { z = -1 };
+        vScrollbarRT.pivot = new Vector2(0, 0.5f);
+        Object.DestroyImmediate(vScrollbar.GetComponent<Scrollbar>());
+        var vScrollSlider = vScrollbar.AddComponent<Slider>();
+        vScrollSlider.handleRect = handleRT;
+        vScrollSlider.direction = Slider.Direction.BottomToTop;
+        vScrollSlider.maxValue = 1;
+        vScrollSlider.minValue = 0;
+        vScrollSlider.value = 1;
+
+        #endregion
+        #region Horizontal "Scrollbar"
+
+        var hScrollbar = Object.Instantiate(vScrollbar, scrollPane.transform, false);
+        hScrollbar.name = "Scrollbar H";
+        var hScrollbarRT = hScrollbar.RectTransform;
+        hScrollbarRT.anchorMin = hScrollbarRT.anchorMax = new Vector2(0.5f, 0);
+        hScrollbarRT.pivot = new Vector2(1, 0.5f);
+        hScrollbar.AddComponent<RotatedParentSizeFitter>().fitToWidth = true;
+
+        var hScrollSlider = hScrollbar.GetComponent<Slider>();
+        hScrollSlider.direction = Slider.Direction.TopToBottom;
+        hScrollSlider.value = 0.5f;
 
         #endregion
 
-        var scrollRect = scrollPane.AddComponent<ScrollRect>();
+        var scrollRect = scrollPane.AddComponent<CustomScrollRect>();
         scrollRect.horizontal = false;
         scrollRect.vertical = true;
         scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+        scrollRect.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
         scrollRect.scrollSensitivity = 80;
-        scrollRect.viewport = scrollPaneRT;
+        scrollRect.viewport = viewportRT;
         scrollRect.content = contentRT;
-        scrollPane.AddComponent<ScrollSliderController>().VerticalSlider = scrollSlider;
+        scrollRect.normalizedPosition = new Vector2(0.5f, 1);
+
+        var sliderController = scrollPane.AddComponent<ScrollSliderController>();
+        sliderController.VerticalSlider = vScrollSlider;
+        sliderController.HorizontalSlider = hScrollSlider;
+
         scrollPane.AddComponent<ScrollFocusController>();
 
         return scrollPane;

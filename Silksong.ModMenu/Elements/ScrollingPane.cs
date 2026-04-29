@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
 using UnityEngine.UI;
+using UObject = UnityEngine.Object;
 
 namespace Silksong.ModMenu.Elements;
 
 /// <summary>
-/// A vertically scrolling panel that can contain an arbitrary amount of content.
+/// A scrolling panel that can contain an arbitrary amount of content.
 /// </summary>
 public class ScrollingPane : MenuDisposable, INavigableMenuEntity
 {
@@ -19,8 +21,6 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
 
     /// <summary>
     /// The scrolling pane's content.
-    /// This entity cannot be a <see cref="ScrollingPane"/>,
-    /// and cannot contain any <see cref="ScrollingPane"/> children.
     /// </summary>
     public INavigableMenuEntity? Content
     {
@@ -29,12 +29,6 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
         {
             if (field == value)
                 return;
-            if (value?.GetType().IsSubclassOf(typeof(ScrollingPane)) ?? false)
-                throw new System.ArgumentException(
-                    $"A {nameof(ScrollingPane)} cannot have another {nameof(ScrollingPane)} as its direct content entity.",
-                    value.GetType().FullName
-                );
-
             field?.ClearParents();
             field = value;
             field?.SetParents(this, contentPane);
@@ -65,7 +59,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
 
         AddScrollNavHelpers();
 
-        OnDispose += () => Object.Destroy(scrollPane);
+        OnDispose += () => UObject.Destroy(scrollPane);
         Visibility.OnVisibilityChanged += visibleInHierarchy =>
             scrollPane.SetActive(visibleInHierarchy);
 
@@ -77,8 +71,45 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     /// </summary>
     public Vector2 ViewportSize
     {
-        get => scrollRect.viewport.sizeDelta;
-        set => scrollRect.viewport.sizeDelta = value;
+        get => scrollPane.RectTransform.sizeDelta;
+        set => scrollPane.RectTransform.sizeDelta = value;
+    }
+
+    /// <summary>
+    /// Whether this pane scrolls only vertically, only horizontally, or in both axes.
+    /// </summary>
+    public ScrollAxes Axes
+    {
+        get =>
+            (scrollRect.vertical ? ScrollAxes.Vertical : 0)
+            | (scrollRect.horizontal ? ScrollAxes.Horizontal : 0);
+        set
+        {
+            scrollRect.vertical = value.HasFlag(ScrollAxes.Vertical);
+            scrollRect.horizontal = value.HasFlag(ScrollAxes.Horizontal);
+        }
+    }
+
+    /// <summary>
+    /// Semantic states for which axes a <see cref="ScrollingPane"/> can scroll in.
+    /// </summary>
+    [Flags]
+    public enum ScrollAxes
+    {
+        /// <summary>
+        /// Exclusively vertical scrolling.
+        /// </summary>
+        Vertical = 0x01,
+
+        /// <summary>
+        /// Exclusively horizontal scrolling.
+        /// </summary>
+        Horizontal = 0x10,
+
+        /// <summary>
+        /// Scrolling in both the vertical and horizontal axes.
+        /// </summary>
+        Both = Vertical | Horizontal,
     }
 
     /// <summary>
@@ -102,7 +133,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     public void ScrollTo(MenuElement element, bool smooth = false)
     {
         if (element.VisibleInHierarchy)
-            focusController.ScrollTo(element.RectTransform, smooth);
+            focusController.ScrollTo(element.Container.transform, smooth);
     }
 
     /// <summary>
@@ -117,7 +148,7 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     {
         var element = Content?.AllElements().ElementAtOrDefault(index);
         if (element != null && element.VisibleInHierarchy)
-            focusController.ScrollTo(element.RectTransform, smooth);
+            focusController.ScrollTo(element.Container.transform, smooth);
     }
 
     /// <summary>
@@ -137,24 +168,15 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
         if (resizeQueued)
         {
             resizeQueued = false;
-            foreach (Transform child in contentPane.transform)
-            {
-                if (child.GetComponent<ScrollRect>())
-                    throw new System.InvalidOperationException(
-                        $"A {nameof(ScrollingPane)} cannot have other scrolling views nested within it."
-                    );
-            }
 
             var contentRT = (RectTransform)contentPane.transform;
 
             contentRT.sizeDelta = Vector2.zero;
             Content?.UpdateLayout(Vector2.zero);
-            var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(contentRT);
-            Vector2 min = bounds.min,
-                max = bounds.max;
+            var (min, max) = CalculateContentBounds();
 
             contentRT.sizeDelta = max - min;
-            contentAnchor = contentRT.sizeDelta / 2f - max;
+            contentAnchor = contentRT.sizeDelta * 0.5f - max;
             anchorOffset = new Vector2(0, max.y);
         }
 
@@ -191,8 +213,66 @@ public class ScrollingPane : MenuDisposable, INavigableMenuEntity
     private void AddScrollNavHelpers()
     {
         foreach (var element in Content?.AllElements().OfType<SelectableElement>() ?? [])
+        {
             // This component removes itself when the object it's attached to is re-parented
-            element.SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>();
+            element
+                .SelectableComponent.gameObject.AddComponentIfNotPresent<ScrollNavigationHelper>()
+                .container = element.Container.transform;
+        }
+    }
+
+    /// <summary>
+    /// Calculates the cumulative bounds of all children of the content pane in local coordinates,
+    /// skipping over anything that is contained within another ScrollRect.
+    /// </summary>
+    private (Vector2 min, Vector2 max) CalculateContentBounds()
+    {
+        Vector3 min = Vector3.one * float.MaxValue,
+            max = Vector3.one * float.MinValue;
+        Matrix4x4 worldToLocal = contentPane.transform.worldToLocalMatrix;
+
+        foreach (
+            Transform descendant in EnumerateDescendantsConditional(
+                contentPane.transform,
+                shouldSkip: ChildrenOfScrollPanesExceptScrollbars
+            )
+        )
+        {
+            if (descendant is not RectTransform rt || !descendant.gameObject.activeInHierarchy)
+                continue;
+            foreach (Vector3 corner in rt.GetCorners())
+            {
+                Vector3 localCorner = worldToLocal.MultiplyPoint3x4(corner);
+                min = Vector3.Min(localCorner, min);
+                max = Vector3.Max(localCorner, max);
+            }
+        }
+
+        return (min, max);
+
+        static bool ChildrenOfScrollPanesExceptScrollbars(Transform x) =>
+            x.parent.TryGetComponent<ScrollSliderController>(out var sliderCtrl)
+            && (!sliderCtrl.VerticalSlider || x != sliderCtrl.VerticalSlider.transform)
+            && (!sliderCtrl.HorizontalSlider || x != sliderCtrl.HorizontalSlider.transform);
+    }
+
+    /// <summary>
+    /// Enumerates the entire Transform hierarchy, skipping branches when it finds
+    /// a transform for which the given <paramref name="shouldSkip"/> predicate is true.
+    /// </summary>
+    private static IEnumerable<Transform> EnumerateDescendantsConditional(
+        Transform transform,
+        Func<Transform, bool> shouldSkip
+    )
+    {
+        foreach (Transform item in transform)
+        {
+            if (shouldSkip(item))
+                continue;
+            yield return item;
+            foreach (var item2 in EnumerateDescendantsConditional(item, shouldSkip))
+                yield return item2;
+        }
     }
 
     #endregion
