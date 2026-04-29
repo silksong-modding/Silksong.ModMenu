@@ -23,16 +23,17 @@ internal class CustomInputField : InputField
     {
         base.Awake();
         textRect = textComponent.gameObject.GetComponent<RectTransform>();
+        textComponent.alignment = TextAnchor.MiddleRight;
+        textRect.anchorMin = textRect.anchorMin with { x = 1 };
+        textRect.anchorMax = textRect.anchorMax with { x = 1 };
+        textRect.pivot = textRect.pivot with { x = 1 };
+        textRect.anchoredPosition = Vector2.zero;
     }
 
     private void Update()
     {
-        if (textRect == null)
-            return;
-
-        var width = Mathf.Max(200, preferredWidth);
-        textRect.offsetMin = new(-width, 0);
-        textRect.sizeDelta = new(width, 0);
+        if (textRect)
+            textRect.sizeDelta = new(Mathf.Max(200, preferredWidth), 0);
     }
 
     private bool AllSelected() =>

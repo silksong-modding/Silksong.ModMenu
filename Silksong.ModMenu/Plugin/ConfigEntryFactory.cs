@@ -36,6 +36,7 @@ public class ConfigEntryFactory
         GenerateIntElement,
         GenerateFloatElement,
         GenerateStringElement,
+        GenerateColorElement,
     ];
 
     /// <summary>
@@ -164,10 +165,20 @@ public class ConfigEntryFactory
         LocalizedText name,
         BaseUnityPlugin plugin,
         [MaybeNullWhen(false)] out SelectableElement selectableElement
+    ) => GenerateEntryButton(name, plugin.Config, out _, out selectableElement);
+
+    /// <summary>
+    /// Generate a button which opens a sub-menu for this ConfigFile.
+    /// </summary>
+    public virtual bool GenerateEntryButton(
+        LocalizedText name,
+        ConfigFile config,
+        [MaybeNullWhen(false)] out AbstractMenuScreen menuScreen,
+        [MaybeNullWhen(false)] out SelectableElement selectableElement
     )
     {
         TreeNode<LocalizedText, ElementTreeNode> elementsTree = new();
-        foreach (var entry in plugin.Config.OrderBy(e => e.Key.Key))
+        foreach (var entry in config.OrderBy(e => e.Key.Key))
         {
             if (GenerateMenuElement(entry.Value, out var element))
             {
@@ -189,6 +200,7 @@ public class ConfigEntryFactory
         );
         if (elementsTree.Value.TotalElements == 0)
         {
+            menuScreen = default;
             selectableElement = default;
             return false;
         }
@@ -197,7 +209,8 @@ public class ConfigEntryFactory
         List<LocalizedText> subpageNames = [];
         FindFirstNonEmptyChild(ref elementsTree, subpageNames);
 
-        var menu = BuildSubtreeScreen(name, subpageNames, elementsTree);
+        AbstractMenuScreen menu = BuildSubtreeScreen(name, subpageNames, elementsTree);
+        menuScreen = menu;
         selectableElement = new TextButton(name)
         {
             OnSubmit = () => MenuScreenNavigation.Show(menu),
@@ -437,6 +450,33 @@ public class ConfigEntryFactory
         text.SynchronizeWith(stringEntry);
 
         menuElement = text;
+        return true;
+    }
+
+    /// <summary>
+    /// Generate a text element for a color.
+    /// </summary>
+    public static bool GenerateColorElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<Color> colorEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        ColorInput color = new(entry.LabelName(), entry.DescriptionLine())
+        {
+            Format =
+                (entry.Description.AcceptableValues is RGBColorValues)
+                    ? ColorInput.InputFormat.RGB
+                    : ColorInput.InputFormat.RGBA,
+        };
+        color.SynchronizeWith(colorEntry);
+
+        menuElement = color;
         return true;
     }
 

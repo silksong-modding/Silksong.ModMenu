@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Silksong.ModMenu.Elements;
+﻿using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
+using System.Collections.Generic;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -64,6 +62,12 @@ internal class StandardElementsTest : ModMenuTest
             );
             textModel.OnValueChanged += s => Log($"Text model -> {s}");
             yield return stringInput;
+        }
+
+        {
+            ColorInput colorInput = new("Colour RGBA", "You can input a colour here");
+            colorInput.Model.OnValueChanged += c => Log($"Colour model -> {c}");
+            yield return colorInput;
         }
     }
 
