@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
 
@@ -40,78 +41,47 @@ public static class TextModels
     public static ParserTextModel<T> ForNumbers<T>()
         where T : struct, IComparable<T>
     {
-        ParserTextModel<T>.Parse parser = default(T) switch
+        if (!numericTryParses.TryGetValue(typeof(T), out var tryParse))
+            throw new ArgumentException($"{typeof(T)} is not a numeric value type.");
+
+        ParserTextModel<T>.Parse modelParser = (text, out value) =>
         {
-            byte => static (text, out value) =>
-            {
-                bool res = byte.TryParse(text, out byte parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            sbyte => static (text, out value) =>
-            {
-                bool res = sbyte.TryParse(text, out sbyte parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            short => static (text, out value) =>
-            {
-                bool res = short.TryParse(text, out short parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            ushort => static (text, out value) =>
-            {
-                bool res = ushort.TryParse(text, out ushort parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            int => static (text, out value) =>
-            {
-                bool res = int.TryParse(text, out int parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            uint => static (text, out value) =>
-            {
-                bool res = uint.TryParse(text, out uint parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            long => static (text, out value) =>
-            {
-                bool res = long.TryParse(text, out long parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            ulong => static (text, out value) =>
-            {
-                bool res = ulong.TryParse(text, out ulong parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            float => static (text, out value) =>
-            {
-                bool res = float.TryParse(text, out float parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            double => static (text, out value) =>
-            {
-                bool res = double.TryParse(text, out double parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            decimal => static (text, out value) =>
-            {
-                bool res = decimal.TryParse(text, out decimal parsed);
-                value = (T)(object)parsed;
-                return res;
-            },
-            _ => throw new ArgumentException($"{typeof(T)} is not a numeric value type."),
+            object[] args = [text, default(T)];
+            bool result = (bool)tryParse.Value.Invoke(null, args);
+            value = (T)args[1];
+            return result;
         };
-        return new(parser, DefaultUnparse);
+
+        return new(modelParser, DefaultUnparse);
     }
+
+    private static readonly Dictionary<Type, Lazy<MethodInfo>> numericTryParses = new Type[]
+    {
+        typeof(byte),
+        typeof(sbyte),
+        typeof(short),
+        typeof(ushort),
+        typeof(int),
+        typeof(uint),
+        typeof(long),
+        typeof(ulong),
+        typeof(float),
+        typeof(double),
+        typeof(decimal),
+    }.ToDictionary(
+        k => k,
+        v => new Lazy<MethodInfo>(() =>
+            v.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .First(m =>
+                {
+                    var args = m.GetParameters();
+                    return m.Name == "TryParse"
+                        && args.Length == 2
+                        && args[0].ParameterType == typeof(string)
+                        && args[1].IsOut;
+                })
+        )
+    );
 
     private static bool DefaultUnparse<T>(T value, out string text)
     {
