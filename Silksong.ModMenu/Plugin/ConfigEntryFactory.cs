@@ -446,7 +446,13 @@ public class ConfigEntryFactory
             return false;
         }
 
-        ColorInput color = new(entry.LabelName(), entry.DescriptionLine());
+        ColorInput color = new(entry.LabelName(), entry.DescriptionLine())
+        {
+            Format =
+                (entry.Description.AcceptableValues is RGBColorValues)
+                    ? ColorInput.InputFormat.RGB
+                    : ColorInput.InputFormat.RGBA,
+        };
         color.SynchronizeWith(colorEntry);
 
         menuElement = color;
