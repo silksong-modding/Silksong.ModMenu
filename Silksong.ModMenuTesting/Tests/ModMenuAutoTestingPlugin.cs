@@ -5,7 +5,7 @@ namespace Silksong.ModMenuTesting;
 
 internal class ModMenuAutoTestingPlugin() : BaseProxyPluginTest("org.silksong_modding.modmenuautotesting")
 {
-    internal override string Name => "ModMenuAutoTesting";
+    internal override string Name => "Mod Menu Auto Testing";
 
     public enum TestEnum { EnumOne, EnumTwo, EnumThree }
 
