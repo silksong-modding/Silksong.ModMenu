@@ -173,7 +173,7 @@ internal class MenuPrefabs
             swatchRT.sizeDelta = Vector2.one * 70;
             swatchRT.anchorMax = swatchRT.anchorMin = new Vector2(0, 0.5f);
             swatchRT.pivot = new Vector2(1, 0.5f);
-            swatchRT.anchoredPosition = new Vector2(-35, 0);
+            swatchRT.anchoredPosition = new Vector2(-0.5f * swatchRT.sizeDelta.x, 0);
 
             Transform journalIcon = GameCameras.instance.hudCamera.transform.Find(
                 "In-game/Inventory/Journal/Enemy List Parent/Enemy List/Template Journal Entry"

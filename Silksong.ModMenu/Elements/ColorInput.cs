@@ -12,10 +12,16 @@ namespace Silksong.ModMenu.Elements;
 public class ColorInput : TextInput<Color>
 {
     /// <summary>
+    /// The relative size of the Swatch to the choice text when the input was first created.
+    /// Used to automatically resize the Swatch when <see cref="SetFontSizes"/> is called.
+    /// </summary>
+    private readonly float swatchSizeMultiplier;
+
+    /// <summary>
     /// Construct a color input with no description.
     /// </summary>
     public ColorInput(LocalizedText label)
-        : this(label, (LocalizedText)"") { }
+        : this(label, "") { }
 
     /// <summary>
     /// Construct a color input with a description.
@@ -35,6 +41,8 @@ public class ColorInput : TextInput<Color>
         SwatchFill = Swatch.Find("Fill").GetComponent<Image>();
         SwatchOutline = Swatch.Find("Outline").GetComponent<Image>();
         InvalidValueIndicator = Swatch.Find("Invalid Indicator").GetComponent<Text>();
+
+        swatchSizeMultiplier = Swatch.rect.height / InputField.textComponent.preferredHeight;
 
         OnTextValueChanged += _ =>
         {
@@ -100,6 +108,18 @@ public class ColorInput : TextInput<Color>
     /// to visually indicate an invalid value.
     /// </summary>
     public readonly Text InvalidValueIndicator;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// This will also adjust the size and position of the <see cref="Swatch"/>.
+    /// </remarks>
+    public override void SetFontSizes(FontSizes fontSizes)
+    {
+        base.SetFontSizes(fontSizes);
+        float size = InputField.textComponent.preferredHeight * swatchSizeMultiplier;
+        Swatch.sizeDelta = Vector2.one * size;
+        Swatch.anchoredPosition = Swatch.anchoredPosition with { x = -0.5f * size };
+    }
 
     /// <summary>
     /// <see cref="InputField"/> validation for hex codes; only accepts characters a-fA-F0-7.
