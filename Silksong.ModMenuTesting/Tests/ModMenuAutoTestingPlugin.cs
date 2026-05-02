@@ -3,11 +3,17 @@ using UnityEngine;
 
 namespace Silksong.ModMenuTesting;
 
-internal class ModMenuAutoTestingPlugin() : BaseProxyPluginTest("org.silksong_modding.modmenuautotesting")
+internal class ModMenuAutoTestingPlugin()
+    : BaseProxyPluginTest("org.silksong_modding.modmenuautotesting")
 {
     internal override string Name => "Mod Menu Auto Testing";
 
-    public enum TestEnum { EnumOne, EnumTwo, EnumThree }
+    public enum TestEnum
+    {
+        EnumOne,
+        EnumTwo,
+        EnumThree,
+    }
 
     protected override void Setup(ConfigFile config)
     {
@@ -17,7 +23,6 @@ internal class ModMenuAutoTestingPlugin() : BaseProxyPluginTest("org.silksong_mo
         config.Bind("Unity Types", "Vector3 Option", Vector3.one); // not done
         config.Bind("Unity Types", "Vector4 Option", Vector4.one); // not done
         config.Bind("Unity Types", "Quaternion Option", Quaternion.identity); // not done
-
 
         config.Bind("Value Types", "String Option", "value");
         config.Bind("Value Types", "Enum Option", TestEnum.EnumOne);

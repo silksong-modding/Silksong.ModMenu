@@ -3,7 +3,8 @@ using Silksong.ModMenu.Plugin;
 
 namespace Silksong.ModMenuTesting;
 
-internal class ModMenuNestedTestingPlugin() : BaseProxyPluginTest("org.silksong_modding.modmenunestedtesting")
+internal class ModMenuNestedTestingPlugin()
+    : BaseProxyPluginTest("org.silksong_modding.modmenunestedtesting")
 {
     protected override void Setup(ConfigFile config)
     {
