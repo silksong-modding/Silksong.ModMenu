@@ -336,7 +336,7 @@ internal record MenuProperty(
         return $$"""
 public {{type}} {{Name}}
     {
-        get;
+        get => field;
         set
         {
             if (field == value) return;
