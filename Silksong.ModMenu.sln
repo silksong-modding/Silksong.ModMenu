@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuTesting", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuAnalyzers", "Silksong.ModMenuAnalyzers\Silksong.ModMenuAnalyzers.csproj", "{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuAnalyzerTest", "Silksong.ModMenuAnalyzerTest\Silksong.ModMenuAnalyzerTest.csproj", "{98281207-B809-457B-9F38-D11CE7E9FD77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

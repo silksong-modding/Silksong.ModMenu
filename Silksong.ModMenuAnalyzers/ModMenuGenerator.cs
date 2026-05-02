@@ -20,6 +20,7 @@ public class ModMenuGenerator : IIncrementalGenerator
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        // TODO: Collect MenuProperties directly instead of the entire class syntax, for better incrementality. Requires making MenuProperties cacheable.
         var symbols = context
             .SyntaxProvider.ForAttributeWithMetadataName(
                 "Silksong.ModMenu.Generator.GenerateMenuAttribute",

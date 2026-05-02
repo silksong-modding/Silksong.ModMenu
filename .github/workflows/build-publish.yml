@@ -41,6 +41,8 @@ jobs:
         dotnet-version: 9.x
     - name: Build
       run: dotnet build -c Release --verbosity normal
+    - name: Test
+      run: dotnet test -c Release --verbosity normal
     - name: Pack
       run: dotnet pack -o nuget/
     - name: Get Version
