@@ -1,7 +1,7 @@
-﻿using Silksong.ModMenu.Elements;
+﻿using System.Collections.Generic;
+using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
-using System.Collections.Generic;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -10,7 +10,8 @@ internal class ScrollingMenuTest : ModMenuTest
     // for finding the screen in UnityExplorer during testing
     static ScrollingMenuScreen? screen;
 
-    private enum Spacing {
+    private enum Spacing
+    {
         Small,
         Medium,
         Large,
@@ -20,8 +21,9 @@ internal class ScrollingMenuTest : ModMenuTest
 
     internal override AbstractMenuScreen BuildMenuScreen()
     {
-        screen = new ScrollingMenuScreen("Scrolling Menu Test") {
-            SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget
+        screen = new ScrollingMenuScreen("Scrolling Menu Test")
+        {
+            SelectOnShowBehaviour = SelectOnShowBehaviour.NeverForget,
         };
 
         // Despite this setting, we should not see the horizontal scrollbar,
@@ -42,13 +44,20 @@ internal class ScrollingMenuTest : ModMenuTest
         Stack<ChoiceElement<bool>> addedOptions = [];
 
         var elementAdder = new SliderElement<int>("Extra Elements", SliderModels.ForInts(0, 20));
-        elementAdder.Model.OnValueChanged += value => {
-            while (addedOptions.Count < value) {
-                var elt = new ChoiceElement<bool>($"Extra {addedOptions.Count + 1}", ChoiceModels.ForBool(), "description");
+        elementAdder.Model.OnValueChanged += value =>
+        {
+            while (addedOptions.Count < value)
+            {
+                var elt = new ChoiceElement<bool>(
+                    $"Extra {addedOptions.Count + 1}",
+                    ChoiceModels.ForBool(),
+                    "description"
+                );
                 screen.Add(elt);
                 addedOptions.Push(elt);
             }
-            while (addedOptions.Count > value) {
+            while (addedOptions.Count > value)
+            {
                 var elt = addedOptions.Pop();
                 screen.Content.Remove(elt);
                 elt.Dispose();
@@ -60,14 +69,21 @@ internal class ScrollingMenuTest : ModMenuTest
         screen.Add(new TextLabel("Label"));
         screen.Add(new TextButton("Button"));
         screen.Add(new KeyBindElement("KeyBind"));
-        screen.Add(new DynamicDescriptionChoiceElement<bool>("DynamicChoice", ChoiceModels.ForBool(), "desc left", "desc right"));
+        screen.Add(
+            new DynamicDescriptionChoiceElement<bool>(
+                "DynamicChoice",
+                ChoiceModels.ForBool(),
+                "desc left",
+                "desc right"
+            )
+        );
 
         var textinput = new TextInput<string>("Input", TextModels.ForStrings());
         textinput.Model.Value = "placeholder";
         screen.Add(textinput);
 
         elementAdder.Model.SetValue(5);
-        
+
         return screen;
     }
 }

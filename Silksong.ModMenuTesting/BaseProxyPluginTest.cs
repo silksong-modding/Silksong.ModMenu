@@ -1,8 +1,8 @@
-﻿using BepInEx.Configuration;
+﻿using System;
+using System.IO;
+using BepInEx.Configuration;
 using Silksong.ModMenu.Plugin;
 using Silksong.ModMenu.Screens;
-using System;
-using System.IO;
 
 namespace Silksong.ModMenuTesting;
 
@@ -13,10 +13,7 @@ internal abstract class BaseProxyPluginTest : ModMenuTest
     public BaseProxyPluginTest(string pluginId)
     {
         string configFolder = Path.GetDirectoryName(GetType().Assembly.Location);
-        config = new(
-            Path.Combine(configFolder, pluginId + ".cfg"),
-            true
-            );
+        config = new(Path.Combine(configFolder, pluginId + ".cfg"), true);
 
         Setup(config);
     }

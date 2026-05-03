@@ -23,7 +23,6 @@ internal class ModMenuIgnoreAttribute : System.Attribute { }
 ```
 and then putting `[ModMenuIgnore]` above your plugin class (just above or below the `[BepInAutoPlugin(...)]` line).
 
-
 ## API
 
 The ModMenu API can be understood in three separate, hierarchical categories.
@@ -55,6 +54,12 @@ For instance, a [`ChoiceElement`](Elements/ChoiceElement.cs) has its data modele
 Models are stateful and remember which value they currently represent, so you should construct new instances for every piece of data you want to model; i.e., if your configuration has 3 different `boolean` parameters, you need 3 separate models to represent them, you should not *reuse* an existing model unless you really do want to show the same data in multiple parts of the UI.
 
 It is recommended, though not required, that you create new Models every time your menu is regenerated (and remove old subscribers when the previous menu is disposed).
+
+## Generated Menus
+
+Any data class can be annotated with the `[GenerateMenu]` attribute to generate elements for each associated field automatically, via source-time generation. All public fields and properties with supported types are handled.
+
+A non-public field or property can be included by annotating it with `[GenerateMenu]`. A public property can be ignored by annotating it with `[ModMenuIgnore]`. Various constraints and customizations can be supplied through annotations documented in [`Generator/Attributes.cs`](Generator/Attributes.cs).
 
 ## Future work
 

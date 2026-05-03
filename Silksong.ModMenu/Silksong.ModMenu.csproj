@@ -23,6 +23,7 @@
     <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
     <Description>API for modifying Silksong menus</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
     <ManagedFolder Condition="$(SilksongFolder) != ''"
       >$(SilksongFolder)\Hollow Knight Silksong_Data\Managed</ManagedFolder
     >
@@ -34,6 +35,8 @@
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
     <PackageReference Include="HarmonyX" Version="2.9.0" />
     <PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.0.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
     <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.26.0" PrivateAssets="all" />
     <PackageReference Include="MonoDetour.HookGen" Version="0.7.*" PrivateAssets="all" />
     <PackageReference Include="MonoDetour" Version="*" />
@@ -66,6 +69,12 @@
   <ItemGroup>
     <None Include="README.md" Pack="True" PackagePath="README.md" />
     <None Include="../thunderstore/icon.png" Pack="True" PackagePath="icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference
+      Include="..\Silksong.ModMenuAnalyzers\Silksong.ModMenuAnalyzers.csproj"
+      PrivateAssets="all"
+    />
   </ItemGroup>
   <Target Name="CopyAndPackageMod" AfterTargets="PostBuildEvent">
     <ItemGroup>
@@ -103,5 +112,13 @@
       StandardErrorImportance="High"
       WorkingDirectory="../."
     />
+  </Target>
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile
+        Include="$(OutputPath)\Silksong.ModMenuAnalyzers.dll"
+        PackagePath="analyzers/dotnet/cs"
+      />
+    </ItemGroup>
   </Target>
 </Project>

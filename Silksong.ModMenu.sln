@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.4.11519.219 insiders
+VisualStudioVersion = 18.4.11519.219
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenu", "Silksong.ModMenu\Silksong.ModMenu.csproj", "{2DB486FC-5E09-737A-CED6-80241230DE8A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuTesting", "Silksong.ModMenuTesting\Silksong.ModMenuTesting.csproj", "{51062B71-1574-6F9F-4C4B-238385402476}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuAnalyzers", "Silksong.ModMenuAnalyzers\Silksong.ModMenuAnalyzers.csproj", "{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Silksong.ModMenuAnalyzerTest", "Silksong.ModMenuAnalyzerTest\Silksong.ModMenuAnalyzerTest.csproj", "{98281207-B809-457B-9F38-D11CE7E9FD77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{51062B71-1574-6F9F-4C4B-238385402476}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51062B71-1574-6F9F-4C4B-238385402476}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51062B71-1574-6F9F-4C4B-238385402476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAAE671F-1E40-D2C1-F402-FF77DD2A23AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98281207-B809-457B-9F38-D11CE7E9FD77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
