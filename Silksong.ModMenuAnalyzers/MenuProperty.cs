@@ -321,6 +321,7 @@ internal record MenuProperty(
     {
         string type;
         string subMenu = "";
+        string privateName = $@"_{Name}";
         if (SubMenuType != null)
         {
             type =
@@ -334,20 +335,22 @@ internal record MenuProperty(
                 $@"Silksong.ModMenu.Elements.SelectableValueElement<{DataType.ToDisplayString()}>";
 
         return $$"""
-public {{type}} {{Name}}
-    {
-        get => field;
-        set
-        {
-            if (field == value) return;
-            if (value == null) throw new System.ArgumentNullException(nameof({{Name}}));
+            public {{type}} {{Name}}
+            {
+                get => _{{Name}};
+                set
+                {
+                    if (value == null) throw new System.ArgumentNullException(nameof({{Name}}));
+                    if ({{privateName}} == value) return;
 
-            field?{{subMenu}}.OnValueChanged -= {{SubscriberName}};
-            field = value;
-            field{{subMenu}}.OnValueChanged += {{SubscriberName}};
-        }
-    }
-""";
+                    if ({{privateName}} != null)
+                        {{privateName}}{{subMenu}}.OnValueChanged -= {{SubscriberName}};
+                    {{privateName}} = value;
+                    {{privateName}}{{subMenu}}.OnValueChanged += {{SubscriberName}};
+                }
+            }
+            private {{type}} {{privateName}};
+            """;
     }
 
     internal IEnumerable<string> Initialize()
@@ -394,7 +397,7 @@ public {{type}} {{Name}}
 
     internal string YieldElement() => $"yield return {Name};";
 
-    private string SubscriberName => $"__{Name}_subscriber";
+    private string SubscriberName => $"_{Name}_subscriber";
 
     internal string DefineSubscriber()
     {

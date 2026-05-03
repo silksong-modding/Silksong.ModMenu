@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -40,7 +41,30 @@ internal static class StringExtensions
 
     internal static string JoinIndented(this IEnumerable<string> self, int spaces)
     {
-        string buffer = new(' ', spaces);
-        return string.Join($"\n{buffer}", self);
+        string separator = $"\n{new string(' ', spaces)}";
+
+        // Indent all non-empty lines except the first one.
+        StringBuilder sb = new();
+        bool first = true;
+        foreach (var s in self)
+        {
+            foreach (var line in s.Split('\n'))
+            {
+                if (first)
+                {
+                    sb.Append(line);
+                    first = false;
+                }
+                else if (line.Trim().Length == 0)
+                    sb.Append('\n');
+                else
+                {
+                    sb.Append(separator);
+                    sb.Append(line);
+                }
+            }
+        }
+
+        return sb.ToString();
     }
 }

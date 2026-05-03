@@ -7,7 +7,7 @@ using Silksong.ModMenuAnalyzers;
 
 namespace Silksong.ModMenuAnalyzerTest;
 
-public class SnapshotTest
+public class GeneratorTest
 {
     [Fact]
     public async Task TestBasicGeneration()
@@ -35,24 +35,26 @@ public class SnapshotTest
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<int> MyInt
                 {
-                    get => field;
+                    get => _MyInt;
                     set
                     {
-                        if (field == value) return;
                         if (value == null) throw new System.ArgumentNullException(nameof(MyInt));
+                        if (_MyInt == value) return;
 
-                        field?.OnValueChanged -= __MyInt_subscriber;
-                        field = value;
-                        field.OnValueChanged += __MyInt_subscriber;
+                        if (_MyInt != null)
+                            _MyInt.OnValueChanged -= _MyInt_subscriber;
+                        _MyInt = value;
+                        _MyInt.OnValueChanged += _MyInt_subscriber;
                     }
                 }
+                private Silksong.ModMenu.Elements.SelectableValueElement<int> _MyInt;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
 
                 public TestDataMenu()
                 {
-                    __MyInt_subscriber = value => InvokeValueChanged(new(nameof(MyInt), value));
+                    _MyInt_subscriber = value => InvokeValueChanged(new(nameof(MyInt), value));
                     MyInt = new Silksong.ModMenu.Elements.TextInput<System.Int32>("My Int", Silksong.ModMenu.Models.TextModels.ForIntegers(), "");
                 }
 
@@ -85,7 +87,7 @@ public class SnapshotTest
                     OnValueChanged?.Invoke(args);
                 }
 
-                private readonly System.Action<int> __MyInt_subscriber;
+                private readonly System.Action<int> _MyInt_subscriber;
             }
             """;
 
@@ -125,24 +127,26 @@ public class SnapshotTest
             {
                 public Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu> SubData
                 {
-                    get => field;
+                    get => _SubData;
                     set
                     {
-                        if (field == value) return;
                         if (value == null) throw new System.ArgumentNullException(nameof(SubData));
+                        if (_SubData == value) return;
 
-                        field?.SubMenu.OnValueChanged -= __SubData_subscriber;
-                        field = value;
-                        field.SubMenu.OnValueChanged += __SubData_subscriber;
+                        if (_SubData != null)
+                            _SubData.SubMenu.OnValueChanged -= _SubData_subscriber;
+                        _SubData = value;
+                        _SubData.SubMenu.OnValueChanged += _SubData_subscriber;
                     }
                 }
+                private Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu> _SubData;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
 
                 public TestDataMenu()
                 {
-                    __SubData_subscriber = _ => InvokeValueChanged(new(nameof(SubData), null));
+                    _SubData_subscriber = _ => InvokeValueChanged(new(nameof(SubData), null));
                     SubData = new Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu>("Sub Data", new SubDataMenu(), "");
                 }
 
@@ -175,7 +179,7 @@ public class SnapshotTest
                     OnValueChanged?.Invoke(args);
                 }
 
-                private readonly System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent> __SubData_subscriber;
+                private readonly System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent> _SubData_subscriber;
             }
             """;
 
@@ -191,24 +195,26 @@ public class SnapshotTest
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<string> MyString
                 {
-                    get => field;
+                    get => _MyString;
                     set
                     {
-                        if (field == value) return;
                         if (value == null) throw new System.ArgumentNullException(nameof(MyString));
+                        if (_MyString == value) return;
 
-                        field?.OnValueChanged -= __MyString_subscriber;
-                        field = value;
-                        field.OnValueChanged += __MyString_subscriber;
+                        if (_MyString != null)
+                            _MyString.OnValueChanged -= _MyString_subscriber;
+                        _MyString = value;
+                        _MyString.OnValueChanged += _MyString_subscriber;
                     }
                 }
+                private Silksong.ModMenu.Elements.SelectableValueElement<string> _MyString;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
 
                 public SubDataMenu()
                 {
-                    __MyString_subscriber = value => InvokeValueChanged(new(nameof(MyString), value));
+                    _MyString_subscriber = value => InvokeValueChanged(new(nameof(MyString), value));
                     MyString = new Silksong.ModMenu.Elements.TextInput<string>("My String", Silksong.ModMenu.Models.TextModels.ForStrings(), "");
                 }
 
@@ -241,7 +247,7 @@ public class SnapshotTest
                     OnValueChanged?.Invoke(args);
                 }
 
-                private readonly System.Action<string> __MyString_subscriber;
+                private readonly System.Action<string> _MyString_subscriber;
             }
             """;
 
@@ -277,8 +283,5 @@ public class SnapshotTest
     private class GenTest : CSharpSourceGeneratorTest<ModMenuGenerator, DefaultVerifier>
     {
         protected override IEnumerable<Type> GetSourceGenerators() => [typeof(ModMenuGenerator)];
-
-        protected override ParseOptions CreateParseOptions() =>
-            new CSharpParseOptions(LanguageVersion.Preview, DocumentationMode.Diagnose);
     }
 }

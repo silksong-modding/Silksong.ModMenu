@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -106,56 +105,56 @@ public class ModMenuGenerator : IIncrementalGenerator
         string subscriberDefinitions = properties.Select(p => p.DefineSubscriber()).JoinIndented(4);
 
         source = $$"""
-#nullable enable            
+            #nullable enable            
 
-namespace {{classSymbol.ContainingNamespace.ToDisplayString()}};
+            namespace {{classSymbol.ContainingNamespace.ToDisplayString()}};
 
-/// Custom menu class generated for {{className}}.
-[System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", {{VERSION.MakeLiteral()}})]
-public class {{menuClassName}} : Silksong.ModMenu.Generator.ICustomMenu<{{className}}>
-{
-    {{propertyDefinitions}}
+            /// Custom menu class generated for {{className}}.
+            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", {{VERSION.MakeLiteral()}})]
+            public class {{menuClassName}} : Silksong.ModMenu.Generator.ICustomMenu<{{className}}>
+            {
+                {{propertyDefinitions}}
 
-    /// An aggregate event notified whenever any menu element in this class has its value changed.
-    public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
+                /// An aggregate event notified whenever any menu element in this class has its value changed.
+                public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
 
-    public {{menuClassName}}()
-    {
-        {{constructorBody}}
-    }
+                public {{menuClassName}}()
+                {
+                    {{constructorBody}}
+                }
 
-    /// <inheritdoc />
-    public void ExportTo({{className}} data)
-    {
-        {{exportBody}}
-    }
+                /// <inheritdoc />
+                public void ExportTo({{className}} data)
+                {
+                    {{exportBody}}
+                }
 
-    /// <inheritdoc />
-    public void ApplyFrom({{className}} data)
-    {
-        using (notifySubscribers.Suppress())
-        {
-            {{applyBody}}
-        }
-    }
+                /// <inheritdoc />
+                public void ApplyFrom({{className}} data)
+                {
+                    using (notifySubscribers.Suppress())
+                    {
+                        {{applyBody}}
+                    }
+                }
 
-    /// <inheritdoc />
-    public System.Collections.Generic.IEnumerable<Silksong.ModMenu.Elements.MenuElement> Elements()
-    {
-        {{elementsBody}}
-    }
+                /// <inheritdoc />
+                public System.Collections.Generic.IEnumerable<Silksong.ModMenu.Elements.MenuElement> Elements()
+                {
+                    {{elementsBody}}
+                }
 
-    private readonly Silksong.ModMenu.Util.EventSuppressor notifySubscribers = new();
+                private readonly Silksong.ModMenu.Util.EventSuppressor notifySubscribers = new();
 
-    private void InvokeValueChanged(Silksong.ModMenu.Generator.CustomMenuValueChangedEvent args)
-    {
-        if (notifySubscribers.Suppressed) return;
-        OnValueChanged?.Invoke(args);
-    }
+                private void InvokeValueChanged(Silksong.ModMenu.Generator.CustomMenuValueChangedEvent args)
+                {
+                    if (notifySubscribers.Suppressed) return;
+                    OnValueChanged?.Invoke(args);
+                }
 
-    {{subscriberDefinitions}}
-}
-""";
+                {{subscriberDefinitions}}
+            }
+            """;
         return diagnostics.All(d => d.Descriptor.DefaultSeverity != DiagnosticSeverity.Error);
     }
 }
