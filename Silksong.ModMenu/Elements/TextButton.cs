@@ -1,5 +1,6 @@
 ﻿using System;
 using Silksong.ModMenu.Internal;
+using Silksong.ModMenu.Screens;
 using Silksong.UnityHelper.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -44,6 +45,18 @@ public class TextButton : SelectableElement
     /// <inheritdoc cref="TextButton.TextButton(LocalizedText, LocalizedText)"/>
     public TextButton(LocalizedText text)
         : this(text, string.Empty) { }
+
+    /// <summary>
+    /// Construct a text button that jumps to the given menu screen on click.
+    ///
+    /// The text button will have the same text as the linked screen's title.
+    /// </summary>
+    /// <param name="screen"></param>
+    public TextButton(AbstractMenuScreen screen)
+        : this(screen.TitleText.LocalizedText)
+    {
+        OnSubmit = () => MenuScreenNavigation.Show(screen);
+    }
 
     /// <summary>
     /// The action(s) to perform when this button is selected.

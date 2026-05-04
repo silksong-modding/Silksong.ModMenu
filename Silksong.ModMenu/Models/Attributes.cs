@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Silksong.ModMenu.Plugin;
 
 namespace Silksong.ModMenu.Models;
 
@@ -30,4 +31,22 @@ internal static class AttributeExtensions
         self.GetCustomAttribute<ModMenuIgnoreAttribute>() != null
         || self.GetCustomAttributes(true)
             .Any(attr => attr.GetType().Name == nameof(ModMenuIgnoreAttribute));
+}
+
+/// <summary>
+/// Attribute added to an enum member to indicate how its description should be localized,
+/// for use in <see cref="MenuElementGenerators.CreateRightDescGenerator"/>.
+/// </summary>
+[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+public class LocalizedDescriptionAttribute(string sheetTitle, string key) : Attribute
+{
+    /// <summary>
+    /// The sheet title for the localized description.
+    /// </summary>
+    public string SheetTitle => sheetTitle;
+
+    /// <summary>
+    /// The key for the localized description.
+    /// </summary>
+    public string Key => key;
 }
