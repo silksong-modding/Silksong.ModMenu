@@ -141,7 +141,7 @@ public class ConfigEntryFactory
         }
 
         return ArrangeScreen(
-            elements.OrderBy(e => e.path).ToList(),
+            [.. elements.OrderBy(e => e.path)],
             subpageNames.LastOrDefault() ?? menuName
         );
     }

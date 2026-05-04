@@ -14,7 +14,7 @@ namespace Silksong.ModMenuAnalyzers;
 [Generator(LanguageNames.CSharp)]
 public class ModMenuGenerator : IIncrementalGenerator
 {
-    private const string VERSION = "1.0.0";
+    public const string VERSION = "0.7.1";
 
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
