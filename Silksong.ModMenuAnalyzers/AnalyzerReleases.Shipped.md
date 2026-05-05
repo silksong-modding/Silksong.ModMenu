@@ -1,6 +1,14 @@
 https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
-## Release 1.0.0
+## Release 0.7.1
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+SSMM0012 | SilksongModMenu | Error | Diagnostics
+
+## Release 0.7.0
 
 ### New Rules
 

@@ -36,6 +36,14 @@ internal record MenuProperty(
         }
     }
 
+    private static readonly IReadOnlyCollection<string> RelevantTypes = new HashSet<string>()
+    {
+        "Silksong.ModMenu.Generator.ModMenuIncludeAttribute",
+        "Silksong.ModMenu.Generator.ModMenuOptionsAttribute",
+        "Silksong.ModMenu.Generator.ModMenuRangeAttribute",
+        "Silksong.ModMenu.Models.ModMenuNameAttribute",
+    };
+
     private static bool IsRelevant(KnownTypes knownTypes, AttributeData data)
     {
         if (data.AttributeClass == null)
@@ -43,17 +51,7 @@ internal record MenuProperty(
 
         if (data.AttributeClass.Name == "ModMenuIgnoreAttribute")
             return true;
-        if (data.AttributeClass.ToDisplayString() == "Silksong.ModMenu.Models.ModMenuNameAttribute")
-            return true;
-        if (
-            data.AttributeClass.ToDisplayString()
-            == "Silksong.ModMenu.Generator.ModMenuRangeAttribute"
-        )
-            return true;
-        if (
-            data.AttributeClass.ToDisplayString()
-            == "Silksong.ModMenu.Generator.ModMenuIncludeAttribute"
-        )
+        if (RelevantTypes.Contains(data.AttributeClass.ToDisplayString()))
             return true;
 
         var origDef = data.AttributeClass.OriginalDefinition;
@@ -178,34 +176,48 @@ internal record MenuProperty(
                 diagnostics,
                 a =>
                     a.AttributeClass?.ToDisplayString()
+                    == "Silksong.ModMenu.Generator.ModMenuOptionsAttribute",
+                out var menuOptionsAttr
+            )
+        )
+            return false;
+
+        if (
+            !GetUniqueAttr(
+                diagnostics,
+                a =>
+                    a.AttributeClass?.ToDisplayString()
                     == "Silksong.ModMenu.Generator.ModMenuRangeAttribute",
                 out var menuRangeAttr
             )
         )
             return false;
 
-        int distinct =
-            (subMenuAttr != null ? 1 : 0)
-            + (elementFactoryAttr != null ? 1 : 0)
-            + (menuRangeAttr != null ? 1 : 0);
-        if (distinct > 1)
+        List<AttributeData?> uniqueAttrs =
+        [
+            subMenuAttr,
+            elementFactoryAttr,
+            menuOptionsAttr,
+            menuRangeAttr,
+        ];
+        if (uniqueAttrs.Count(a => a != null) > 1)
         {
             Diagnostics
                 .ConflictingAttributes(Name)
-                .Add(
-                    diagnostics,
-                    [subMenuAttr?.Location, elementFactoryAttr?.Location, menuRangeAttr?.Location]
-                );
+                .Add(diagnostics, [.. uniqueAttrs.Where(a => a != null).Select(a => a?.Location)]);
             return false;
         }
 
         if (SubMenuType == null && ElementFactoryType == null)
         {
+            if (!ValidateModMenuOptions(diagnostics, menuOptionsAttr, out var literals))
+                return false;
             if (!ValidateModMenuRange(diagnostics, menuRangeAttr, out var bounds))
                 return false;
 
             if (
-                !InitNumericType(bounds)
+                !InitChoiceType(literals)
+                && !InitNumericType(bounds)
                 && !InitBoolType()
                 && !InitKeyCodeType()
                 && !InitEnumType()
@@ -222,35 +234,39 @@ internal record MenuProperty(
         return true;
     }
 
-    private bool InitBoolType()
+    private bool ValidateModMenuOptions(
+        List<Diagnostic> diagnostics,
+        AttributeData? menuOptionsAttr,
+        out string? values
+    )
     {
-        if (DataType.SpecialType != SpecialType.System_Boolean)
-            return false;
+        values = null;
+        if (menuOptionsAttr == null)
+            return true;
 
-        DefaultInitializer.Add(
-            $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<bool>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForBool(), {Description.MakeLiteral()});"
-        );
+        List<string> strings = [];
+        foreach (var arg in menuOptionsAttr.ConstructorArguments[0].Values)
+        {
+            if (!arg.MakeLiteral(out var literal))
+            {
+                Diagnostics.InvalidOptions.Add(diagnostics, menuOptionsAttr.Location);
+                return false;
+            }
+
+            strings.Add(literal);
+        }
+
+        values = string.Join(", ", strings);
         return true;
     }
 
-    private bool InitKeyCodeType()
+    private bool InitChoiceType(string? values)
     {
-        if (DataType.ToDisplayString() != "UnityEngine.KeyCode")
+        if (values == null)
             return false;
 
         DefaultInitializer.Add(
-            $@"{Name} = new Silksong.ModMenu.Elements.KeyBindElement({DisplayName.MakeLiteral()});"
-        );
-        return true;
-    }
-
-    private bool InitEnumType()
-    {
-        if (DataType.TypeKind != TypeKind.Enum)
-            return false;
-
-        DefaultInitializer.Add(
-            $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<{DataType.ToDisplayString()}>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForEnum<{DataType.ToDisplayString()}>(), {Description.MakeLiteral()});"
+            $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<{DataType.ToDisplayString()}>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForValues([{values}]), {Description.MakeLiteral()});"
         );
         return true;
     }
@@ -302,6 +318,39 @@ internal record MenuProperty(
             : "";
         DefaultInitializer.Add(
             $@"{Name} = new Silksong.ModMenu.Elements.TextInput<{info.TypeName}>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.TextModels.{info.FactoryName}({bounds}), {Description.MakeLiteral()});"
+        );
+        return true;
+    }
+
+    private bool InitBoolType()
+    {
+        if (DataType.SpecialType != SpecialType.System_Boolean)
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<bool>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForBool(), {Description.MakeLiteral()});"
+        );
+        return true;
+    }
+
+    private bool InitKeyCodeType()
+    {
+        if (DataType.ToDisplayString() != "UnityEngine.KeyCode")
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.KeyBindElement({DisplayName.MakeLiteral()});"
+        );
+        return true;
+    }
+
+    private bool InitEnumType()
+    {
+        if (DataType.TypeKind != TypeKind.Enum)
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<{DataType.ToDisplayString()}>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForEnum<{DataType.ToDisplayString()}>(), {Description.MakeLiteral()});"
         );
         return true;
     }

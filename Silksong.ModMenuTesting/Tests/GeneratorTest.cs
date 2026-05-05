@@ -64,6 +64,9 @@ public class GeneratedData
         set => field = value - 1;
     }
 
+    [ModMenuOptions(2, 3, 5, 7)]
+    public int PrimeInt;
+
     [SubMenu<SubMenuDataMenu>]
     public SubMenuData SubMenu1 = new();
 

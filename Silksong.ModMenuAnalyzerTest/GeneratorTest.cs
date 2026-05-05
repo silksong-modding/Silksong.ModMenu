@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Testing;
+﻿using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using Silksong.ModMenu.Generator;
 using Silksong.ModMenuAnalyzers;
@@ -24,13 +22,13 @@ public class GeneratorTest
             """;
 
         string gen = /*lang=c#-test*/
-            """
+            $$"""
             #nullable enable            
 
             namespace Test;
 
             /// Custom menu class generated for Test.TestData.
-            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "1.0.0")]
+            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "{{ModMenuGenerator.VERSION}}")]
             public class TestDataMenu : Silksong.ModMenu.Generator.ICustomMenu<Test.TestData>
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<int> MyInt
@@ -116,13 +114,13 @@ public class GeneratorTest
             """;
 
         string gen1 = /*lang=c#-test*/
-            """
+            $$"""
             #nullable enable            
 
             namespace Test;
 
             /// Custom menu class generated for Test.TestData.
-            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "1.0.0")]
+            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "{{ModMenuGenerator.VERSION}}")]
             public class TestDataMenu : Silksong.ModMenu.Generator.ICustomMenu<Test.TestData>
             {
                 public Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu> SubData
@@ -184,13 +182,13 @@ public class GeneratorTest
             """;
 
         string gen2 = /*lang=c#-test*/
-            """
+            $$"""
             #nullable enable            
 
             namespace Test;
 
             /// Custom menu class generated for Test.SubData.
-            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "1.0.0")]
+            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "{{ModMenuGenerator.VERSION}}")]
             public class SubDataMenu : Silksong.ModMenu.Generator.ICustomMenu<Test.SubData>
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<string> MyString
@@ -252,6 +250,123 @@ public class GeneratorTest
             """;
 
         await ExpectSourceCode(source, ("TestDataMenu.g.cs", gen1), ("SubDataMenu.g.cs", gen2));
+    }
+
+    [Fact]
+    public async Task TestOptions()
+    {
+        string source = /*lang=c#-test*/
+            """
+            namespace Test;
+
+            public enum TestEnum
+            {
+                ONE,
+                TWO,
+                THREE,
+                OMITTED,
+            }
+
+            [Silksong.ModMenu.Generator.GenerateMenu]
+            public class TestData
+            {
+               [Silksong.ModMenu.Generator.ModMenuOptions(2, 3, 5, 7, 11, 13, 17, 19)]
+               public int PrimeInt = 2;
+               [Silksong.ModMenu.Generator.ModMenuOptions(TestEnum.ONE, TestEnum.TWO, TestEnum.THREE)]
+               public TestEnum MyEnum = TestEnum.ONE;
+            }
+            """;
+
+        string gen = /*lang=c#-test*/
+            $$"""
+            #nullable enable            
+
+            namespace Test;
+
+            /// Custom menu class generated for Test.TestData.
+            [System.CodeDom.Compiler.GeneratedCode("ModMenuGenerator", "{{ModMenuGenerator.VERSION}}")]
+            public class TestDataMenu : Silksong.ModMenu.Generator.ICustomMenu<Test.TestData>
+            {
+                public Silksong.ModMenu.Elements.SelectableValueElement<int> PrimeInt
+                {
+                    get => _PrimeInt;
+                    set
+                    {
+                        if (value == null) throw new System.ArgumentNullException(nameof(PrimeInt));
+                        if (_PrimeInt == value) return;
+
+                        if (_PrimeInt != null)
+                            _PrimeInt.OnValueChanged -= _PrimeInt_subscriber;
+                        _PrimeInt = value;
+                        _PrimeInt.OnValueChanged += _PrimeInt_subscriber;
+                    }
+                }
+                private Silksong.ModMenu.Elements.SelectableValueElement<int> _PrimeInt;
+                public Silksong.ModMenu.Elements.SelectableValueElement<Test.TestEnum> MyEnum
+                {
+                    get => _MyEnum;
+                    set
+                    {
+                        if (value == null) throw new System.ArgumentNullException(nameof(MyEnum));
+                        if (_MyEnum == value) return;
+
+                        if (_MyEnum != null)
+                            _MyEnum.OnValueChanged -= _MyEnum_subscriber;
+                        _MyEnum = value;
+                        _MyEnum.OnValueChanged += _MyEnum_subscriber;
+                    }
+                }
+                private Silksong.ModMenu.Elements.SelectableValueElement<Test.TestEnum> _MyEnum;
+
+                /// An aggregate event notified whenever any menu element in this class has its value changed.
+                public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
+
+                public TestDataMenu()
+                {
+                    _PrimeInt_subscriber = value => InvokeValueChanged(new(nameof(PrimeInt), value));
+                    PrimeInt = new Silksong.ModMenu.Elements.ChoiceElement<int>("Prime Int", Silksong.ModMenu.Models.ChoiceModels.ForValues([2, 3, 5, 7, 11, 13, 17, 19]), "");
+                    _MyEnum_subscriber = value => InvokeValueChanged(new(nameof(MyEnum), value));
+                    MyEnum = new Silksong.ModMenu.Elements.ChoiceElement<Test.TestEnum>("My Enum", Silksong.ModMenu.Models.ChoiceModels.ForValues([Test.TestEnum.ONE, Test.TestEnum.TWO, Test.TestEnum.THREE]), "");
+                }
+
+                /// <inheritdoc />
+                public void ExportTo(Test.TestData data)
+                {
+                    data.PrimeInt = PrimeInt.Value;
+                    data.MyEnum = MyEnum.Value;
+                }
+
+                /// <inheritdoc />
+                public void ApplyFrom(Test.TestData data)
+                {
+                    using (notifySubscribers.Suppress())
+                    {
+                        PrimeInt.Value = data.PrimeInt;
+                        MyEnum.Value = data.MyEnum;
+                    }
+                }
+
+                /// <inheritdoc />
+                public System.Collections.Generic.IEnumerable<Silksong.ModMenu.Elements.MenuElement> Elements()
+                {
+                    yield return PrimeInt;
+                    yield return MyEnum;
+                }
+
+                private readonly Silksong.ModMenu.Util.EventSuppressor notifySubscribers = new();
+
+                private void InvokeValueChanged(Silksong.ModMenu.Generator.CustomMenuValueChangedEvent args)
+                {
+                    if (notifySubscribers.Suppressed) return;
+                    OnValueChanged?.Invoke(args);
+                }
+
+                private readonly System.Action<int> _PrimeInt_subscriber;
+                private readonly System.Action<Test.TestEnum> _MyEnum_subscriber;
+            }
+            """;
+
+        await ExpectSourceCode(source, ("TestDataMenu.g.cs", gen));
     }
 
     // TODO: Add Diagnostic tests.
