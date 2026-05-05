@@ -22,7 +22,10 @@ public class ModMenuNameAttribute(string customName) : Attribute
 ///
 /// Any attribute named "ModMenuIgnoreAttribute" will be treated the same for this functionality, so you can opt-out of ModMenu behaviors without adding ModMenu as a dependency.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Field, AllowMultiple = false)]
+[AttributeUsage(
+    AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property,
+    AllowMultiple = false
+)]
 public class ModMenuIgnoreAttribute : Attribute { }
 
 internal static class AttributeExtensions
