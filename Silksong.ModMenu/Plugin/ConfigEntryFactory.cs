@@ -808,6 +808,31 @@ public class ConfigEntryFactory
         return true;
     }
 
+    /// <summary>
+    /// Generate a text element for a Rect.
+    /// </summary>
+    public static bool GenerateRectElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<Rect> rectEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        TextInput<Rect> rect = new(
+            entry.LabelName(),
+            TextModels.ForRect(),
+            entry.DescriptionLine()
+        );
+        rect.SynchronizeWith(rectEntry);
+
+        menuElement = rect;
+        return true;
+    }
+
     private record ElementTreeNode
     {
         public readonly List<(string path, MenuElement element)> Elements = [];

@@ -23,6 +23,7 @@ internal class ModMenuAutoTestingPlugin()
         config.Bind("Unity Types", "Vector3 Option", Vector3.one);
         config.Bind("Unity Types", "Vector4 Option", Vector4.one);
         config.Bind("Unity Types", "Quaternion Option", Quaternion.identity);
+        config.Bind("Unity Types", "Rect Option", Rect.zero);
 
         config.Bind("Value Types", "String Option", "value");
         config.Bind("Value Types", "Enum Option", TestEnum.EnumOne);

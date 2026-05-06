@@ -252,7 +252,7 @@ public static class TextModels
     }
 
     #endregion
-    #region Vectors & Quaternions
+    #region Vectors & Quaternions & Rects
 
     /// <summary>
     /// An ITextModel which parses comma-delimited pairs of numbers to and from <see cref="Vector2"/>s.
@@ -278,8 +278,19 @@ public static class TextModels
     public static ParserTextModel<Quaternion> ForQuaternion() =>
         new(QuaternionParser, QuaternionUnparser, INVALID_QUATERNION);
 
+    /// <summary>
+    /// An ITextModel which parses comma-delimited quartets of numbers to and from <see cref="Rect"/>s.
+    /// </summary>
+    public static ParserTextModel<Rect> ForRect() => new(RectParser, RectUnparser, INVALID_RECT);
+
     private static readonly Vector4 INVALID_VECTOR = Vector4.positiveInfinity;
     private static readonly Quaternion INVALID_QUATERNION = new(
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity
+    );
+    private static readonly Rect INVALID_RECT = new(
         float.PositiveInfinity,
         float.PositiveInfinity,
         float.PositiveInfinity,
@@ -338,13 +349,40 @@ public static class TextModels
         return true;
     }
 
+    private static bool RectParser(string x, out Rect r)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 4;
+        r = success ? new(c[0], c[1], c[2], c[3]) : INVALID_RECT;
+        return success;
+    }
+
+    private static bool RectUnparser(Rect r, out string x)
+    {
+        const string format = "F2";
+        var provider = CultureInfo.InvariantCulture.NumberFormat;
+        x = UnityString.Format(
+            "({0}, {1}, {2}, {3})",
+            r.x.ToString(format, provider),
+            r.y.ToString(format, provider),
+            r.width.ToString(format, provider),
+            r.height.ToString(format, provider)
+        );
+        return true;
+    }
+
     /// <summary>
     /// Parses strings of the format "(-0.0, -0.0, ... , -0.0)" with or without brackets
     /// into an array of floats.
     /// </summary>
     private static bool FloatListParser(string x, out float[] results)
     {
-        string[] rawVals = [.. x.Trim().Trim('(', ')').Split(',').Select(s => s.Trim())];
+        x = x.Trim();
+        if (x[0] == '(')
+            x = x[1..];
+        if (x[^1] == ')')
+            x = x[..^1];
+
+        string[] rawVals = x.Split(',');
         results = new float[rawVals.Length];
 
         NumberFormatInfo format = CultureInfo.InvariantCulture.NumberFormat;
