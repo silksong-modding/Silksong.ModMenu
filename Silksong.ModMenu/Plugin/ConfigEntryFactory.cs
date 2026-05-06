@@ -49,6 +49,7 @@ public class ConfigEntryFactory
         GenerateVector3Element,
         GenerateVector4Element,
         GenerateQuaternionElement,
+        GenerateRectElement,
     ];
 
     /// <summary>
@@ -662,24 +663,7 @@ public class ConfigEntryFactory
     public static bool GenerateStringElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<string> stringEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        TextInput<string> text = new(
-            entry.LabelName(),
-            TextModels.ForStrings(),
-            entry.DescriptionLine()
-        );
-        text.SynchronizeWith(stringEntry);
-
-        menuElement = text;
-        return true;
-    }
+    ) => GenerateTextInput(TextModels.ForStrings, entry, out menuElement);
 
     /// <summary>
     /// Generate a text element for a color.
@@ -714,24 +698,7 @@ public class ConfigEntryFactory
     public static bool GenerateVector2Element(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<Vector2> vectorEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        TextInput<Vector2> vector = new(
-            entry.LabelName(),
-            TextModels.ForVector2(),
-            entry.DescriptionLine()
-        );
-        vector.SynchronizeWith(vectorEntry);
-
-        menuElement = vector;
-        return true;
-    }
+    ) => GenerateTextInput(TextModels.ForVector2, entry, out menuElement);
 
     /// <summary>
     /// Generate a text element for a Vector3.
@@ -739,24 +706,7 @@ public class ConfigEntryFactory
     public static bool GenerateVector3Element(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<Vector3> vectorEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        TextInput<Vector3> vector = new(
-            entry.LabelName(),
-            TextModels.ForVector3(),
-            entry.DescriptionLine()
-        );
-        vector.SynchronizeWith(vectorEntry);
-
-        menuElement = vector;
-        return true;
-    }
+    ) => GenerateTextInput(TextModels.ForVector3, entry, out menuElement);
 
     /// <summary>
     /// Generate a text element for a Vector4.
@@ -764,24 +714,7 @@ public class ConfigEntryFactory
     public static bool GenerateVector4Element(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<Vector4> vectorEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        TextInput<Vector4> vector = new(
-            entry.LabelName(),
-            TextModels.ForVector4(),
-            entry.DescriptionLine()
-        );
-        vector.SynchronizeWith(vectorEntry);
-
-        menuElement = vector;
-        return true;
-    }
+    ) => GenerateTextInput(TextModels.ForVector4, entry, out menuElement);
 
     /// <summary>
     /// Generate a text element for a Quaternion.
@@ -789,24 +722,7 @@ public class ConfigEntryFactory
     public static bool GenerateQuaternionElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
-    )
-    {
-        if (entry is not ConfigEntry<Quaternion> quaternionEntry)
-        {
-            menuElement = default;
-            return false;
-        }
-
-        TextInput<Quaternion> quaternion = new(
-            entry.LabelName(),
-            TextModels.ForQuaternion(),
-            entry.DescriptionLine()
-        );
-        quaternion.SynchronizeWith(quaternionEntry);
-
-        menuElement = quaternion;
-        return true;
-    }
+    ) => GenerateTextInput(TextModels.ForQuaternion, entry, out menuElement);
 
     /// <summary>
     /// Generate a text element for a Rect.
@@ -814,22 +730,26 @@ public class ConfigEntryFactory
     public static bool GenerateRectElement(
         ConfigEntryBase entry,
         [MaybeNullWhen(false)] out MenuElement menuElement
+    ) => GenerateTextInput(TextModels.ForRect, entry, out menuElement);
+
+    /// <summary>
+    /// Generate a text element for a config setting with a <typeparamref name="T"/> value
+    /// and a model created by the given <paramref name="model"/> function.
+    /// </summary>
+    public static bool GenerateTextInput<T>(
+        Func<ITextModel<T>> model,
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
     )
     {
-        if (entry is not ConfigEntry<Rect> rectEntry)
+        if (entry is not ConfigEntry<T> typedEntry)
         {
             menuElement = default;
             return false;
         }
-
-        TextInput<Rect> rect = new(
-            entry.LabelName(),
-            TextModels.ForRect(),
-            entry.DescriptionLine()
-        );
-        rect.SynchronizeWith(rectEntry);
-
-        menuElement = rect;
+        TextInput<T> input = new(entry.LabelName(), model(), entry.DescriptionLine());
+        input.SynchronizeWith(typedEntry);
+        menuElement = input;
         return true;
     }
 

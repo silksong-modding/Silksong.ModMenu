@@ -30,6 +30,7 @@ public class TextInput<T> : SelectableValueElement<T>
         typeof(Vector3),
         typeof(Vector4),
         typeof(Quaternion),
+        typeof(Rect),
     ];
 
     /// <summary>
