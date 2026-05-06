@@ -53,6 +53,12 @@ public class ModMenuRangeAttribute(object Min, object Max) : Attribute
 }
 
 /// <summary>
+/// Attribute to apply to a <see cref="UnityEngine.Color"/> property, to specify it should only support RGB values with 100% opacity.
+/// </summary>
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+public class ModMenuRGBAttribute() : Attribute { }
+
+/// <summary>
 /// Attribute to mark a field or property of a data class as requiring its own custom sub-menu, of the parameterized type.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]

@@ -3,6 +3,7 @@ using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Generator;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
+using UnityEngine;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -65,7 +66,17 @@ public class GeneratedData
     }
 
     [ModMenuOptions(2, 3, 5, 7)]
-    public int PrimeInt;
+    public int PrimeInt = 2;
+
+    [ModMenuRGB]
+    public Color RgbColor = Color.cyan;
+    public Color RgbaColor = Color.green with { a = 0.5f };
+
+    public Vector2 Vector2Value = Vector2.zero;
+    public Vector3 Vector3Value = Vector3.zero;
+    public Vector4 Vector4Value = Vector4.zero;
+    public Quaternion QuaternionValue = Quaternion.identity;
+    public Rect RectValue = Rect.zero;
 
     [SubMenu<SubMenuDataMenu>]
     public SubMenuData SubMenu1 = new();
