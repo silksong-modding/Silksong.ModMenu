@@ -398,7 +398,7 @@ internal record MenuProperty(
         return $$"""
             public {{type}} {{Name}}
             {
-                get => _{{Name}};
+                get => {{privateName}}!;
                 set
                 {
                     if (value == null) throw new System.ArgumentNullException(nameof({{Name}}));
@@ -410,7 +410,7 @@ internal record MenuProperty(
                     {{privateName}}{{subMenu}}.OnValueChanged += {{SubscriberName}};
                 }
             }
-            private {{type}} {{privateName}};
+            private {{type}}? {{privateName}};
             """;
     }
 
