@@ -221,6 +221,7 @@ internal record MenuProperty(
                 && !InitBoolType()
                 && !InitKeyCodeType()
                 && !InitEnumType()
+                && !InitColorType()
                 && !InitTextType()
             )
             {
@@ -351,6 +352,17 @@ internal record MenuProperty(
 
         DefaultInitializer.Add(
             $@"{Name} = new Silksong.ModMenu.Elements.ChoiceElement<{DataType.ToDisplayString()}>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.ChoiceModels.ForEnum<{DataType.ToDisplayString()}>(), {Description.MakeLiteral()});"
+        );
+        return true;
+    }
+
+    private bool InitColorType()
+    {
+        if (DataType.ToDisplayString() != "UnityEngine.Color")
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.ColorInput({DisplayName.MakeLiteral()}, {Description.MakeLiteral()});"
         );
         return true;
     }

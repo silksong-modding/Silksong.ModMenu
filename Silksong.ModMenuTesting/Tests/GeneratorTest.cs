@@ -3,6 +3,7 @@ using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Generator;
 using Silksong.ModMenu.Models;
 using Silksong.ModMenu.Screens;
+using UnityEngine;
 
 namespace Silksong.ModMenuTesting.Tests;
 
@@ -48,6 +49,8 @@ public class GeneratedData
     public ulong UnsignedLongValue = 8;
     public float FloatValue = 9;
     public double DoubleValue = 10;
+
+    public Color ColorValue = Color.red;
 
     [ModMenuName("Custom Bool Name")]
     public bool BoolValue;
