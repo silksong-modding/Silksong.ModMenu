@@ -33,7 +33,7 @@ public class GeneratorTest
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<int> MyInt
                 {
-                    get => _MyInt;
+                    get => _MyInt!;
                     set
                     {
                         if (value == null) throw new System.ArgumentNullException(nameof(MyInt));
@@ -45,7 +45,7 @@ public class GeneratorTest
                         _MyInt.OnValueChanged += _MyInt_subscriber;
                     }
                 }
-                private Silksong.ModMenu.Elements.SelectableValueElement<int> _MyInt;
+                private Silksong.ModMenu.Elements.SelectableValueElement<int>? _MyInt;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
@@ -125,7 +125,7 @@ public class GeneratorTest
             {
                 public Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu> SubData
                 {
-                    get => _SubData;
+                    get => _SubData!;
                     set
                     {
                         if (value == null) throw new System.ArgumentNullException(nameof(SubData));
@@ -137,7 +137,7 @@ public class GeneratorTest
                         _SubData.SubMenu.OnValueChanged += _SubData_subscriber;
                     }
                 }
-                private Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu> _SubData;
+                private Silksong.ModMenu.Generator.SubMenuElement<Test.SubData, SubDataMenu>? _SubData;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
@@ -193,7 +193,7 @@ public class GeneratorTest
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<string> MyString
                 {
-                    get => _MyString;
+                    get => _MyString!;
                     set
                     {
                         if (value == null) throw new System.ArgumentNullException(nameof(MyString));
@@ -205,7 +205,7 @@ public class GeneratorTest
                         _MyString.OnValueChanged += _MyString_subscriber;
                     }
                 }
-                private Silksong.ModMenu.Elements.SelectableValueElement<string> _MyString;
+                private Silksong.ModMenu.Elements.SelectableValueElement<string>? _MyString;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
@@ -289,7 +289,7 @@ public class GeneratorTest
             {
                 public Silksong.ModMenu.Elements.SelectableValueElement<int> PrimeInt
                 {
-                    get => _PrimeInt;
+                    get => _PrimeInt!;
                     set
                     {
                         if (value == null) throw new System.ArgumentNullException(nameof(PrimeInt));
@@ -301,10 +301,10 @@ public class GeneratorTest
                         _PrimeInt.OnValueChanged += _PrimeInt_subscriber;
                     }
                 }
-                private Silksong.ModMenu.Elements.SelectableValueElement<int> _PrimeInt;
+                private Silksong.ModMenu.Elements.SelectableValueElement<int>? _PrimeInt;
                 public Silksong.ModMenu.Elements.SelectableValueElement<Test.TestEnum> MyEnum
                 {
-                    get => _MyEnum;
+                    get => _MyEnum!;
                     set
                     {
                         if (value == null) throw new System.ArgumentNullException(nameof(MyEnum));
@@ -316,7 +316,7 @@ public class GeneratorTest
                         _MyEnum.OnValueChanged += _MyEnum_subscriber;
                     }
                 }
-                private Silksong.ModMenu.Elements.SelectableValueElement<Test.TestEnum> _MyEnum;
+                private Silksong.ModMenu.Elements.SelectableValueElement<Test.TestEnum>? _MyEnum;
 
                 /// An aggregate event notified whenever any menu element in this class has its value changed.
                 public event System.Action<Silksong.ModMenu.Generator.CustomMenuValueChangedEvent>? OnValueChanged;
