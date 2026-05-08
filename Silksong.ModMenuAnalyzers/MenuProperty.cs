@@ -233,9 +233,9 @@ internal record MenuProperty(
                 && !InitBoolType()
                 && !InitKeyCodeType()
                 && !InitEnumType()
-                && !InitStringType()
-                && !InitColorType(menuRgbAttr)
-                && !InitVector2Type()
+                && !InitColorType()
+                && !InitTextType()
+				&& !InitVector2Type()
 				&& !InitVector3Type()
 				&& !InitVector4Type()
 				&& !InitQuaternionType()
@@ -373,7 +373,18 @@ internal record MenuProperty(
         return true;
     }
 
-    private bool InitStringType()
+    private bool InitColorType()
+    {
+        if (DataType.ToDisplayString() != "UnityEngine.Color")
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.ColorInput({DisplayName.MakeLiteral()}, {Description.MakeLiteral()});"
+        );
+        return true;
+    }
+
+    private bool InitTextType()
     {
         if (DataType.SpecialType != SpecialType.System_String)
             return false;
@@ -444,7 +455,7 @@ internal record MenuProperty(
         return $$"""
             public {{type}} {{Name}}
             {
-                get => _{{Name}};
+                get => {{privateName}}!;
                 set
                 {
                     if (value == null) throw new System.ArgumentNullException(nameof({{Name}}));
@@ -456,7 +467,7 @@ internal record MenuProperty(
                     {{privateName}}{{subMenu}}.OnValueChanged += {{SubscriberName}};
                 }
             }
-            private {{type}} {{privateName}};
+            private {{type}}? {{privateName}};
             """;
     }
 

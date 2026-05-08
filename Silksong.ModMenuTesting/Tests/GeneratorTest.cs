@@ -50,6 +50,8 @@ public class GeneratedData
     public float FloatValue = 9;
     public double DoubleValue = 10;
 
+    public Color ColorValue = Color.red;
+
     [ModMenuName("Custom Bool Name")]
     public bool BoolValue;
 
