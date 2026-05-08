@@ -19,8 +19,8 @@ Rule ID | Category | Severity | Notes
 SSMM0001 | SilksongModMenu | Error | Diagnostics
 SSMM0002 | SilksongModMenu | Warning | Diagnostics
 SSMM0003 | SilksongModMenu | Warning | Diagnostics
-SSMM0004 | SilksongModMenu | Error | Diagnostics
-SSMM0005 | SilksongModMenu | Warning | Diagnostics
+SSMM0004 | SilksongModMenu | Warning | Diagnostics
+SSMM0005 | SilksongModMenu | Error | Diagnostics
 SSMM0006 | SilksongModMenu | Error | Diagnostics
 SSMM0007 | SilksongModMenu | Error | Diagnostics
 SSMM0008 | SilksongModMenu | Error | Diagnostics
