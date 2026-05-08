@@ -44,7 +44,16 @@ internal record MenuProperty(
         "Silksong.ModMenu.Models.ModMenuNameAttribute",
     };
 
-    private static bool IsRelevant(KnownTypes knownTypes, AttributeData data)
+	private static readonly IReadOnlyDictionary<string, string> UnityTypeFactories = new Dictionary<string,string>()
+	{
+		{ "UnityEngine.Vector2", "Silksong.ModMenu.Models.TextModels.ForVector2" },
+		{ "UnityEngine.Vector3", "Silksong.ModMenu.Models.TextModels.ForVector3" },
+		{ "UnityEngine.Vector4", "Silksong.ModMenu.Models.TextModels.ForVector4" },
+		{ "UnityEngine.Quaternion", "Silksong.ModMenu.Models.TextModels.ForQuaternion" },
+		{ "UnityEngine.Rect", "Silksong.ModMenu.Models.TextModels.ForRect" },
+	};
+
+	private static bool IsRelevant(KnownTypes knownTypes, AttributeData data)
     {
         if (data.AttributeClass == null)
             return false;
@@ -193,24 +202,12 @@ internal record MenuProperty(
         )
             return false;
 
-        if (
-            !GetUniqueAttr(
-                diagnostics,
-                a =>
-                    a.AttributeClass?.ToDisplayString()
-                    == "Silksong.ModMenu.Generator.ModMenuRGBAttribute",
-                out var menuRgbAttr
-            )
-        )
-            return false;
-
         List<AttributeData?> uniqueAttrs =
         [
             subMenuAttr,
             elementFactoryAttr,
             menuOptionsAttr,
             menuRangeAttr,
-            menuRgbAttr,
         ];
         if (uniqueAttrs.Count(a => a != null) > 1)
         {
@@ -235,11 +232,7 @@ internal record MenuProperty(
                 && !InitEnumType()
                 && !InitColorType()
                 && !InitTextType()
-				&& !InitVector2Type()
-				&& !InitVector3Type()
-				&& !InitVector4Type()
-				&& !InitQuaternionType()
-				&& !InitRectType()
+				&& !InitUnityType()
 			)
             {
                 Diagnostics
@@ -395,44 +388,17 @@ internal record MenuProperty(
         return true;
     }
 
-    private bool InitColorType(AttributeData? rgbAttr)
+    private bool InitUnityType()
     {
-        if (DataType.ToDisplayString() != "UnityEngine.Color")
-            return false;
-
-        var format = rgbAttr != null
-            ? @" { Format = Silksong.ModMenu.Elements.ColorInput.InputFormat.RGB }"
-			: "";
-        DefaultInitializer.Add(
-            $@"{Name} = new Silksong.ModMenu.Elements.ColorInput({DisplayName.MakeLiteral()}, {Description.MakeLiteral()}){format};"
-        );
-        return true;
-    }
-
-    private bool InitVector2Type() =>
-        InitTextTypeHelper("UnityEngine.Vector2", "Silksong.ModMenu.Models.TextModels.ForVector2");
-
-    private bool InitVector3Type() =>
-        InitTextTypeHelper("UnityEngine.Vector3", "Silksong.ModMenu.Models.TextModels.ForVector3");
-
-    private bool InitVector4Type() =>
-        InitTextTypeHelper("UnityEngine.Vector4", "Silksong.ModMenu.Models.TextModels.ForVector4");
-
-    private bool InitQuaternionType() =>
-        InitTextTypeHelper("UnityEngine.Quaternion", "Silksong.ModMenu.Models.TextModels.ForQuaternion");
-
-    private bool InitRectType() =>
-        InitTextTypeHelper("UnityEngine.Rect", "Silksong.ModMenu.Models.TextModels.ForRect");
-
-    private bool InitTextTypeHelper(string typeName, string modelFn)
-    {
-        if (DataType.ToDisplayString() != typeName)
-            return false;
-
-        DefaultInitializer.Add(
-            $@"{Name} = new Silksong.ModMenu.Elements.TextInput<{typeName}>({DisplayName.MakeLiteral()}, {modelFn}(), {Description.MakeLiteral()});"
-        );
-        return true;
+        string typeName = DataType.ToDisplayString();
+        if (UnityTypeFactories.TryGetValue(typeName, out string factory))
+        {
+            DefaultInitializer.Add(
+                $@"{Name} = new Silksong.ModMenu.Elements.TextInput<{typeName}>({DisplayName.MakeLiteral()}, {factory}(), {Description.MakeLiteral()});"
+            );
+            return true;
+        }
+        return false;
     }
 
     internal string DefineProperty()

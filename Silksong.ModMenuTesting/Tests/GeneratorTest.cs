@@ -52,6 +52,9 @@ public class GeneratedData
 
     public Color ColorValue = Color.red;
 
+    [ElementFactory<RGBElementFactory>]
+    public Color ColorRgbValue = Color.cyan;
+
     [ModMenuName("Custom Bool Name")]
     public bool BoolValue;
 
@@ -69,10 +72,6 @@ public class GeneratedData
 
     [ModMenuOptions(2, 3, 5, 7)]
     public int PrimeInt = 2;
-
-    [ModMenuRGB]
-    public Color RgbColor = Color.cyan;
-    public Color RgbaColor = Color.green with { a = 0.5f };
 
     public Vector2 Vector2Value = Vector2.zero;
     public Vector3 Vector3Value = Vector3.zero;
