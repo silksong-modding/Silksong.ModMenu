@@ -23,7 +23,19 @@ public class ElementFactoryAttribute<T> : Attribute
 public class ModMenuIncludeAttribute : Attribute { }
 
 /// <summary>
-/// Attribute to apply to a any numeric property, to specify a minimum and maximum.
+/// Attribute to apply to any property with a finite number of acceptable values.
+/// </summary>
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+public class ModMenuOptionsAttribute(params object[] options) : Attribute
+{
+    /// <summary>
+    ///
+    /// </summary>
+    public readonly object[] Options = options;
+}
+
+/// <summary>
+/// Attribute to apply to any numeric property, to specify a minimum and maximum.
 /// Dynamic mins/maxes are not yet supported.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]

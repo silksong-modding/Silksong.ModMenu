@@ -156,4 +156,15 @@ internal static class Diagnostics
     );
 
     internal static DiagnosticDescriptorWrapper IncludedPublicField => new(includedPublicField, []);
+
+    private static readonly DiagnosticDescriptor invalidOptions = new(
+        id: "SSMM0012",
+        title: "Invalid ModMenuOptions",
+        messageFormat: "Could not handle ModMenuOptions argument",
+        category: CATEGORY,
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
+    internal static DiagnosticDescriptorWrapper InvalidOptions => new(invalidOptions, []);
 }

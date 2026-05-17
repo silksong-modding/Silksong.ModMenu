@@ -6,13 +6,17 @@ updates:
       - dependency-name: BepInEx.Core
       - dependency-name: HarmonyX
       - dependency-name: UnityEngine.Modules
+      - dependency-name: Microsoft.CodeAnalysis
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: Microsoft.CodeAnalysis.CSharp
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
     schedule:
       interval: daily
   - directory: /
     package-ecosystem: github-actions
-    schedule:
-      interval: daily
-  - directory: /
-    package-ecosystem: gitsubmodule
     schedule:
       interval: daily
