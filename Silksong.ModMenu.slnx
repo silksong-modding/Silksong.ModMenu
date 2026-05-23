@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Silksong.ModMenu/Silksong.ModMenu.csproj" />
+  <Project Path="Silksong.ModMenuAnalyzers/Silksong.ModMenuAnalyzers.csproj" />
+  <Project Path="Silksong.ModMenuAnalyzerTest/Silksong.ModMenuAnalyzerTest.csproj" />
+  <Project Path="Silksong.ModMenuTesting/Silksong.ModMenuTesting.csproj" />
+</Solution>
