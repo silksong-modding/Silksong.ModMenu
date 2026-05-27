@@ -3,9 +3,9 @@ updates:
   - directory: /
     package-ecosystem: nuget
     groups:
-      all-dependencies:
+      roslyn-sdk:
         patterns:
-          - "*"
+          - "Microsoft.CodeAnalysis.*.Testing"
     ignore:
       - dependency-name: BepInEx.Core
       - dependency-name: HarmonyX
@@ -22,9 +22,5 @@ updates:
       interval: daily
   - directory: /
     package-ecosystem: github-actions
-    groups:
-      all-dependencies:
-        patterns:
-          - "*"
     schedule:
       interval: daily
