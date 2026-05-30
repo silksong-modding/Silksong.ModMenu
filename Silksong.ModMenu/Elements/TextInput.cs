@@ -15,6 +15,7 @@ public class TextInput<T> : SelectableValueElement<T>
 {
     private static readonly HashSet<Type> intTypes =
     [
+        typeof(sbyte),
         typeof(byte),
         typeof(short),
         typeof(ushort),
