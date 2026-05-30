@@ -2,6 +2,10 @@ version: 2
 updates:
   - directory: /
     package-ecosystem: nuget
+    groups:
+      roslyn-sdk:
+        patterns:
+          - "Microsoft.CodeAnalysis.*.Testing"
     ignore:
       - dependency-name: BepInEx.Core
       - dependency-name: HarmonyX
