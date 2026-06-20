@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Elements;
@@ -14,25 +16,25 @@ public interface INavigable
     void ClearNeighbors();
 
     /// <summary>
-    /// Set the directional neighbor of this entity.
+    /// Set the directional neighbors of this entity to one or more of the given choices.
     /// </summary>
     /// <returns>False if this entity has no navigation to connect.</returns>
-    void SetNeighbor(NavigationDirection direction, Selectable selectable);
+    void SetNeighbors(NavigationDirection direction, IEnumerable<Selectable> selectables);
 
     /// <summary>
     /// Unset the given directional neighbor of this entity.
     /// </summary>
-    void ClearNeighbor(NavigationDirection direction);
+    void ClearNeighbors(NavigationDirection direction);
 
     /// <summary>
-    /// Get the Selectable to target if navigating to this element along 'direction'.
+    /// Get a set of choices for the Selectables to target if navigating to this element along 'direction'.
     ///
     /// In other words, typical usage would entail:
-    ///   if (foo.GetSelectable(dir, out var selectable))
-    ///       bar.SetNeighbor(dir, selectable);
+    ///   if (foo.GetSelectables(dir, out var selectables))
+    ///       bar.SetNeighbors(dir, selectables);
     /// </summary>
-    bool GetSelectable(
+    bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     );
 }

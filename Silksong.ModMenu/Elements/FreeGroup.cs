@@ -88,15 +88,14 @@ public class FreeGroup : AbstractGroup
         };
 
     /// <inheritdoc/>
-    public override bool GetSelectable(
+    public override bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     )
     {
-        selectable = GetNavigables(direction)
-            .Select(n => n.GetSelectable(direction, out var s) ? s : null)
-            .FirstOrDefault();
-        return selectable != null;
+        selectables = GetNavigables(direction.Opposite())
+            .SelectMany(n => n.GetSelectables(direction, out var s) ? s : []);
+        return selectables.Any();
     }
 
     /// <inheritdoc/>

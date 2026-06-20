@@ -1,5 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Silksong.ModMenu.Elements;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Internal;
@@ -19,7 +23,7 @@ internal class SelectableWrapper(Selectable selectable) : INavigable
             };
     }
 
-    public void ClearNeighbor(NavigationDirection direction) =>
+    public void ClearNeighbors(NavigationDirection direction) =>
         Nav = direction switch
         {
             NavigationDirection.Up => Nav with { selectOnUp = null },
@@ -31,22 +35,72 @@ internal class SelectableWrapper(Selectable selectable) : INavigable
 
     public void ClearNeighbors() => Nav = new();
 
-    public bool GetSelectable(
+    public bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     )
     {
-        selectable = this.selectable;
+        selectables = [selectable];
         return true;
     }
 
-    public void SetNeighbor(NavigationDirection direction, Selectable selectable) =>
-        Nav = direction switch
+    public void SetNeighbors(NavigationDirection direction, IEnumerable<Selectable> selectables)
+    {
+        if (!selectables.Any())
+            throw new ArgumentException(
+                "At least one selectable is required.",
+                nameof(selectables)
+            );
+
+        Vector2 thisPosition = selectable.transform.position;
+        Vector2 directionVector = direction switch
         {
-            NavigationDirection.Up => Nav with { selectOnUp = selectable },
-            NavigationDirection.Left => Nav with { selectOnLeft = selectable },
-            NavigationDirection.Right => Nav with { selectOnRight = selectable },
-            NavigationDirection.Down => Nav with { selectOnDown = selectable },
+            NavigationDirection.Up => Vector2.up,
+            NavigationDirection.Left => Vector2.left,
+            NavigationDirection.Right => Vector2.right,
+            NavigationDirection.Down => Vector2.down,
             _ => throw direction.UnsupportedEnum(),
         };
+
+        Selectable bestOption = selectables
+            .Select(selectable =>
+            {
+                Vector2 otherPosition = selectable.transform.position,
+                    angleBetweenSelectables = otherPosition - thisPosition;
+
+                float angleRelativeToDirection = Vector2.Angle(
+                        directionVector,
+                        angleBetweenSelectables
+                    ),
+                    angleRelativeToOpposite = Vector2.Angle(
+                        -directionVector,
+                        angleBetweenSelectables
+                    );
+
+                return (
+                    selectable,
+                    angleRelativeToDirection,
+                    angleRelativeToAxis: Mathf.Min(
+                        angleRelativeToDirection,
+                        angleRelativeToOpposite
+                    ),
+                    position: otherPosition
+                );
+            })
+            // Favour selectables on the correct side of this one, narrow down by how well aligned they are with the current selectable
+            .OrderBy(other => (int)Mathf.RoundToMultipleOf(other.angleRelativeToDirection, 180))
+            .ThenBy(other => (int)Mathf.RoundToMultipleOf(other.angleRelativeToAxis, 20))
+            .ThenBy(other => Vector2.Distance(thisPosition, other.position))
+            .First()
+            .selectable;
+
+        Nav = direction switch
+        {
+            NavigationDirection.Up => Nav with { selectOnUp = bestOption },
+            NavigationDirection.Left => Nav with { selectOnLeft = bestOption },
+            NavigationDirection.Right => Nav with { selectOnRight = bestOption },
+            NavigationDirection.Down => Nav with { selectOnDown = bestOption },
+            _ => throw direction.UnsupportedEnum(),
+        };
+    }
 }

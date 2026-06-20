@@ -32,33 +32,33 @@ internal class ScrollingPaneTests : ModMenuTest
     /// </summary>
     static GridGroup ScrollPaneSiblings()
     {
-        VerticalGroup innerContentOne = new(),
-            innerContentTwo = new();
+        VerticalGroup contentOne = new() { VerticalSpacing = SpacingConstants.VSPACE_LARGE },
+            contentTwo = new() { VerticalSpacing = SpacingConstants.VSPACE_MEDIUM },
+            contentFour = new() { VerticalSpacing = SpacingConstants.VSPACE_SMALL };
 
-        for (int i = 1; i <= 15; i++)
+        GridGroup contentThree = new(2) { HorizontalSpacing = 240 };
+
+        for (int i = 1; i <= 6; i++)
         {
-            innerContentOne.Add(new TextButton($"Hollow {i}"));
-            innerContentTwo.Add(new TextButton($"Knight {i}"));
+            contentOne.Add(new TextButton($"Hollow {i}"));
+            contentFour.Add(new TextButton($"Silksong {i}"));
+        }
+        for (int i = 1; i <= 12; i++)
+        {
+            contentTwo.Add(new TextButton($"Knight {i}"));
+            contentThree.Add(new TextButton($"Yay {i}"));
         }
 
-        ScrollingPane innerScrollOne =
-                new(innerContentOne)
-                {
-                    ViewportSize = new Vector2(500, 875),
-                    SmoothScrollTime = 0.5f,
-                },
-            innerScrollTwo =
-                new(innerContentTwo)
-                {
-                    ViewportSize = new Vector2(500, 875),
-                    SmoothScrollTime = 0.5f,
-                };
+        ScrollingPane scrollOne = new(contentOne) { ViewportSize = new Vector2(500, 675) },
+            scrollTwo = new(contentTwo) { ViewportSize = new Vector2(500, 675) };
 
-        GridGroup outerContent = new(2) { HorizontalSpacing = 600 };
-        outerContent.Add(innerScrollOne);
-        outerContent.Add(innerScrollTwo);
+        GridGroup outer = new(4) { HorizontalSpacing = SpacingConstants.HSPACE_SMALL };
+        outer.Add(scrollOne);
+        outer.Add(scrollTwo);
+        outer.Add(contentThree);
+        outer.Add(contentFour);
 
-        return outerContent;
+        return outer;
     }
 
     /// <summary>

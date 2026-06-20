@@ -62,10 +62,10 @@ public class BasicMenuScreen : AbstractMenuScreen
         wrapper.ClearNeighbors();
 
         Content.SetNeighborDown(BackButton);
-        Content.SetNeighborUp(BackButton);
-        if (Content.GetNeighborDown(out var selectable))
-            wrapper.SetNeighborDown(selectable);
-        if (Content.GetNeighborUp(out selectable))
-            wrapper.SetNeighborUp(selectable);
+        Content.SetNeighborsUp(BackButton);
+        if (Content.GetNeighborsDown(out var selectables))
+            wrapper.SetNeighborsDown(selectables);
+        if (Content.GetNeighborsUp(out selectables))
+            wrapper.SetNeighborsUp(selectables);
     }
 }
