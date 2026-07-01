@@ -44,7 +44,16 @@ internal record MenuProperty(
         "Silksong.ModMenu.Models.ModMenuNameAttribute",
     };
 
-    private static bool IsRelevant(KnownTypes knownTypes, AttributeData data)
+	private static readonly IReadOnlyDictionary<string, string> UnityTypeFactories = new Dictionary<string,string>()
+	{
+		{ "UnityEngine.Vector2", "Silksong.ModMenu.Models.TextModels.ForVector2" },
+		{ "UnityEngine.Vector3", "Silksong.ModMenu.Models.TextModels.ForVector3" },
+		{ "UnityEngine.Vector4", "Silksong.ModMenu.Models.TextModels.ForVector4" },
+		{ "UnityEngine.Quaternion", "Silksong.ModMenu.Models.TextModels.ForQuaternion" },
+		{ "UnityEngine.Rect", "Silksong.ModMenu.Models.TextModels.ForRect" },
+	};
+
+	private static bool IsRelevant(KnownTypes knownTypes, AttributeData data)
     {
         if (data.AttributeClass == null)
             return false;
@@ -223,7 +232,8 @@ internal record MenuProperty(
                 && !InitEnumType()
                 && !InitColorType()
                 && !InitTextType()
-            )
+				&& !InitUnityType()
+			)
             {
                 Diagnostics
                     .UnsupportedType(DataType.ToDisplayString())
@@ -376,6 +386,19 @@ internal record MenuProperty(
             $@"{Name} = new Silksong.ModMenu.Elements.TextInput<string>({DisplayName.MakeLiteral()}, Silksong.ModMenu.Models.TextModels.ForStrings(), {Description.MakeLiteral()});"
         );
         return true;
+    }
+
+    private bool InitUnityType()
+    {
+        string typeName = DataType.ToDisplayString();
+        if (UnityTypeFactories.TryGetValue(typeName, out string factory))
+        {
+            DefaultInitializer.Add(
+                $@"{Name} = new Silksong.ModMenu.Elements.TextInput<{typeName}>({DisplayName.MakeLiteral()}, {factory}(), {Description.MakeLiteral()});"
+            );
+            return true;
+        }
+        return false;
     }
 
     internal string DefineProperty()

@@ -52,6 +52,9 @@ public class GeneratedData
 
     public Color ColorValue = Color.red;
 
+    [ElementFactory<RGBElementFactory>]
+    public Color ColorRgbValue = Color.cyan;
+
     [ModMenuName("Custom Bool Name")]
     public bool BoolValue;
 
@@ -68,7 +71,13 @@ public class GeneratedData
     }
 
     [ModMenuOptions(2, 3, 5, 7)]
-    public int PrimeInt;
+    public int PrimeInt = 2;
+
+    public Vector2 Vector2Value = Vector2.zero;
+    public Vector3 Vector3Value = Vector3.zero;
+    public Vector4 Vector4Value = Vector4.zero;
+    public Quaternion QuaternionValue = Quaternion.identity;
+    public Rect RectValue = Rect.zero;
 
     [SubMenu<SubMenuDataMenu>]
     public SubMenuData SubMenu1 = new();
