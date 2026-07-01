@@ -102,7 +102,7 @@ internal class ScrollFocusController : UIBehaviour
             var curveX = AnimationCurve.EaseInOut(0, oldPos.x, smoothScrollTime, newPos.x);
             var curveY = AnimationCurve.EaseInOut(0, oldPos.y, smoothScrollTime, newPos.y);
 
-            for (float time = 0; time <= smoothScrollTime; time += Time.deltaTime)
+            for (float time = 0; time <= smoothScrollTime; time += Time.unscaledDeltaTime)
             {
                 // Scroll point is re-evaluated each frame so that nested ScrollRects all
                 // end at the appropriate scroll position for the target's final world position
