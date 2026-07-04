@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Silksong.ModMenu.Internal;
 using UnityEngine;
@@ -16,6 +17,8 @@ public static class TextModels
     /// </summary>
     public static ParserTextModel<string> ForStrings() =>
         new(DefaultUnparse<string>, DefaultUnparse<string>);
+
+    #region Numbers
 
     /// <summary>
     /// An ITextModel which parses its input into a signed byte.
@@ -172,6 +175,8 @@ public static class TextModels
         return model;
     }
 
+    #endregion
+
     private static bool DefaultUnparse<T>(T value, out string text)
     {
         text = $"{value}";
@@ -192,6 +197,8 @@ public static class TextModels
 
         return Check;
     }
+
+    #region Colors
 
     /// <summary>
     /// An ITextModel which parses 3, 6, or 8 character hex strings to and from <see cref="Color"/>s.
@@ -243,4 +250,149 @@ public static class TextModels
         x = "###";
         return false;
     }
+
+    #endregion
+    #region Vectors & Quaternions & Rects
+
+    /// <summary>
+    /// An ITextModel which parses comma-delimited pairs of numbers to and from <see cref="Vector2"/>s.
+    /// </summary>
+    public static ParserTextModel<Vector2> ForVector2() =>
+        new(Vector2Parser, Vector2Unparser, INVALID_VECTOR);
+
+    /// <summary>
+    /// An ITextModel which parses comma-delimited trios of numbers to and from <see cref="Vector3"/>s.
+    /// </summary>
+    public static ParserTextModel<Vector3> ForVector3() =>
+        new(Vector3Parser, Vector3Unparser, INVALID_VECTOR);
+
+    /// <summary>
+    /// An ITextModel which parses comma-delimited quartets of numbers to and from <see cref="Vector4"/>s.
+    /// </summary>
+    public static ParserTextModel<Vector4> ForVector4() =>
+        new(Vector4Parser, Vector4Unparser, INVALID_VECTOR);
+
+    /// <summary>
+    /// An ITextModel which parses comma-delimited quartets of numbers to and from <see cref="Quaternion"/>s.
+    /// </summary>
+    public static ParserTextModel<Quaternion> ForQuaternion() =>
+        new(QuaternionParser, QuaternionUnparser, INVALID_QUATERNION);
+
+    /// <summary>
+    /// An ITextModel which parses comma-delimited quartets of numbers to and from <see cref="Rect"/>s.
+    /// </summary>
+    public static ParserTextModel<Rect> ForRect() => new(RectParser, RectUnparser, INVALID_RECT);
+
+    private static readonly Vector4 INVALID_VECTOR = Vector4.positiveInfinity;
+    private static readonly Quaternion INVALID_QUATERNION = new(
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity
+    );
+    private static readonly Rect INVALID_RECT = new(
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity,
+        float.PositiveInfinity
+    );
+
+    private static bool Vector2Parser(string x, out Vector2 v)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 2;
+        v = success ? new(c[0], c[1]) : INVALID_VECTOR;
+        return success;
+    }
+
+    private static bool Vector2Unparser(Vector2 v, out string x)
+    {
+        x = v.ToString("F2", CultureInfo.InvariantCulture.NumberFormat);
+        return true;
+    }
+
+    private static bool Vector3Parser(string x, out Vector3 v)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 3;
+        v = success ? new(c[0], c[1], c[2]) : INVALID_VECTOR;
+        return success;
+    }
+
+    private static bool Vector3Unparser(Vector3 v, out string x)
+    {
+        x = v.ToString("F2", CultureInfo.InvariantCulture.NumberFormat);
+        return true;
+    }
+
+    private static bool Vector4Parser(string x, out Vector4 v)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 4;
+        v = success ? new(c[0], c[1], c[2], c[3]) : INVALID_VECTOR;
+        return success;
+    }
+
+    private static bool Vector4Unparser(Vector4 v, out string x)
+    {
+        x = v.ToString("F2", CultureInfo.InvariantCulture.NumberFormat);
+        return true;
+    }
+
+    private static bool QuaternionParser(string x, out Quaternion q)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 4;
+        q = success ? new(c[0], c[1], c[2], c[3]) : INVALID_QUATERNION;
+        return success;
+    }
+
+    private static bool QuaternionUnparser(Quaternion q, out string x)
+    {
+        x = q.ToString("F3", CultureInfo.InvariantCulture.NumberFormat);
+        return true;
+    }
+
+    private static bool RectParser(string x, out Rect r)
+    {
+        bool success = FloatListParser(x, out float[] c) && c.Length == 4;
+        r = success ? new(c[0], c[1], c[2], c[3]) : INVALID_RECT;
+        return success;
+    }
+
+    private static bool RectUnparser(Rect r, out string x)
+    {
+        const string format = "F2";
+        var provider = CultureInfo.InvariantCulture.NumberFormat;
+        x = UnityString.Format(
+            "({0}, {1}, {2}, {3})",
+            r.x.ToString(format, provider),
+            r.y.ToString(format, provider),
+            r.width.ToString(format, provider),
+            r.height.ToString(format, provider)
+        );
+        return true;
+    }
+
+    /// <summary>
+    /// Parses strings of the format "(-0.0, -0.0, ... , -0.0)" with or without brackets
+    /// into an array of floats.
+    /// </summary>
+    private static bool FloatListParser(string x, out float[] results)
+    {
+        x = x.Trim();
+        if (x[0] == '(')
+            x = x[1..];
+        if (x[^1] == ')')
+            x = x[..^1];
+
+        string[] rawVals = x.Split(',');
+        results = new float[rawVals.Length];
+
+        NumberFormatInfo format = CultureInfo.InvariantCulture.NumberFormat;
+
+        for (int i = 0; i < rawVals.Length; i++)
+            if (!float.TryParse(rawVals[i], NumberStyles.Float, format, out results[i]))
+                return false;
+
+        return true;
+    }
+
+    #endregion
 }

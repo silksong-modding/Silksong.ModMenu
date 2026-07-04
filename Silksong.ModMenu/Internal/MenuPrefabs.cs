@@ -151,6 +151,12 @@ internal class MenuPrefabs
             textInputChild.FindChild("CursorRight")!.GetComponent<Animator>(),
         ];
 
+        GameObject underlineObj = new("Underline") { layer = (int)PhysLayers.UI };
+        underlineObj.transform.SetParentReset(textInputField.textComponent.transform);
+        underlineObj.AddComponent<Image>();
+        underlineObj.RectTransform.FitToParentHorizontal(anchorY: 0);
+        underlineObj.RectTransform.sizeDelta = new Vector2(0, 3);
+
         sliderTemplate = Object.Instantiate(
             canvas.FindChild("AudioMenuScreen/Content/MasterVolume")!
         );
