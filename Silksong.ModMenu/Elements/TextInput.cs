@@ -25,6 +25,14 @@ public class TextInput<T> : SelectableValueElement<T>
         typeof(ulong),
     ];
     private static readonly HashSet<Type> floatTypes = [typeof(float), typeof(double)];
+    private static readonly HashSet<Type> floatListTypes =
+    [
+        typeof(Vector2),
+        typeof(Vector3),
+        typeof(Vector4),
+        typeof(Quaternion),
+        typeof(Rect),
+    ];
 
     /// <summary>
     /// Construct a basic text input.
@@ -49,6 +57,14 @@ public class TextInput<T> : SelectableValueElement<T>
             InputField.contentType = InputField.ContentType.IntegerNumber;
         else if (floatTypes.Contains(typeof(T)))
             InputField.contentType = InputField.ContentType.DecimalNumber;
+        else if (floatListTypes.Contains(typeof(T)))
+        {
+            InputField.contentType = InputField.ContentType.Custom;
+            InputField.onValidateInput = FloatListValidation;
+            ApplyDefaultColors = true;
+            OnTextValueChanged += _ =>
+                State = TextModel.IsTextValid ? ElementState.DEFAULT : ElementState.INVALID;
+        }
     }
 
     /// <summary>
@@ -100,5 +116,32 @@ public class TextInput<T> : SelectableValueElement<T>
         LabelText.fontSize = fontSizes.LabelSize();
         DescriptionText.fontSize = fontSizes.DescriptionSize();
         InputField.textComponent.fontSize = fontSizes.ChoiceSize();
+    }
+
+    /// <summary>
+    /// <see cref="UnityEngine.UI.InputField"/> validation for comma-delimited lists
+    /// of float values, with or without enclosing brackets.
+    /// </summary>
+    static char FloatListValidation(string input, int pos, char ch)
+    {
+        int leftPos = input.IndexOf('('),
+            rightPos = input.IndexOf(')');
+
+        // Everything must go within the brackets, if they're present
+        if (leftPos >= pos || (rightPos < pos && rightPos >= 0))
+            return '\0';
+
+        if (
+            // Brackets must be unique and positioned on the appropriate end of the string
+            (ch == '(' && leftPos == -1 && pos == 0)
+            || (ch == ')' && rightPos == -1 && pos == input.Length)
+            // Other valid characters
+            || char.IsDigit(ch)
+            || char.IsWhiteSpace(ch)
+            || ",.-".Contains(ch)
+        )
+            return ch;
+
+        return '\0';
     }
 }
