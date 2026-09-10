@@ -45,6 +45,7 @@ public class ConfigEntryFactory
         GenerateDoubleElement,
         GenerateStringElement,
         GenerateColorElement,
+        GenerateKeyboardShortcutElement,
     ];
 
     /// <summary>
@@ -280,6 +281,27 @@ public class ConfigEntryFactory
         }
 
         KeyBindElement element = new(entry.LabelName());
+        element.SynchronizeWith(keyCodeEntry);
+
+        menuElement = element;
+        return true;
+    }
+
+    /// <summary>
+    /// Generate a menu element for a keyboard shortcut.
+    /// </summary>
+    public static bool GenerateKeyboardShortcutElement(
+        ConfigEntryBase entry,
+        [MaybeNullWhen(false)] out MenuElement menuElement
+    )
+    {
+        if (entry is not ConfigEntry<KeyboardShortcut> keyCodeEntry)
+        {
+            menuElement = default;
+            return false;
+        }
+
+        KeyboardShortcutElement element = new(entry.LabelName());
         element.SynchronizeWith(keyCodeEntry);
 
         menuElement = element;
