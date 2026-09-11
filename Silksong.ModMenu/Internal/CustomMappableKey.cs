@@ -80,6 +80,7 @@ internal class CustomMappableKey
             dest.rightCursor = rightCursor;
             dest.transition = Transition.None;
             dest.uiAudioPlayer = UIManager.instance.uiAudioPlayer;
+            dest.originalKeymapSize = keymapImage.rectTransform.sizeDelta;
         }
 
         return dest;
@@ -87,6 +88,8 @@ internal class CustomMappableKey
 
     private bool isListening;
     private readonly KeyBindingSourceListener listener = new();
+
+    private Vector2 originalKeymapSize;
 
     internal IValueModel<KeyCode>? KeyCodeModel
     {
@@ -206,6 +209,9 @@ internal class CustomMappableKey
 
         ClearComboCaps();
 
+        // Resize to vanilla if the main key was shrunk to be flush with the keys.
+        KeymapImage.rectTransform.sizeDelta = originalKeymapSize;
+
         var skins = UIButtonSkins;
         if (isListening)
         {
@@ -243,13 +249,15 @@ internal class CustomMappableKey
     private void ShowCombo(KeyboardShortcut shortcut)
     {
         var skins = UIButtonSkins;
-        ApplyButtonSkin(
-            KeymapImage!,
-            KeymapText!,
-            skins.GetButtonSkinFor(CurrentMainKey.ToString())
-        );
+        var keymapRT = KeymapImage!.rectTransform;
 
-        float occupied = KeymapImage!.rectTransform.sizeDelta.x;
+        var mainSkin = skins.GetButtonSkinFor(CurrentMainKey.ToString());
+        // Size the main key to be only as wide as the sprite.
+        float mainWidth = RenderedSpriteWidth(mainSkin.sprite, originalKeymapSize);
+        keymapRT.sizeDelta = originalKeymapSize with { x = mainWidth };
+        ApplyButtonSkin(KeymapImage, KeymapText!, mainSkin);
+
+        float occupied = mainWidth;
         var orderedModifiers = DisplayOrderedModifiers(shortcut);
         for (int i = orderedModifiers.Length - 1; i >= 0; i--)
         {
@@ -282,6 +290,10 @@ internal class CustomMappableKey
         var cap = Instantiate(KeymapImage!.gameObject, transform);
         cap.name = "Keymap Modifier";
         comboCaps.Add(cap);
+        cap.GetComponent<RectTransform>().sizeDelta = originalKeymapSize with
+        {
+            x = RenderedSpriteWidth(skin.sprite, originalKeymapSize),
+        };
         ApplyButtonSkin(cap.GetComponent<Image>(), cap.GetComponentInChildren<Text>(), skin);
         return cap;
     }
@@ -296,7 +308,7 @@ internal class CustomMappableKey
         rect.anchorMax = keymapRect.anchorMax;
         rect.pivot = keymapRect.pivot;
         rect.anchoredPosition = keymapRect.anchoredPosition;
-        rect.sizeDelta = keymapRect.sizeDelta with { x = ComboSeparatorWidth };
+        rect.sizeDelta = originalKeymapSize with { x = ComboSeparatorWidth };
 
         var text = separator.GetComponent<Text>();
         text.font = KeymapText!.font;
@@ -309,6 +321,21 @@ internal class CustomMappableKey
 
         comboCaps.Add(separator);
         return separator;
+    }
+
+    /// <summary>
+    /// The width a sprite visually occupies within a key cap RectTransform
+    /// </summary>
+    private static float RenderedSpriteWidth(Sprite sprite, Vector2 slotSize) =>
+        Mathf.Min(slotSize.x, sprite.rect.width / sprite.rect.height * slotSize.y);
+
+    /// <summary>
+    /// The horizontal offset that centers a key label on the keycap sprite.
+    /// </summary>
+    private static float CapLabelOffset(Image image)
+    {
+        var slot = image.rectTransform.sizeDelta;
+        return (slot.x - RenderedSpriteWidth(image.sprite, slot)) / 2;
     }
 
     private static void PlaceComboElement(GameObject element, ref float occupied)
@@ -342,7 +369,7 @@ internal class CustomMappableKey
             text.fontSize = MappableKey.sqrFontSize;
             text.alignment = MappableKey.sqrAlignment;
             text.rectTransform.anchoredPosition = new(
-                MappableKey.sqrX,
+                CapLabelOffset(image),
                 text.rectTransform.anchoredPosition.y
             );
             text.rectTransform.SetSizeWithCurrentAnchors(
@@ -359,7 +386,7 @@ internal class CustomMappableKey
             text.fontSize = MappableKey.wideFontSize;
             text.alignment = MappableKey.wideAlignment;
             text.rectTransform.anchoredPosition = new(
-                MappableKey.wideX,
+                CapLabelOffset(image),
                 text.rectTransform.anchoredPosition.y
             );
             text.rectTransform.SetSizeWithCurrentAnchors(
