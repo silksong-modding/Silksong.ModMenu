@@ -190,47 +190,58 @@ internal class CustomMappableKey
         }
         else
         {
-            ButtonSkin keyboardSkinFor = skins.GetButtonSkinFor(CurrentBinding.ToString());
-            KeymapImage.sprite =
-                keyboardSkinFor.sprite != null ? keyboardSkinFor.sprite : skins.blankKey;
-            KeymapText.text = keyboardSkinFor.symbol;
-            if (keyboardSkinFor.skinType == ButtonSkinType.SQUARE)
-            {
-                KeymapText.fontSize = MappableKey.sqrFontSize;
-                KeymapText.alignment = MappableKey.sqrAlignment;
-                KeymapText.rectTransform.anchoredPosition = new(
-                    MappableKey.sqrX,
-                    KeymapText.rectTransform.anchoredPosition.y
-                );
-                KeymapText.rectTransform.SetSizeWithCurrentAnchors(
-                    RectTransform.Axis.Horizontal,
-                    MappableKey.sqrWidth
-                );
-                KeymapText.resizeTextForBestFit = MappableKey.sqrBestFit;
-                KeymapText.resizeTextMinSize = MappableKey.sqrMinFont;
-                KeymapText.resizeTextMaxSize = MappableKey.sqrMaxFont;
-                KeymapText.horizontalOverflow = MappableKey.sqrHOverflow;
-            }
-            else if (keyboardSkinFor.skinType == ButtonSkinType.WIDE)
-            {
-                KeymapText.fontSize = MappableKey.wideFontSize;
-                KeymapText.alignment = MappableKey.wideAlignment;
-                KeymapText.rectTransform.anchoredPosition = new(
-                    MappableKey.wideX,
-                    KeymapText.rectTransform.anchoredPosition.y
-                );
-                KeymapText.rectTransform.SetSizeWithCurrentAnchors(
-                    RectTransform.Axis.Horizontal,
-                    MappableKey.wideWidth
-                );
-                KeymapText.resizeTextForBestFit = MappableKey.wideBestFit;
-                KeymapText.horizontalOverflow = MappableKey.wideHOverflow;
-            }
-            else
-                KeymapText.alignment = skins.labelAlignment;
-
-            KeymapText.GetComponent<FixVerticalAlign>().AlignTextKeymap();
+            ApplyButtonSkin(
+                KeymapImage,
+                KeymapText,
+                skins.GetButtonSkinFor(CurrentBinding.ToString())
+            );
         }
+    }
+
+    /// <summary>
+    /// Apply the visual style for a single key cap from its button skin.
+    /// </summary>
+    private void ApplyButtonSkin(Image image, Text text, ButtonSkin skin)
+    {
+        var skins = UIButtonSkins;
+        image.sprite = skin.sprite != null ? skin.sprite : skins.blankKey;
+        text.text = skin.symbol;
+        if (skin.skinType == ButtonSkinType.SQUARE)
+        {
+            text.fontSize = MappableKey.sqrFontSize;
+            text.alignment = MappableKey.sqrAlignment;
+            text.rectTransform.anchoredPosition = new(
+                MappableKey.sqrX,
+                text.rectTransform.anchoredPosition.y
+            );
+            text.rectTransform.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                MappableKey.sqrWidth
+            );
+            text.resizeTextForBestFit = MappableKey.sqrBestFit;
+            text.resizeTextMinSize = MappableKey.sqrMinFont;
+            text.resizeTextMaxSize = MappableKey.sqrMaxFont;
+            text.horizontalOverflow = MappableKey.sqrHOverflow;
+        }
+        else if (skin.skinType == ButtonSkinType.WIDE)
+        {
+            text.fontSize = MappableKey.wideFontSize;
+            text.alignment = MappableKey.wideAlignment;
+            text.rectTransform.anchoredPosition = new(
+                MappableKey.wideX,
+                text.rectTransform.anchoredPosition.y
+            );
+            text.rectTransform.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                MappableKey.wideWidth
+            );
+            text.resizeTextForBestFit = MappableKey.wideBestFit;
+            text.horizontalOverflow = MappableKey.wideHOverflow;
+        }
+        else
+            text.alignment = skins.labelAlignment;
+
+        text.GetComponent<FixVerticalAlign>().AlignTextKeymap();
     }
 
     internal void AbortRebind()
