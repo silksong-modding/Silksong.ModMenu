@@ -12,6 +12,8 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
 {
+    private readonly CustomMappableKey customMappableKey;
+
     /// <summary>
     /// Construct a KeyboardShortcutElement with a custom model.
     /// </summary>
@@ -22,11 +24,12 @@ public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
             model
         )
     {
+        customMappableKey.ShortcutModel = model;
+
+        this.customMappableKey = customMappableKey;
         customMappableKey.KeyCodeModel = new KeyboardShortcutModel(model);
 
         LabelText = Container.FindChild("Input Button Text")!.GetComponent<Text>();
-        KeyboardShortcutText = customMappableKey.KeymapText!;
-        KeyboardShortcutImage = customMappableKey.KeymapImage!;
 
         LabelText.LocalizedText = label;
     }
@@ -42,22 +45,11 @@ public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
     /// </summary>
     public readonly Text LabelText;
 
-    /// <summary>
-    /// The unity component for the text of the selected key bind.
-    /// </summary>
-    public readonly Text KeyboardShortcutText;
-
-    /// <summary>
-    /// The unity component for the image of the selected key bind.
-    /// </summary>
-    public readonly Image KeyboardShortcutImage;
-
     /// <inheritdoc/>
     public override void SetMainColor(Color color)
     {
         LabelText.color = color;
-        KeyboardShortcutText.color = color;
-        KeyboardShortcutImage.color = color;
+        customMappableKey.SetKeymapColor(color);
     }
 
     /// <inheritdoc/>

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using BepInEx.Configuration;
 using GlobalEnums;
 using InControl;
 using Silksong.ModMenu.Models;
@@ -29,6 +31,16 @@ internal class CustomMappableKey
         new(Key.LeftCommand),
         new(Key.RightCommand),
     ];
+
+    /// <summary>
+    /// The width of the '+' separators in key combination shortcuts.
+    /// </summary>
+    private const float ComboSeparatorWidth = 50f;
+
+    /// <summary>
+    /// The key cap and separator objects of a key combination shortcut.
+    /// </summary>
+    private readonly List<GameObject> comboCaps = [];
 
     internal Text? KeymapText { get; private set; }
     internal Image? KeymapImage { get; private set; }
@@ -93,8 +105,32 @@ internal class CustomMappableKey
 
     private void OnKeyCodeChanged(KeyCode keyCode) => ShowCurrentKeyCode();
 
-    private InputHandler.KeyOrMouseBinding CurrentBinding =>
-        new(isListening ? Key.None : KeyCodeUtil.ToKey(KeyCodeModel?.Value ?? KeyCode.None));
+    /// <summary>
+    /// The value model exposing the full shortcut, including modifiers.
+    /// Only when this is set can modifiers be recorded.
+    /// </summary>
+    internal IValueModel<KeyboardShortcut>? ShortcutModel
+    {
+        get => field;
+        set
+        {
+            if (field == value)
+                return;
+            field?.OnValueChanged -= OnShortcutChanged;
+            field = value;
+            field?.OnValueChanged += OnShortcutChanged;
+
+            ShowCurrentKeyCode();
+        }
+    }
+
+    private void OnShortcutChanged(KeyboardShortcut shortcut) => ShowCurrentKeyCode();
+
+    private KeyboardShortcut CurrentShortcut =>
+        ShortcutModel?.Value ?? new KeyboardShortcut(KeyCodeModel?.Value ?? KeyCode.None);
+
+    private Key CurrentMainKey =>
+        isListening ? Key.None : KeyCodeUtil.ToKey(CurrentShortcut.MainKey);
 
     private new void OnDisable()
     {
@@ -168,6 +204,8 @@ internal class CustomMappableKey
         if (KeymapText == null || KeymapImage == null)
             return;
 
+        ClearComboCaps();
+
         var skins = UIButtonSkins;
         if (isListening)
         {
@@ -178,7 +216,7 @@ internal class CustomMappableKey
             KeymapText.horizontalOverflow = MappableKey.blankOverflow;
             KeymapText.GetComponent<FixVerticalAlign>().AlignText();
         }
-        else if (InputHandler.KeyOrMouseBinding.IsNone(CurrentBinding))
+        else if (CurrentMainKey == Key.None)
         {
             KeymapImage.sprite = skins.blankKey;
             KeymapText.text = Language.Get("KEYBOARD_UNMAPPED", "MainMenu");
@@ -188,14 +226,107 @@ internal class CustomMappableKey
             KeymapText.horizontalOverflow = MappableKey.blankOverflow;
             KeymapText.GetComponent<FixVerticalAlign>().AlignText();
         }
+        else if (CurrentShortcut.Modifiers.Any())
+        {
+            ShowCombo(CurrentShortcut);
+        }
         else
         {
             ApplyButtonSkin(
                 KeymapImage,
                 KeymapText,
-                skins.GetButtonSkinFor(CurrentBinding.ToString())
+                skins.GetButtonSkinFor(CurrentMainKey.ToString())
             );
         }
+    }
+
+    private void ShowCombo(KeyboardShortcut shortcut)
+    {
+        var skins = UIButtonSkins;
+        ApplyButtonSkin(
+            KeymapImage!,
+            KeymapText!,
+            skins.GetButtonSkinFor(CurrentMainKey.ToString())
+        );
+
+        float occupied = KeymapImage!.rectTransform.sizeDelta.x;
+        var orderedModifiers = DisplayOrderedModifiers(shortcut);
+        for (int i = orderedModifiers.Length - 1; i >= 0; i--)
+        {
+            PlaceComboElement(NewComboSeparator(), ref occupied);
+            PlaceComboElement(
+                NewComboCap(skins.GetButtonSkinFor(orderedModifiers[i].ToString())),
+                ref occupied
+            );
+        }
+    }
+
+    /// <summary>
+    /// The shortcut's modifiers in conventional display order
+    /// </summary>
+    private static KeyCode[] DisplayOrderedModifiers(KeyboardShortcut shortcut) =>
+        [.. shortcut.Modifiers.OrderBy(ModifierDisplayOrder).ThenByDescending(m => m)];
+
+    private static int ModifierDisplayOrder(KeyCode modifier) =>
+        modifier switch
+        {
+            KeyCode.LeftControl or KeyCode.RightControl => 0,
+            KeyCode.LeftShift or KeyCode.RightShift => 1,
+            KeyCode.LeftAlt or KeyCode.RightAlt => 2,
+            KeyCode.LeftCommand or KeyCode.RightCommand => 3,
+            _ => int.MaxValue,
+        };
+
+    private GameObject NewComboCap(ButtonSkin skin)
+    {
+        var cap = Instantiate(KeymapImage!.gameObject, transform);
+        cap.name = "Keymap Modifier";
+        comboCaps.Add(cap);
+        ApplyButtonSkin(cap.GetComponent<Image>(), cap.GetComponentInChildren<Text>(), skin);
+        return cap;
+    }
+
+    private GameObject NewComboSeparator()
+    {
+        var separator = new GameObject("Keymap Separator", typeof(Text));
+        var rect = separator.GetComponent<RectTransform>();
+        rect.SetParent(transform, false);
+        var keymapRect = KeymapImage!.rectTransform;
+        rect.anchorMin = keymapRect.anchorMin;
+        rect.anchorMax = keymapRect.anchorMax;
+        rect.pivot = keymapRect.pivot;
+        rect.anchoredPosition = keymapRect.anchoredPosition;
+        rect.sizeDelta = keymapRect.sizeDelta with { x = ComboSeparatorWidth };
+
+        var text = separator.GetComponent<Text>();
+        text.font = KeymapText!.font;
+        text.color = KeymapText.color;
+        text.raycastTarget = KeymapText.raycastTarget;
+        text.text = "+";
+        text.fontSize = MappableKey.wideFontSize;
+        text.alignment = TextAnchor.MiddleCenter;
+        separator.AddComponent<FixVerticalAlign>().AlignTextKeymap();
+
+        comboCaps.Add(separator);
+        return separator;
+    }
+
+    private static void PlaceComboElement(GameObject element, ref float occupied)
+    {
+        var rectTransform = element.GetComponent<RectTransform>();
+        rectTransform.anchoredPosition = rectTransform.anchoredPosition with
+        {
+            x = rectTransform.anchoredPosition.x - occupied,
+        };
+        occupied += rectTransform.sizeDelta.x;
+    }
+
+    private void ClearComboCaps()
+    {
+        foreach (var cap in comboCaps)
+            DestroyImmediate(cap);
+
+        comboCaps.Clear();
     }
 
     /// <summary>
@@ -242,6 +373,19 @@ internal class CustomMappableKey
             text.alignment = skins.labelAlignment;
 
         text.GetComponent<FixVerticalAlign>().AlignTextKeymap();
+    }
+
+    internal void SetKeymapColor(Color color)
+    {
+        KeymapImage!.color = color;
+        KeymapText!.color = color;
+
+        foreach (var cap in comboCaps)
+        {
+            if (cap.TryGetComponent<Image>(out var image))
+                image.color = color;
+            cap.GetComponentInChildren<Text>().color = color;
+        }
     }
 
     internal void AbortRebind()
