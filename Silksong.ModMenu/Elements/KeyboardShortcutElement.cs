@@ -27,7 +27,6 @@ public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
         customMappableKey.ShortcutModel = model;
 
         this.customMappableKey = customMappableKey;
-        customMappableKey.KeyCodeModel = new KeyboardShortcutModel(model);
 
         LabelText = Container.FindChild("Input Button Text")!.GetComponent<Text>();
 
@@ -55,12 +54,4 @@ public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
     /// <inheritdoc/>
     public override void SetFontSizes(FontSizes fontSizes) =>
         LabelText.fontSize = fontSizes.LabelSize();
-}
-
-internal class KeyboardShortcutModel(IValueModel<KeyboardShortcut> model)
-    : AbstractValueModel<KeyCode>
-{
-    public override KeyCode GetValue() => model.Value.MainKey;
-
-    public override bool SetValue(KeyCode value) => model.SetValue(new KeyboardShortcut(value));
 }

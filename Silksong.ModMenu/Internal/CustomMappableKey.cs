@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Configuration;
 using GlobalEnums;
@@ -23,13 +24,33 @@ internal class CustomMappableKey
         IPointerClickHandler,
         ICancelHandler
 {
-    private static readonly HashSet<KeyBindingSource> unmappableKeys =
+    private static readonly HashSet<Key> unmappableKeys =
     [
-        new(Key.Escape),
-        new(Key.Return),
-        new(Key.Numlock),
-        new(Key.LeftCommand),
-        new(Key.RightCommand),
+        Key.Escape,
+        Key.Return,
+        Key.Numlock,
+        Key.LeftCommand,
+        Key.RightCommand,
+    ];
+
+    /// <summary>
+    /// All keys that can act as the main key of a shortcut
+    /// </summary>
+    private static readonly Key[] regularKeys =
+    [
+        .. Enum.GetValues(typeof(Key)).Cast<Key>().Where(k => k >= Key.Escape),
+    ];
+
+    private static readonly Key[] modifierKeys =
+    [
+        Key.LeftShift,
+        Key.LeftAlt,
+        Key.LeftCommand,
+        Key.LeftControl,
+        Key.RightShift,
+        Key.RightAlt,
+        Key.RightCommand,
+        Key.RightControl,
     ];
 
     /// <summary>
@@ -91,6 +112,10 @@ internal class CustomMappableKey
 
     private Vector2 originalKeymapSize;
 
+    private bool hasSeenKeysReleased;
+    private HashSet<Key> previousHeldKeys = [];
+    private (Key key, KeyboardShortcut? shortcut)? pendingRecording;
+
     internal IValueModel<KeyCode>? KeyCodeModel
     {
         get => field;
@@ -151,8 +176,47 @@ internal class CustomMappableKey
 
         interactable = false;
         isListening = true;
+        hasSeenKeysReleased = false;
+        previousHeldKeys = [];
+        pendingRecording = null;
         listener.Reset();
         ShowCurrentKeyCode();
+    }
+
+    private void Update()
+    {
+        if (!isListening)
+            return;
+
+        if (ShortcutModel != null)
+            ListenForShortcut();
+        else
+            ListenForKeyCode();
+    }
+
+    /// <summary>
+    /// Rebind flow for single key codes
+    /// </summary>
+    private void ListenForKeyCode()
+    {
+        var source = listener.Listen(
+            new() { IncludeKeys = true, IncludeModifiersAsFirstClassKeys = true },
+            InputManager.ActiveDevice
+        );
+
+        if (
+            source is KeyBindingSource keyBinding
+            && GetKey(keyBinding, out var key)
+            && !unmappableKeys.Contains(key)
+        )
+        {
+            isListening = false;
+            interactable = true;
+            KeyCodeModel?.Value = KeyCodeUtil.ToKeyCode(key);
+            ShowCurrentKeyCode();
+        }
+        else if (source != null)
+            AbortRebind();
     }
 
     private static bool GetKey(KeyBindingSource keyBinding, out Key key)
@@ -177,29 +241,84 @@ internal class CustomMappableKey
         }
     }
 
-    private void Update()
+    /// <summary>
+    /// Rebind flow for full shortcuts
+    /// </summary>
+    private void ListenForShortcut()
     {
-        if (!isListening)
-            return;
-
-        var source = listener.Listen(
-            new() { IncludeKeys = true, IncludeModifiersAsFirstClassKeys = true },
-            InputManager.ActiveDevice
+        var held = new HashSet<Key>(
+            regularKeys.Concat(modifierKeys).Where(InputManager.KeyboardProvider.GetKeyIsPressed)
         );
 
+        if (!hasSeenKeysReleased)
+        {
+            hasSeenKeysReleased = held.Count == 0;
+            return;
+        }
+
+        // Confirm on keyup, like single keys
+        if (pendingRecording is { } pending)
+        {
+            if (held.Contains(pending.key))
+                return;
+
+            pendingRecording = null;
+            if (pending.shortcut is { } shortcut)
+                AcceptShortcut(shortcut);
+            else
+                AbortRebind();
+            return;
+        }
+
+        var pressedKey = regularKeys.FirstOrDefault(k =>
+            held.Contains(k) && !previousHeldKeys.Contains(k)
+        );
+        if (pressedKey != Key.None)
+        {
+            if (unmappableKeys.Contains(pressedKey))
+            {
+                pendingRecording = (pressedKey, null);
+                return;
+            }
+
+            var modifiers = modifierKeys
+                .Where(held.Contains)
+                .Select(KeyCodeUtil.ToKeyCode)
+                .ToArray();
+            pendingRecording = (
+                pressedKey,
+                new KeyboardShortcut(KeyCodeUtil.ToKeyCode(pressedKey), modifiers)
+            );
+            return;
+        }
+
+        // A single modifier press
         if (
-            source is KeyBindingSource keyBinding
-            && !unmappableKeys.Contains(keyBinding)
-            && GetKey(keyBinding, out var key)
+            held.Count == 0
+            && previousHeldKeys.Count == 1
+            && modifierKeys.Contains(previousHeldKeys.First())
         )
         {
-            isListening = false;
-            interactable = true;
-            KeyCodeModel?.Value = KeyCodeUtil.ToKeyCode(key);
-            ShowCurrentKeyCode();
+            var modifier = previousHeldKeys.First();
+            if (unmappableKeys.Contains(modifier))
+            {
+                AbortRebind();
+                return;
+            }
+
+            AcceptShortcut(new KeyboardShortcut(KeyCodeUtil.ToKeyCode(modifier)));
+            return;
         }
-        else if (source != null)
-            AbortRebind();
+
+        previousHeldKeys = held;
+    }
+
+    private void AcceptShortcut(KeyboardShortcut shortcut)
+    {
+        isListening = false;
+        interactable = true;
+        ShortcutModel?.Value = shortcut;
+        ShowCurrentKeyCode();
     }
 
     public void ShowCurrentKeyCode()
