@@ -74,6 +74,8 @@ internal class CustomMappableKey
             dest.transition = Transition.None;
             dest.uiAudioPlayer = UIManager.instance.uiAudioPlayer;
             dest.originalKeymapSize = keymapImage.rectTransform.sizeDelta;
+            dest.originalKeymapTextX = keymapText.rectTransform.anchoredPosition.x;
+            dest.originalKeymapTextWidth = keymapText.rectTransform.sizeDelta.x;
         }
 
         return dest;
@@ -84,6 +86,8 @@ internal class CustomMappableKey
     private readonly KeyShortcutSourceListener shortcutListener = new();
 
     private Vector2 originalKeymapSize;
+    private float originalKeymapTextX;
+    private float originalKeymapTextWidth;
 
     internal IValueModel<KeyCode>? KeyCodeModel
     {
@@ -248,6 +252,9 @@ internal class CustomMappableKey
 
         // Resize to vanilla if the main key was shrunk to be flush with the keys.
         KeymapImage.rectTransform.sizeDelta = originalKeymapSize;
+        var textRect = KeymapText.rectTransform;
+        textRect.anchoredPosition = textRect.anchoredPosition with { x = originalKeymapTextX };
+        textRect.sizeDelta = textRect.sizeDelta with { x = originalKeymapTextWidth };
 
         var skins = UIButtonSkins;
         if (isListening)
