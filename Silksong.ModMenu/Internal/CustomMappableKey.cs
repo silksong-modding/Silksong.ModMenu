@@ -23,14 +23,7 @@ internal class CustomMappableKey
         IPointerClickHandler,
         ICancelHandler
 {
-    private static readonly HashSet<Key> unmappableKeys =
-    [
-        Key.Escape,
-        Key.Return,
-        Key.Numlock,
-        Key.LeftCommand,
-        Key.RightCommand,
-    ];
+    private static readonly HashSet<Key> unmappableKeys = [Key.Escape, Key.Return, Key.Numlock];
 
     /// <summary>
     /// The width of the '+' separators in key combination shortcuts.

@@ -273,9 +273,10 @@ internal static class KeyCodeUtil
             KeyCode.LeftControl => Key.LeftControl,
             KeyCode.RightAlt => Key.RightAlt,
             KeyCode.LeftAlt => Key.LeftAlt,
-            KeyCode.LeftMeta => Key.None,
+            // LeftMeta/LeftCommand/LeftApple are all the same value
+            KeyCode.LeftMeta => Key.LeftCommand,
             KeyCode.LeftWindows => Key.LeftCommand,
-            KeyCode.RightMeta => Key.None,
+            KeyCode.RightMeta => Key.RightCommand,
             KeyCode.RightWindows => Key.RightCommand,
             KeyCode.AltGr => Key.AltGr,
             KeyCode.Help => Key.None,
