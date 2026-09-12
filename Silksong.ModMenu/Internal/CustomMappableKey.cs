@@ -113,6 +113,7 @@ internal class CustomMappableKey
     private Vector2 originalKeymapSize;
 
     private bool hasSeenKeysReleased;
+    private HashSet<Key> startHeldKeys = [];
     private HashSet<Key> previousHeldKeys = [];
     private (Key key, KeyboardShortcut? shortcut)? pendingRecording;
 
@@ -176,8 +177,12 @@ internal class CustomMappableKey
 
         interactable = false;
         isListening = true;
-        hasSeenKeysReleased = false;
-        previousHeldKeys = [];
+        var heldNow = regularKeys
+            .Concat(modifierKeys)
+            .Where(InputManager.KeyboardProvider.GetKeyIsPressed)
+            .ToHashSet();
+        previousHeldKeys = [.. heldNow];
+        startHeldKeys = [.. heldNow];
         pendingRecording = null;
         listener.Reset();
         ShowCurrentKeyCode();
@@ -250,12 +255,6 @@ internal class CustomMappableKey
             regularKeys.Concat(modifierKeys).Where(InputManager.KeyboardProvider.GetKeyIsPressed)
         );
 
-        if (!hasSeenKeysReleased)
-        {
-            hasSeenKeysReleased = held.Count == 0;
-            return;
-        }
-
         // Confirm on keyup, like single keys
         if (pendingRecording is { } pending)
         {
@@ -297,6 +296,7 @@ internal class CustomMappableKey
             held.Count == 0
             && previousHeldKeys.Count == 1
             && modifierKeys.Contains(previousHeldKeys.First())
+            && !startHeldKeys.Contains(previousHeldKeys.First())
         )
         {
             var modifier = previousHeldKeys.First();
@@ -311,6 +311,7 @@ internal class CustomMappableKey
         }
 
         previousHeldKeys = held;
+        startHeldKeys.IntersectWith(held); // Make keys held at start capturable when released
     }
 
     private void AcceptShortcut(KeyboardShortcut shortcut)
