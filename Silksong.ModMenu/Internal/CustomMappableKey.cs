@@ -275,20 +275,36 @@ internal class CustomMappableKey
         }
         else
         {
-            ApplyButtonSkin(
-                KeymapImage,
-                KeymapText,
-                skins.GetButtonSkinFor(CurrentMainKey.ToString())
-            );
+            ApplyButtonSkin(KeymapImage, KeymapText, GetSkinFor(CurrentMainKey));
         }
+    }
+
+    /// <summary>
+    /// The button skin for a key with a fallback for keys unbindable in vanilla.
+    /// </summary>
+    private static ButtonSkin GetSkinFor(Key key)
+    {
+        var skins = UIButtonSkins;
+        var skin = skins.GetButtonSkinFor(key.ToString());
+        if (skin.skinType == ButtonSkinType.BLANK)
+        {
+            skin.sprite = skins.rectangleKey;
+            skin.skinType = ButtonSkinType.WIDE;
+            skin.symbol = key switch
+            {
+                Key.LeftCommand => "L Cmd",
+                Key.RightCommand => "R Cmd",
+                _ => skin.symbol,
+            };
+        }
+        return skin;
     }
 
     private void ShowCombo(KeyboardShortcut shortcut)
     {
-        var skins = UIButtonSkins;
         var keymapRT = KeymapImage!.rectTransform;
 
-        var mainSkin = skins.GetButtonSkinFor(CurrentMainKey.ToString());
+        var mainSkin = GetSkinFor(CurrentMainKey);
         // Size the main key to be only as wide as the sprite.
         float mainWidth = RenderedSpriteWidth(mainSkin.sprite, originalKeymapSize);
         keymapRT.sizeDelta = originalKeymapSize with { x = mainWidth };
@@ -300,7 +316,7 @@ internal class CustomMappableKey
         {
             PlaceComboElement(NewComboSeparator(), ref occupied);
             PlaceComboElement(
-                NewComboCap(skins.GetButtonSkinFor(orderedModifiers[i].ToString())),
+                NewComboCap(GetSkinFor(KeyCodeUtil.ToKey(orderedModifiers[i]))),
                 ref occupied
             );
         }
