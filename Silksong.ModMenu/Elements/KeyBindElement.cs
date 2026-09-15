@@ -16,12 +16,12 @@ public class KeyBindElement : SelectableValueElement<KeyCode>
     /// </summary>
     public KeyBindElement(LocalizedText label, IValueModel<KeyCode> model)
         : base(
-            MenuPrefabs.Get().NewKeyBindContainer(out var customMappableKey),
+            MenuPrefabs.Get().NewKeyBindContainer(out KeyCodeMappableKey customMappableKey),
             customMappableKey,
             model
         )
     {
-        customMappableKey.KeyCodeModel = model;
+        customMappableKey.Model = model;
 
         LabelText = Container.FindChild("Input Button Text")!.GetComponent<Text>();
         KeyBindText = customMappableKey.KeymapText!;

@@ -12,19 +12,21 @@ namespace Silksong.ModMenu.Elements;
 /// </summary>
 public class KeyboardShortcutElement : SelectableValueElement<KeyboardShortcut>
 {
-    private readonly CustomMappableKey customMappableKey;
+    private readonly KeyboardShortcutMappableKey customMappableKey;
 
     /// <summary>
     /// Construct a KeyboardShortcutElement with a custom model.
     /// </summary>
     public KeyboardShortcutElement(LocalizedText label, IValueModel<KeyboardShortcut> model)
         : base(
-            MenuPrefabs.Get().NewKeyBindContainer(out var customMappableKey),
+            MenuPrefabs
+                .Get()
+                .NewKeyBindContainer(out KeyboardShortcutMappableKey customMappableKey),
             customMappableKey,
             model
         )
     {
-        customMappableKey.ShortcutModel = model;
+        customMappableKey.Model = model;
 
         this.customMappableKey = customMappableKey;
 
