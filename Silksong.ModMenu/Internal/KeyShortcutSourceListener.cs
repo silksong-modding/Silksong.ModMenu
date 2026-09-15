@@ -16,7 +16,7 @@ internal class KeyShortcutSourceListener
     /// <summary>
     /// All keys that can act as the main key of a shortcut
     /// </summary>
-    private static readonly Key[] regularKeys =
+    private static readonly IReadOnlyList<Key> regularKeys =
     [
         .. Enum.GetValues(typeof(Key)).Cast<Key>().Where(k => k >= Key.Escape),
     ];
