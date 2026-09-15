@@ -220,6 +220,7 @@ internal record MenuProperty(
                 && !InitNumericType(bounds)
                 && !InitBoolType()
                 && !InitKeyCodeType()
+                && !InitKeyboardShortcutType()
                 && !InitEnumType()
                 && !InitColorType()
                 && !InitTextType()
@@ -341,6 +342,17 @@ internal record MenuProperty(
 
         DefaultInitializer.Add(
             $@"{Name} = new Silksong.ModMenu.Elements.KeyBindElement({DisplayName.MakeLiteral()});"
+        );
+        return true;
+    }
+    
+    private bool InitKeyboardShortcutType()
+    {
+        if (DataType.ToDisplayString() != "BepInEx.Configuration.KeyboardShortcut")
+            return false;
+
+        DefaultInitializer.Add(
+            $@"{Name} = new Silksong.ModMenu.Elements.KeyboardShortcutElement({DisplayName.MakeLiteral()});"
         );
         return true;
     }
