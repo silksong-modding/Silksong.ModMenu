@@ -35,7 +35,7 @@ internal class KeyShortcutSourceListener
 
     private HashSet<Key> previousHeldKeys = [];
     private HashSet<Key> startHeldKeys = [];
-    private (Key key, Key[] modifiers)? pendingRecording;
+    private ShortcutRecording? pendingRecording;
 
     /// <summary>
     /// Start listening, ignoring the keys currently held.
@@ -55,35 +55,35 @@ internal class KeyShortcutSourceListener
     {
         var held = HeldKeys();
 
-        // Confirm on keyup, like single keys
+        // If a shortcut was recorded, wait for key up until it is confirmed
         if (pendingRecording is { } pending)
         {
-            if (held.Contains(pending.key))
+            if (held.Contains(pending.MainKey))
                 return null;
 
             pendingRecording = null;
-            return new(pending.key, pending.modifiers);
+            return pending;
         }
 
-        var pressedKey = regularKeys.FirstOrDefault(k =>
+        // On key down, store the current main keys along with its modifiers in pendingRecording
+        var regularKeyDown = regularKeys.FirstOrDefault(k =>
             held.Contains(k) && !previousHeldKeys.Contains(k)
         );
-        if (pressedKey != Key.None)
+        if (regularKeyDown != Key.None)
         {
-            pendingRecording = (pressedKey, [.. modifierKeys.Where(held.Contains)]);
+            pendingRecording = new ShortcutRecording(
+                regularKeyDown,
+                [.. modifierKeys.Where(held.Contains)]
+            );
             return null;
         }
 
-        // A single modifier press
-        if (
-            held.Count == 0
-            && previousHeldKeys.Count == 1
-            && modifierKeys.Contains(previousHeldKeys.First())
-            && !startHeldKeys.Contains(previousHeldKeys.First())
-        )
+        // A single modifier press can be recorded as a keybind
+        var keyUp =
+            held.Count == 0 && previousHeldKeys.Count == 1 ? previousHeldKeys.First() : Key.None;
+        if (keyUp != Key.None && modifierKeys.Contains(keyUp) && !startHeldKeys.Contains(keyUp))
         {
-            var modifier = previousHeldKeys.First();
-            return new(modifier, []);
+            return new ShortcutRecording(keyUp, []);
         }
 
         previousHeldKeys = held;
