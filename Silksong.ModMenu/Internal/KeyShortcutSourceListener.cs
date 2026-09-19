@@ -34,17 +34,15 @@ internal class KeyShortcutSourceListener
     ];
 
     private HashSet<Key> previousHeldKeys = [];
-    private HashSet<Key> startHeldKeys = [];
     private ShortcutRecording? pendingRecording;
 
     /// <summary>
-    /// Start listening, ignoring the keys currently held.
+    /// Start listening, ignoring key downs that already happened.
     /// </summary>
     public void Reset()
     {
         var heldNow = HeldKeys();
         previousHeldKeys = [.. heldNow];
-        startHeldKeys = [.. heldNow];
         pendingRecording = null;
     }
 
@@ -81,13 +79,13 @@ internal class KeyShortcutSourceListener
         // A single modifier press can be recorded as a keybind
         var keyUp =
             held.Count == 0 && previousHeldKeys.Count == 1 ? previousHeldKeys.First() : Key.None;
-        if (keyUp != Key.None && modifierKeys.Contains(keyUp) && !startHeldKeys.Contains(keyUp))
+        if (keyUp != Key.None && modifierKeys.Contains(keyUp))
         {
             return new ShortcutRecording(keyUp, []);
         }
 
+        // Every frame when the shortcut isn't recorded yet, snapshot the held keys for the next frame.
         previousHeldKeys = held;
-        startHeldKeys.IntersectWith(held); // Make keys held at start capturable when released
         return null;
     }
 
