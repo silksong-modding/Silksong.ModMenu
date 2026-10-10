@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine.UI;
 
 namespace Silksong.ModMenu.Elements;
@@ -14,106 +15,146 @@ public static class INavigableExtensions
     extension(INavigable self)
     {
         /// <summary>
-        /// Set the upwards neighbor of this navigable.
+        /// Set the upwards neighbors of this navigable.
         /// </summary>
-        public void SetNeighborUp(Selectable selectable) =>
-            self.SetNeighbor(NavigationDirection.Up, selectable);
+        public void SetNeighborsUp(Selectable selectable) =>
+            self.SetNeighbors(NavigationDirection.Up, [selectable]);
 
         /// <summary>
-        /// Set the upwards neighbor of this navigable.
+        /// Set the upwards neighbors of this navigable to one or more of the given options.
         /// </summary>
-        public void SetNeighborUp(SelectableElement selectableElement) =>
-            self.SetNeighborUp(selectableElement.SelectableComponent);
+        public void SetNeighborsUp(IEnumerable<Selectable> selectables) =>
+            self.SetNeighbors(NavigationDirection.Up, selectables);
 
         /// <summary>
-        /// Declare that this navigable has no upwards neighbor.
+        /// Set the upwards neighbors of this navigable.
         /// </summary>
-        public void ClearNeighborUp() => self.ClearNeighbor(NavigationDirection.Up);
+        public void SetNeighborsUp(SelectableElement selectableElement)
+        {
+            if (selectableElement.GetSelectables(NavigationDirection.Up, out var selectables))
+                self.SetNeighborsUp(selectables);
+        }
 
         /// <summary>
-        /// Get the most eligible selectable within this navigable when navigating upwards into it.
+        /// Declare that this navigable has no upwards neighbors.
         /// </summary>
-        public bool GetNeighborUp([MaybeNullWhen(false)] out Selectable selectable) =>
-            self.GetSelectable(NavigationDirection.Up, out selectable);
+        public void ClearNeighborsUp() => self.ClearNeighbors(NavigationDirection.Up);
 
         /// <summary>
-        /// Set the leftwards neighbor of this navigable.
+        /// Get the most eligible selectables within this navigable when navigating upwards into it.
         /// </summary>
-        public void SetNeighborLeft(Selectable selectable) =>
-            self.SetNeighbor(NavigationDirection.Left, selectable);
+        public bool GetNeighborsUp(
+            [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
+        ) => self.GetSelectables(NavigationDirection.Up, out selectables);
 
         /// <summary>
-        /// Set the leftwards neighbor of this navigable.
+        /// Set the leftwards neighbors of this navigable.
         /// </summary>
-        public void SetNeighborLeft(SelectableElement selectableElement) =>
-            self.SetNeighborLeft(selectableElement.SelectableComponent);
+        public void SetNeighborsLeft(Selectable selectable) =>
+            self.SetNeighbors(NavigationDirection.Left, [selectable]);
 
         /// <summary>
-        /// Declare that this navigable has no upwards neighbor.
+        /// Set the leftwards neighbors of this navigable to one or more of the given options.
         /// </summary>
-        public void ClearNeighborLeft() => self.ClearNeighbor(NavigationDirection.Left);
+        public void SetNeighborsLeft(IEnumerable<Selectable> selectables) =>
+            self.SetNeighbors(NavigationDirection.Left, selectables);
 
         /// <summary>
-        /// Get the most eligible selectable within this navigable when navigating leftwards into it.
+        /// Set the leftwards neighbors of this navigable.
         /// </summary>
-        public bool GetNeighborLeft([MaybeNullWhen(false)] out Selectable selectable) =>
-            self.GetSelectable(NavigationDirection.Left, out selectable);
+        public void SetNeighborsLeft(SelectableElement selectableElement)
+        {
+            if (selectableElement.GetSelectables(NavigationDirection.Left, out var selectables))
+                self.SetNeighborsLeft(selectables);
+        }
 
         /// <summary>
-        /// Set the rightwards neighbor of this navigable.
+        /// Declare that this navigable has no upwards neighbors.
         /// </summary>
-        public void SetNeighborRight(Selectable selectable) =>
-            self.SetNeighbor(NavigationDirection.Right, selectable);
+        public void ClearNeighborsLeft() => self.ClearNeighbors(NavigationDirection.Left);
 
         /// <summary>
-        /// Set the rightwards neighbor of this navigable.
+        /// Get the most eligible selectables within this navigable when navigating leftwards into it.
         /// </summary>
-        public void SetNeighborRight(SelectableElement selectableElement) =>
-            self.SetNeighborRight(selectableElement.SelectableComponent);
+        public bool GetNeighborsLeft(
+            [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
+        ) => self.GetSelectables(NavigationDirection.Left, out selectables);
 
         /// <summary>
-        /// Get the most eligible selectable within this navigable when navigating rightwards into it.
+        /// Set the rightwards neighbors of this navigable.
         /// </summary>
-        public bool GetNeighborRight([MaybeNullWhen(false)] out Selectable selectable) =>
-            self.GetSelectable(NavigationDirection.Right, out selectable);
+        public void SetNeighborsRight(Selectable selectable) =>
+            self.SetNeighbors(NavigationDirection.Right, [selectable]);
 
         /// <summary>
-        /// Declare that this navigable has no upwards neighbor.
+        /// Set the rightwards neighbors of this navigable to one or more of the given options.
         /// </summary>
-        public void ClearNeighborRight() => self.ClearNeighbor(NavigationDirection.Right);
+        public void SetNeighborsRight(IEnumerable<Selectable> selectables) =>
+            self.SetNeighbors(NavigationDirection.Right, selectables);
 
         /// <summary>
-        /// Set the downwards neighbor of this navigable.
+        /// Set the rightwards neighbors of this navigable.
+        /// </summary>
+        public void SetNeighborsRight(SelectableElement selectableElement)
+        {
+            if (selectableElement.GetSelectables(NavigationDirection.Right, out var selectables))
+                self.SetNeighborsRight(selectables);
+        }
+
+        /// <summary>
+        /// Get the most eligible selectables within this navigable when navigating rightwards into it.
+        /// </summary>
+        public bool GetNeighborsRight(
+            [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
+        ) => self.GetSelectables(NavigationDirection.Right, out selectables);
+
+        /// <summary>
+        /// Declare that this navigable has no upwards neighbors.
+        /// </summary>
+        public void ClearNeighborsRight() => self.ClearNeighbors(NavigationDirection.Right);
+
+        /// <summary>
+        /// Set the downwards neighbors of this navigable.
         /// </summary>
         public void SetNeighborDown(Selectable selectable) =>
-            self.SetNeighbor(NavigationDirection.Down, selectable);
+            self.SetNeighbors(NavigationDirection.Down, [selectable]);
 
         /// <summary>
-        /// Set the downwards neighbor of this navigable.
+        /// Set the downwards neighbors of this navigable to one or more of the given options.
         /// </summary>
-        public void SetNeighborDown(SelectableElement selectableElement) =>
-            self.SetNeighborDown(selectableElement.SelectableComponent);
+        public void SetNeighborsDown(IEnumerable<Selectable> selectables) =>
+            self.SetNeighbors(NavigationDirection.Down, selectables);
 
         /// <summary>
-        /// Declare that this navigable has no upwards neighbor.
+        /// Set the downwards neighbors of this navigable.
         /// </summary>
-        public void ClearNeighborDown() => self.ClearNeighbor(NavigationDirection.Down);
+        public void SetNeighborsDown(SelectableElement selectableElement)
+        {
+            if (selectableElement.GetSelectables(NavigationDirection.Down, out var selectables))
+                self.SetNeighborsDown(selectables);
+        }
 
         /// <summary>
-        /// Get the most eligible selectable within this navigable when navigating downwards into it.
+        /// Declare that this navigable has no upwards neighbors.
         /// </summary>
-        public bool GetNeighborDown([MaybeNullWhen(false)] out Selectable selectable) =>
-            self.GetSelectable(NavigationDirection.Down, out selectable);
+        public void ClearNeighborsDown() => self.ClearNeighbors(NavigationDirection.Down);
+
+        /// <summary>
+        /// Get the most eligible selectables within this navigable when navigating downwards into it.
+        /// </summary>
+        public bool GetNeighborsDown(
+            [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
+        ) => self.GetSelectables(NavigationDirection.Down, out selectables);
 
         /// <summary>
         /// Symmetrically connect two INavigables.
         /// </summary>
         public void ConnectSymmetric(INavigable dest, NavigationDirection direction)
         {
-            if (dest.GetSelectable(direction, out var s))
-                self.SetNeighbor(direction, s);
-            if (self.GetSelectable(direction.Opposite(), out s))
-                dest.SetNeighbor(direction.Opposite(), s);
+            if (dest.GetSelectables(direction, out var s))
+                self.SetNeighbors(direction, s);
+            if (self.GetSelectables(direction.Opposite(), out s))
+                dest.SetNeighbors(direction.Opposite(), s);
         }
     }
 }

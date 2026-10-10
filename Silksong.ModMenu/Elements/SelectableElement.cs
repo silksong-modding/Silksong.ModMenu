@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Silksong.ModMenu.Internal;
 using Silksong.ModMenu.Util;
@@ -71,20 +72,20 @@ public abstract class SelectableElement : MenuElement, INavigableMenuEntity
     public void ClearNeighbors() => new SelectableWrapper(SelectableComponent).ClearNeighbors();
 
     /// <inheritdoc/>
-    public void ClearNeighbor(NavigationDirection direction) =>
-        new SelectableWrapper(SelectableComponent).ClearNeighbor(direction);
+    public void ClearNeighbors(NavigationDirection direction) =>
+        new SelectableWrapper(SelectableComponent).ClearNeighbors(direction);
 
     /// <inheritdoc/>
-    public void SetNeighbor(NavigationDirection direction, Selectable selectable) =>
-        new SelectableWrapper(SelectableComponent).SetNeighbor(direction, selectable);
+    public void SetNeighbors(NavigationDirection direction, IEnumerable<Selectable> selectables) =>
+        new SelectableWrapper(SelectableComponent).SetNeighbors(direction, selectables);
 
     /// <inheritdoc/>
-    public bool GetSelectable(
+    public bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     )
     {
-        selectable = SelectableComponent;
+        selectables = [SelectableComponent];
         return true;
     }
 

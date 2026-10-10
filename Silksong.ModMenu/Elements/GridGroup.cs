@@ -150,36 +150,30 @@ public class GridGroup(int columns) : AbstractGroup
     }
 
     /// <inheritdoc/>
-    public override bool GetSelectable(
+    public override bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     )
     {
-        var navigable = direction switch
+        var navigables = direction switch
         {
-            // Last element.
-            NavigationDirection.Up => AllEntities()
-                .Where(e => e.VisibleSelf)
-                .OfType<INavigable>()
-                .LastOrDefault(),
-            // Rightmost element.
-            NavigationDirection.Left => GetColumns()
-                .SelectMany(col => col.WhereNonNull(e => e.VisibleSelf).OfType<INavigable>())
-                .LastOrDefault(),
-            // Leftmost element.
-            NavigationDirection.Right => GetColumns()
-                .SelectMany(col => col.WhereNonNull(e => e.VisibleSelf).OfType<INavigable>())
-                .FirstOrDefault(),
-            // First element.
-            NavigationDirection.Down => AllEntities()
-                .Where(e => e.VisibleSelf)
-                .OfType<INavigable>()
-                .FirstOrDefault(),
+            // Bottommost element of every column.
+            NavigationDirection.Up => GetColumns()
+                .Select(x => (INavigable?)x.LastOrDefault(e => e is INavigable && e.VisibleSelf))
+                .WhereNonNull(),
+            // Rightmost element of every row.
+            NavigationDirection.Left => GetNavigables(NavigationDirection.Right),
+            // Leftmost element of every row.
+            NavigationDirection.Right => GetNavigables(NavigationDirection.Left),
+            // Topmost element of every column.
+            NavigationDirection.Down => GetColumns()
+                .Select(x => (INavigable?)x.FirstOrDefault(e => e is INavigable && e.VisibleSelf))
+                .WhereNonNull(),
             _ => throw new ArgumentException($"{direction}"),
         };
 
-        selectable = default;
-        return navigable != null && navigable.GetSelectable(direction, out selectable);
+        selectables = navigables.SelectMany(x => x.GetSelectables(direction, out var s) ? s : []);
+        return selectables.Any();
     }
 
     /// <inheritdoc/>
@@ -216,7 +210,7 @@ public class GridGroup(int columns) : AbstractGroup
                     INavigable?[] row,
                     NavigationDirection dir,
                     int column,
-                    [MaybeNullWhen(false)] out Selectable target
+                    [MaybeNullWhen(false)] out IEnumerable<Selectable> targets
                 )
                 {
                     int offset = 0;
@@ -235,12 +229,12 @@ public class GridGroup(int columns) : AbstractGroup
                         if (
                             idx >= 0
                             && idx < row.Length
-                            && (row[idx]?.GetSelectable(dir, out target) ?? false)
+                            && (row[idx]?.GetSelectables(dir, out targets) ?? false)
                         )
                             return true;
                     }
 
-                    target = default;
+                    targets = default;
                     return false;
                 }
 
@@ -250,12 +244,12 @@ public class GridGroup(int columns) : AbstractGroup
                         prevRow[i] != null
                         && ClosestColumn(nextRow, NavigationDirection.Down, i, out var s)
                     )
-                        prevRow[i]!.SetNeighborDown(s);
+                        prevRow[i]!.SetNeighborsDown(s);
                     if (
                         nextRow[i] != null
                         && ClosestColumn(prevRow, NavigationDirection.Up, i, out s)
                     )
-                        nextRow[i]!.SetNeighborUp(s);
+                        nextRow[i]!.SetNeighborsUp(s);
                 }
             }
             prevRow = nextRow;

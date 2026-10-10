@@ -89,33 +89,31 @@ public class VerticalGroup : AbstractGroup
     }
 
     /// <inheritdoc/>
-    public override bool GetSelectable(
+    public override bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     )
     {
         switch (direction)
         {
             case NavigationDirection.Left:
             case NavigationDirection.Right:
-                selectable = NonHiddenEntities()
-                    .MedianOutwards()
+                selectables = NonHiddenEntities()
                     .OfType<INavigable>()
-                    .Select(n => n.GetSelectable(direction, out var s) ? s : null)
-                    .FirstOrDefault();
-                return selectable != null;
+                    .SelectMany(n => n.GetSelectables(direction, out var s) ? s : null);
+                return selectables != null;
             case NavigationDirection.Up:
-                selectable = NonHiddenEntities()
+                selectables = NonHiddenEntities()
                     .OfType<INavigable>()
-                    .Select(n => n.GetSelectable(direction, out var s) ? s : null)
+                    .Select(n => n.GetSelectables(direction, out var s) ? s : null)
                     .LastOrDefault();
-                return selectable != null;
+                return selectables != null;
             case NavigationDirection.Down:
-                selectable = NonHiddenEntities()
+                selectables = NonHiddenEntities()
                     .OfType<INavigable>()
-                    .Select(n => n.GetSelectable(direction, out var s) ? s : null)
+                    .Select(n => n.GetSelectables(direction, out var s) ? s : null)
                     .FirstOrDefault();
-                return selectable != null;
+                return selectables != null;
             default:
                 throw direction.UnsupportedEnum();
         }

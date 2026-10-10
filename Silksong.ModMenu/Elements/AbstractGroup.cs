@@ -60,19 +60,19 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
     protected abstract IEnumerable<INavigable> GetNavigables(NavigationDirection direction);
 
     /// <inheritdoc/>
-    public virtual void ClearNeighbor(NavigationDirection direction)
+    public virtual void ClearNeighbors(NavigationDirection direction)
     {
         foreach (var navigable in GetNavigables(direction))
-            navigable.ClearNeighbor(direction);
+            navigable.ClearNeighbors(direction);
     }
 
     /// <inheritdoc/>
     public virtual void ClearNeighbors()
     {
-        ClearNeighbor(NavigationDirection.Up);
-        ClearNeighbor(NavigationDirection.Left);
-        ClearNeighbor(NavigationDirection.Right);
-        ClearNeighbor(NavigationDirection.Down);
+        ClearNeighbors(NavigationDirection.Up);
+        ClearNeighbors(NavigationDirection.Left);
+        ClearNeighbors(NavigationDirection.Right);
+        ClearNeighbors(NavigationDirection.Down);
     }
 
     /// <inheritdoc/>
@@ -85,9 +85,9 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
             .FirstOrDefault();
 
     /// <inheritdoc/>
-    public abstract bool GetSelectable(
+    public abstract bool GetSelectables(
         NavigationDirection direction,
-        [MaybeNullWhen(false)] out Selectable selectable
+        [MaybeNullWhen(false)] out IEnumerable<Selectable> selectables
     );
 
     private GameObject? gameObjectParent;
@@ -113,10 +113,13 @@ public abstract class AbstractGroup : MenuDisposable, INavigableMenuEntity
     }
 
     /// <inheritdoc/>
-    public virtual void SetNeighbor(NavigationDirection direction, Selectable selectable)
+    public virtual void SetNeighbors(
+        NavigationDirection direction,
+        IEnumerable<Selectable> selectables
+    )
     {
         foreach (var navigable in GetNavigables(direction))
-            navigable.SetNeighbor(direction, selectable);
+            navigable.SetNeighbors(direction, selectables);
     }
 
     /// <inheritdoc/>
