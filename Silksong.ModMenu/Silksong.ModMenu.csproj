@@ -8,9 +8,6 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <RestoreAdditionalProjectSources>
-      https://nuget.bepinex.dev/v3/index.json
-    </RestoreAdditionalProjectSources>
     <!-- Ignore warning about processor architecture mismatch with PlayMaker ConditionalExpression -->
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
     <!--Allow access of private members at runtime.-->
