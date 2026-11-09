@@ -20,7 +20,7 @@
     <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/silksong-modding/Silksong.ModMenu</RepositoryUrl>
+    <RepositoryUrl>https://git.silksong-modding.org/silksong-modding/Silksong.ModMenu</RepositoryUrl>
     <Description>API for modifying Silksong menus</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
