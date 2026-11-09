@@ -17,7 +17,7 @@
     <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildProjectDirectory)=/</PathMap>
 
     <IsPackable>false</IsPackable>
-    <RepositoryUrl>https://github.com/silksong_modding/Silksong.ModMenuTesting</RepositoryUrl>
+    <RepositoryUrl>https://git.silksong-modding.org/silksong-modding/Silksong.ModMenu</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />

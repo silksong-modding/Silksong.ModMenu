@@ -8,7 +8,7 @@ namespace = "silksong_modding"
 description = "API for extending Silksong Menus"
 
 # Replace this with a correct repo URL if the default is not accurate
-websiteUrl = "https://github.com/silksong-modding/Silksong.ModMenu"
+websiteUrl = "https://git.silksong-modding.org/silksong-modding/Silksong.ModMenu"
 containsNsfwContent = false
 
 # dependencies are specified in the format AuthorName-PackageName = "version". You should always have at least BepInExPack_Silksong.

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["local>silksong-modding/renovate"],
+  "packageRules": [
+    {
+      "description": "Provided by the game and BepInEx at runtime; versions must match what they ship",
+      "matchPackageNames": ["BepInEx.Core", "HarmonyX", "UnityEngine.Modules"],
+      "enabled": false
+    },
+    {
+      "description": "Roslyn version sets the minimum compiler the analyzers load in; only take patch updates",
+      "matchPackageNames": ["Microsoft.CodeAnalysis", "Microsoft.CodeAnalysis.CSharp"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "Roslyn SDK testing packages are released together and must stay in sync",
+      "matchPackageNames": ["Microsoft.CodeAnalysis.*.Testing"],
+      "groupName": "roslyn-sdk"
+    }
+  ]
+}
