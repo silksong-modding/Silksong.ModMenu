@@ -42,7 +42,7 @@
     </PackageReference>
     <PackageReference Include="Silksong.UnityHelper" Version="1.2.0" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
-    <PackageReference Include="CSharpier.MsBuild" Version="1.4.0" PrivateAssets="all" />
+    <PackageReference Include="CSharpier.MsBuild" Version="1.4.1" PrivateAssets="all" />
   </ItemGroup>
   <PropertyGroup Condition="'$(CI)' == 'true'">
     <MonoDetourHookGenStripUnusedHooks>true</MonoDetourHookGenStripUnusedHooks>
