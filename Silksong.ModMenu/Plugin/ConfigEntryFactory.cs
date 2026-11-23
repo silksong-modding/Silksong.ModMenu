@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -98,7 +98,7 @@ public class ConfigEntryFactory
         }
     }
 
-    private List<(string, MenuElement)> BuildSubtreeElements(
+    private List<GeneratedElement> BuildSubtreeElements(
         LocalizedText menuName,
         List<LocalizedText> subpageNames,
         TreeNode<LocalizedText, ElementTreeNode> tree
@@ -107,10 +107,9 @@ public class ConfigEntryFactory
         // Return elements directly if there is not enough of them.
         if (tree.Value.TotalElements < MinSubgroupSize)
         {
-            List<(string, MenuElement)> list = [];
+            List<GeneratedElement> list = [];
             tree.ForEachPostfix((keys, t) => list.AddRange(t.Value.Elements));
-            list.Sort((a, b) => a.Item1.CompareTo(b.Item1));
-            return list;
+            return [.. list.OrderBy(e => e, Comparer<GeneratedElement>.Create(CompareElements))];
         }
 
         // Otherwise, build a sub-page and return a button that navigates to it.
@@ -120,7 +119,7 @@ public class ConfigEntryFactory
         {
             OnSubmit = () => MenuScreenNavigation.Show(screen),
         };
-        return [(name, button)];
+        return [new(name, button, null)];
     }
 
     private AbstractMenuScreen BuildSubtreeScreen(
@@ -129,7 +128,7 @@ public class ConfigEntryFactory
         TreeNode<LocalizedText, ElementTreeNode> tree
     )
     {
-        List<(string path, MenuElement element)> elements = [.. tree.Value.Elements];
+        List<GeneratedElement> elements = [.. tree.Value.Elements];
 
         int origSize = subpageNames.Count;
         foreach (var entry in tree.Subtrees)
@@ -142,9 +141,38 @@ public class ConfigEntryFactory
         }
 
         return ArrangeScreen(
-            [.. elements.OrderBy(e => e.path)],
+            [.. elements.OrderBy(e => e, Comparer<GeneratedElement>.Create(CompareElements))],
             subpageNames.LastOrDefault() ?? menuName
         );
+    }
+
+    /// <summary>
+    /// The order of generated elements on a menu screen.
+    /// By default, it uses the BepInEx ConfigurationManager's convention;
+    /// entries whose description has the <c>ConfigurationManagerAttributes</c> tag with an <c>Order</c>
+    /// are sorted in descending order. Untagged elements are sorted alphabetically.
+    /// </summary>
+    protected virtual int CompareElements(GeneratedElement a, GeneratedElement b)
+    {
+        int byOrder = ConfigurationManagerOrder(a.Entry)
+            .CompareTo(ConfigurationManagerOrder(b.Entry));
+        return byOrder != 0 ? byOrder : a.Path.CompareTo(b.Path);
+    }
+
+    private static int ConfigurationManagerOrder(ConfigEntryBase? entry)
+    {
+        if (entry?.Description?.Tags is not { } tags)
+            return 0;
+        foreach (object tag in tags)
+        {
+            if (tag == null || tag.GetType().Name != "ConfigurationManagerAttributes")
+                continue;
+            var type = tag.GetType();
+            object? value = type.GetField("Order")?.GetValue(tag)
+                ?? type.GetProperty("Order")?.GetValue(tag);
+            return value is int order ? order : 0;
+        }
+        return 0;
     }
 
     /// <summary>
@@ -154,16 +182,16 @@ public class ConfigEntryFactory
     /// <see cref="GenerateEntryButton(LocalizedText, BaseUnityPlugin, out SelectableElement)"/>
     /// to build each subpage.
     /// </summary>
-    /// <param name="elements">Pairs (path to element, element) to arrange.</param>
+    /// <param name="elements">The elements to arrange, already in their display order.</param>
     /// <param name="menuName">The title of the menu.</param>
     /// <returns>A menu screen containing those elements.</returns>
     protected virtual AbstractMenuScreen ArrangeScreen(
-        List<(string path, MenuElement element)> elements,
+        List<GeneratedElement> elements,
         LocalizedText menuName
     )
     {
         PaginatedMenuScreenBuilder builder = new(menuName);
-        builder.AddRange(elements.Select(e => e.element));
+        builder.AddRange(elements.Select(e => e.Element));
         return builder.Build();
     }
 
@@ -192,7 +220,8 @@ public class ConfigEntryFactory
             if (GenerateMenuElement(entry.Value, out var element))
             {
                 var subgroupNames = GetSubgroupNames(entry.Value, element);
-                elementsTree[subgroupNames].Value.Elements.Add((entry.Key.Key, element));
+                elementsTree[subgroupNames]
+                    .Value.Elements.Add(new(entry.Key.Key, element, entry.Value));
             }
         }
 
@@ -728,7 +757,7 @@ public class ConfigEntryFactory
 
     private record ElementTreeNode
     {
-        public readonly List<(string path, MenuElement element)> Elements = [];
+        public readonly List<GeneratedElement> Elements = [];
         public int TotalElements;
     }
 }

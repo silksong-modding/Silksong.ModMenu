@@ -22,6 +22,9 @@ public class ModMenuNameAttribute(string customName) : Attribute
 ///
 /// Any attribute named "ModMenuIgnoreAttribute" will be treated the same for this functionality, so you can opt-out of ModMenu behaviors without adding ModMenu as a dependency.
 /// </summary>
+[Obsolete(
+    "Prefer to use the generated attribute from the Silksong.ModMenu.Models.Generated namespace instead in order to avoid a runtime dependency."
+)]
 [AttributeUsage(
     AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property,
     AllowMultiple = false
